@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spring Data JPA — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>Spring Data JPA</div>
+      <h1>Spring Data JPA</h1>
+      <p class="lead">Spring Data JPA eliminates boilerplate data-access code. You define an interface that extends <code>JpaRepository</code> and Spring generates the implementation at startup — including CRUD, pagination, sorting, and custom queries derived from method names.</p>
+
+      <h2>The dependency</h2>
+      <pre class="code" data-lang="xml"><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+  &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+  &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;</code></pre>
+
+      <h2>Entity class</h2>
+      <pre class="code" data-lang="java"><code>package com.example.myapp.model;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+
+@Entity
+@Table(name = "products")
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 255)
+    private String name;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
+
+    @Column(name = "stock_qty")
+    private int stockQuantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @CreationTimestamp
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    private Instant updatedAt;
+
+    // getters + setters or use Lombok @Data / @Getter / @Setter
+}</code></pre>
+
+      <h2>Repository interface</h2>
+      <pre class="code" data-lang="java"><code>import org.springframework.data.jpa.repository.JpaRepository;
+
+// JpaRepository&lt;EntityType, PrimaryKeyType&gt;
+// Auto-generates: findAll, findById, save, deleteById, count, existsById, ...
+public interface ProductRepository extends JpaRepository&lt;Product, Long&gt; {
+
+    // Derived query — Spring generates: SELECT p FROM Product p WHERE p.name = ?1
+    List&lt;Product&gt; findByName(String name);
+
+    // Multiple conditions
+    List&lt;Product&gt; findByPriceLessThanAndStockQuantityGreaterThan(
+            BigDecimal maxPrice, int minStock);
+
+    // Pagination and sorting
+    Page&lt;Product&gt; findByCategory(Category category, Pageable pageable);
+
+    // Custom JPQL query
+    @Query("SELECT p FROM Product p WHERE p.price BETWEEN :min AND :max ORDER BY p.price")
+    List&lt;Product&gt; findInPriceRange(@Param("min") BigDecimal min,
+                                   @Param("max") BigDecimal max);
+
+    // Native SQL
+    @Query(value = "SELECT * FROM products WHERE LOWER(name) LIKE %:term%",
+           nativeQuery = true)
+    List&lt;Product&gt; searchByName(@Param("term") String term);
+
+    // Existence check
+    boolean existsByName(String name);
+
+    // Count
+    long countByCategory(Category category);
+}</code></pre>
+
+      <h2>Derived query keyword reference</h2>
+      <table>
+        <tr><th>Keyword</th><th>Example method</th><th>SQL fragment</th></tr>
+        <tr><td>findBy</td><td><code>findByEmail</code></td><td><code>WHERE email = ?</code></td></tr>
+        <tr><td>And</td><td><code>findByFirstNameAndLastName</code></td><td><code>WHERE first_name=? AND last_name=?</code></td></tr>
+        <tr><td>Or</td><td><code>findByAgeOrEmail</code></td><td><code>WHERE age=? OR email=?</code></td></tr>
+        <tr><td>Between</td><td><code>findByAgeBetween</code></td><td><code>WHERE age BETWEEN ? AND ?</code></td></tr>
+        <tr><td>LessThan / GreaterThan</td><td><code>findByPriceLessThan</code></td><td><code>WHERE price &lt; ?</code></td></tr>
+        <tr><td>Like / Containing</td><td><code>findByNameContaining</code></td><td><code>WHERE name LIKE %?%</code></td></tr>
+        <tr><td>In</td><td><code>findByIdIn</code></td><td><code>WHERE id IN (?)</code></td></tr>
+        <tr><td>IsNull / IsNotNull</td><td><code>findByDeletedAtIsNull</code></td><td><code>WHERE deleted_at IS NULL</code></td></tr>
+        <tr><td>OrderBy</td><td><code>findByActiveOrderByNameAsc</code></td><td><code>ORDER BY name ASC</code></td></tr>
+        <tr><td>Top / First</td><td><code>findTop5ByOrderByPriceDesc</code></td><td><code>LIMIT 5</code></td></tr>
+      </table>
+
+      <h2>Service with transactions</h2>
+      <pre class="code" data-lang="java"><code>@Service
+@Transactional(readOnly = true)  // default all methods to read-only
+public class ProductService {
+
+    private final ProductRepository repo;
+
+    public ProductService(ProductRepository repo) {
+        this.repo = repo;
+    }
+
+    public Page&lt;Product&gt; findAll(Pageable pageable) {
+        return repo.findAll(pageable);
+    }
+
+    public Optional&lt;Product&gt; findById(Long id) {
+        return repo.findById(id);
+    }
+
+    @Transactional   // overrides readOnly=true for writes
+    public Product save(Product product) {
+        return repo.save(product);
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        if (!repo.existsById(id)) {
+            throw new ResourceNotFoundException("Product not found: " + id);
+        }
+        repo.deleteById(id);
+    }
+}</code></pre>
+
+      <h2>Pagination and sorting</h2>
+      <pre class="code" data-lang="java"><code>// Controller
+@GetMapping
+public Page&lt;Product&gt; list(
+    @RequestParam(defaultValue = "0")  int page,
+    @RequestParam(defaultValue = "20") int size,
+    @RequestParam(defaultValue = "id") String sortBy) {
+
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+    return service.findAll(pageable);
+}
+
+// Page&lt;T&gt; response includes:
+// content, totalElements, totalPages, number, size, first, last</code></pre>
+
+      <h2>application.properties for JPA</h2>
+      <pre class="code" data-lang="properties"><code>spring.datasource.url=jdbc:postgresql://localhost:5432/mydb
+spring.datasource.username=admin
+spring.datasource.password=secret
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# Hibernate
+spring.jpa.hibernate.ddl-auto=validate     # never alter schema in prod
+spring.jpa.show-sql=false                   # true for debugging queries
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.open-in-view=false               # avoid lazy-loading pitfalls</code></pre>
+
+      <div class="callout warn"><strong>ddl-auto in production:</strong> never use <code>create</code> or <code>create-drop</code> in production — they drop and recreate tables on restart. Use <code>validate</code> (fail if schema doesn't match entities) or <code>none</code>, and manage migrations with Flyway or Liquibase.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

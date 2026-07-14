@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture — Apache Kafka Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kafka</a><span class="sep">/</span>Architecture</div>
+      <h1>Kafka Architecture</h1>
+      <p class="lead">Understanding Kafka's internals — brokers, topics, partitions, replication, and the KRaft consensus protocol — is the foundation for designing reliable, scalable event streaming systems.</p>
+
+      <h2>Brokers and clusters</h2>
+      <p>A <strong>broker</strong> is a single Kafka server process. Brokers receive events from producers, store them on disk, and serve them to consumers. A <strong>cluster</strong> is a group of brokers working together. Clusters are typically run with an odd number of brokers (3, 5, or 7) so that the cluster can tolerate <code>(N-1)/2</code> broker failures while remaining available.</p>
+      <p>Each broker is identified by a unique integer <code>node.id</code>. When a producer or consumer connects, it can connect to any broker — called a <strong>bootstrap server</strong> — and receive metadata about the full cluster from there.</p>
+
+      <h2>Topics and partitions</h2>
+      <p>A <strong>topic</strong> is a named, ordered, append-only stream of events. Topics are split into one or more <strong>partitions</strong>. Each partition is an independent ordered log stored as a set of segment files on one broker's disk.</p>
+
+      <div class="diagram-box">
+        <h4>Topic "orders" with 3 partitions across 3 brokers</h4>
+        <ul>
+          <li>Partition 0 (leader: Broker 1, replica: Broker 2)</li>
+          <li>Partition 1 (leader: Broker 2, replica: Broker 3)</li>
+          <li>Partition 2 (leader: Broker 3, replica: Broker 1)</li>
+        </ul>
+      </div>
+
+      <p>Why partitions matter:</p>
+      <ul>
+        <li><strong>Parallelism</strong> — producers write to multiple partitions concurrently; consumer group members each process a dedicated partition.</li>
+        <li><strong>Scalability</strong> — adding partitions (and brokers to hold them) scales throughput linearly.</li>
+        <li><strong>Ordering</strong> — ordering is guaranteed within a partition but not across partitions. Use a message key to ensure related events land in the same partition.</li>
+      </ul>
+
+      <pre class="code" data-lang="bash"><code># Create a topic with 6 partitions and replication factor 3
+kafka-topics.sh --bootstrap-server localhost:9092 \
+  --create --topic orders \
+  --partitions 6 \
+  --replication-factor 3
+
+# Describe topic to see partition/replica assignment
+kafka-topics.sh --bootstrap-server localhost:9092 \
+  --describe --topic orders</code></pre>
+
+      <h2>Replication and fault tolerance</h2>
+      <p>Each partition has one <strong>leader</strong> broker and zero or more <strong>follower</strong> replicas. Producers and consumers always interact with the leader. Followers passively replicate the leader's log.</p>
+      <p>The <strong>In-Sync Replicas (ISR)</strong> set contains all replicas that are fully caught up with the leader. When the leader fails, the controller elects a new leader from the ISR, ensuring no data loss when <code>acks=all</code> is used by producers.</p>
+
+      <table>
+        <tr><th>Config</th><th>Meaning</th><th>Recommendation</th></tr>
+        <tr><td><code>replication.factor</code></td><td>Number of copies of each partition</td><td>3 in production</td></tr>
+        <tr><td><code>min.insync.replicas</code></td><td>Minimum ISR size for acks=all writes</td><td>2 (allows 1 broker down)</td></tr>
+        <tr><td><code>unclean.leader.election.enable</code></td><td>Allow out-of-sync replicas to become leader</td><td>false (prevents data loss)</td></tr>
+      </table>
+
+      <div class="callout"><strong>Rule of thumb:</strong> with 3 brokers, replication factor 3, and min.insync.replicas=2, the cluster tolerates one broker failure with zero data loss.</div>
+
+      <h2>Offsets</h2>
+      <p>Every event in a partition is assigned a monotonically increasing integer called an <strong>offset</strong>. Offsets start at 0 and increase by 1 for each new event. Consumers track their position in a partition by storing their current offset — either automatically (auto-commit) or manually.</p>
+      <p>Committed offsets are stored in a special internal Kafka topic called <code>__consumer_offsets</code>. This allows a consumer to restart and continue exactly where it left off.</p>
+
+      <h2>KRaft — Kafka without ZooKeeper</h2>
+      <p>Prior to Kafka 3.3, an Apache ZooKeeper ensemble was required to store cluster metadata (topic configs, partition leaders, ACLs) and to run controller leader election. This added operational complexity and a scalability ceiling.</p>
+      <p><strong>KRaft</strong> (Kafka Raft Metadata mode) replaces ZooKeeper with a built-in Raft consensus protocol. One or more brokers are designated <strong>controllers</strong> that manage metadata directly in an internal <code>__cluster_metadata</code> topic.</p>
+
+      <table>
+        <tr><th>Aspect</th><th>ZooKeeper mode</th><th>KRaft mode</th></tr>
+        <tr><td>External dependency</td><td>ZooKeeper cluster required</td><td>None — self-contained</td></tr>
+        <tr><td>Partitions per cluster</td><td>~200 k practical limit</td><td>Millions (tested at 10 M+)</td></tr>
+        <tr><td>Controller failover</td><td>Seconds</td><td>Milliseconds</td></tr>
+        <tr><td>Availability since</td><td>Kafka 0.8</td><td>Production ready: Kafka 3.3</td></tr>
+        <tr><td>ZooKeeper removed</td><td>—</td><td>Kafka 4.0</td></tr>
+      </table>
+
+      <pre class="code" data-lang="properties"><code># KRaft broker configuration (server.properties)
+node.id=1
+process.roles=broker,controller
+controller.quorum.voters=1@broker1:9093,2@broker2:9093,3@broker3:9093
+controller.listener.names=CONTROLLER
+listeners=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+advertised.listeners=PLAINTEXT://broker1:9092
+inter.broker.listener.name=PLAINTEXT
+
+# Storage
+log.dirs=/var/kafka-logs
+
+# Retention
+log.retention.hours=168
+log.retention.bytes=-1</code></pre>
+
+      <h2>Consumer groups and partition assignment</h2>
+      <p>A <strong>consumer group</strong> is a logical subscriber composed of one or more consumer instances sharing a <code>group.id</code>. Kafka ensures each partition of a subscribed topic is assigned to exactly one consumer in the group at a time.</p>
+      <p>This design gives you both <strong>load balancing</strong> (scale consumers up to the partition count) and <strong>broadcast</strong> (multiple consumer groups each receive all events independently).</p>
+
+      <div class="diagram-box">
+        <h4>Topic with 4 partitions, two consumer groups</h4>
+        <ul>
+          <li>Group A (2 consumers): Consumer A1 reads P0 &amp; P1; Consumer A2 reads P2 &amp; P3</li>
+          <li>Group B (1 consumer): Consumer B1 reads all P0–P3 independently</li>
+        </ul>
+      </div>
+
+      <div class="callout tip"><strong>Scaling rule:</strong> you can have at most as many active consumers in a group as there are partitions. Extra consumers sit idle. If you need more parallelism, increase partition count first.</div>
+
+      <h2>Log compaction</h2>
+      <p>By default, Kafka retains events for a fixed time or size. For key-value changelog topics, you can enable <strong>log compaction</strong> instead: Kafka keeps only the <em>most recent</em> event for each key, discarding older ones. This is how Kafka Streams KTables and the Schema Registry store state.</p>
+
+      <pre class="code" data-lang="bash"><code># Create a compacted topic
+kafka-topics.sh --bootstrap-server localhost:9092 \
+  --create --topic user-profiles \
+  --partitions 3 --replication-factor 3 \
+  --config cleanup.policy=compact \
+  --config min.cleanable.dirty.ratio=0.01 \
+  --config segment.ms=10000</code></pre>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

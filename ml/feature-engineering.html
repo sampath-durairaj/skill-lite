@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feature Engineering — ML Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Machine Learning</a><span class="sep">/</span>Feature Engineering</div>
+      <h1>Feature Engineering</h1>
+      <p class="lead">Feature engineering is the process of transforming raw data into the numerical representations that ML models can learn from. It often has a larger impact on model performance than algorithm choice — garbage in, garbage out, no matter how sophisticated the model.</p>
+
+      <h2>Scaling numerical features</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.preprocessing import (
+    StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler
+)
+import numpy as np
+
+X = np.array([[100, 0.01], [200, 0.02], [150, 0.015], [300, 0.005]])
+
+# StandardScaler: mean=0, std=1 — use when normal distribution assumed
+std   = StandardScaler().fit_transform(X)
+
+# MinMaxScaler: [0, 1] — use when you know the bounds
+mms   = MinMaxScaler().fit_transform(X)
+
+# RobustScaler: median/IQR — use when outliers are present
+rob   = RobustScaler().fit_transform(X)
+
+# When to scale?
+# Required:  LogReg, SVM, KNN, Neural Networks, Ridge/Lasso, PCA
+# Optional:  Random Forest, Decision Trees, XGBoost (tree-based — scale invariant)</code></pre>
+
+      <h2>Encoding categorical features</h2>
+      <pre class="code" data-lang="python"><code>import pandas as pd
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+
+df = pd.DataFrame({
+    "size":   ["S", "M", "L", "XL", "M"],      # ordinal
+    "colour": ["red", "blue", "green", "red", "blue"],  # nominal
+    "price":  [10.0, 15.0, 20.0, 25.0, 15.0],
+})
+
+# Ordinal encoding — preserves order
+ord_enc = OrdinalEncoder(categories=[["S", "M", "L", "XL"]])
+df["size_enc"] = ord_enc.fit_transform(df[["size"]])
+
+# One-hot encoding — use for nominal (no order) with low cardinality
+ohe = OneHotEncoder(sparse_output=False, drop="first")   # drop first avoids multicollinearity
+ohe_result = ohe.fit_transform(df[["colour"]])
+
+# ColumnTransformer — apply different transforms to different columns
+from sklearn.preprocessing import StandardScaler
+ct = ColumnTransformer([
+    ("num",  StandardScaler(),           ["price"]),
+    ("ord",  OrdinalEncoder(categories=[["S","M","L","XL"]]), ["size"]),
+    ("cat",  OneHotEncoder(drop="first"), ["colour"]),
+])
+X_transformed = ct.fit_transform(df.drop(columns=[]))  # returns ndarray</code></pre>
+
+      <h2>Handling missing values</h2>
+      <pre class="code" data-lang="python"><code>import pandas as pd
+import numpy as np
+from sklearn.impute import SimpleImputer, KNNImputer
+
+df = pd.DataFrame({
+    "age":    [25, np.nan, 35, np.nan, 45],
+    "income": [50000, 60000, np.nan, 80000, np.nan],
+    "gender": ["M", "F", np.nan, "M", "F"],
+})
+
+# Strategy choice
+# Numerical: mean (normal), median (skewed/outliers), constant
+# Categorical: most_frequent, constant
+
+num_imp = SimpleImputer(strategy="median")
+cat_imp = SimpleImputer(strategy="most_frequent")
+
+df["age"]    = num_imp.fit_transform(df[["age"]])
+df["income"] = num_imp.fit_transform(df[["income"]])
+df["gender"] = cat_imp.fit_transform(df[["gender"]])
+
+# KNN imputer — uses nearest neighbours (more accurate, slower)
+knn_imp = KNNImputer(n_neighbors=3)
+df_imputed = pd.DataFrame(
+    knn_imp.fit_transform(df[["age", "income"]]),
+    columns=["age", "income"]
+)
+
+# Always add a "was_missing" indicator feature
+df["income_missing"] = df["income"].isna().astype(int)</code></pre>
+
+      <h2>scikit-learn Pipeline — production-safe preprocessing</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import cross_val_score
+
+# Define feature groups
+numeric_features     = ["age", "income", "tenure"]
+categorical_features = ["gender", "product", "region"]
+
+# Preprocessing for numeric features
+numeric_transformer = Pipeline([
+    ("imputer", SimpleImputer(strategy="median")),
+    ("scaler",  StandardScaler()),
+])
+
+# Preprocessing for categorical features
+categorical_transformer = Pipeline([
+    ("imputer", SimpleImputer(strategy="most_frequent")),
+    ("onehot",  OneHotEncoder(handle_unknown="ignore")),
+])
+
+# Combine
+preprocessor = ColumnTransformer([
+    ("num", numeric_transformer,     numeric_features),
+    ("cat", categorical_transformer, categorical_features),
+])
+
+# Full pipeline — preprocessing + model
+full_pipeline = Pipeline([
+    ("preprocessor", preprocessor),
+    ("model",        GradientBoostingClassifier(n_estimators=100)),
+])
+
+# Now everything is safe to cross-validate (no data leakage)
+# scores = cross_val_score(full_pipeline, X_raw, y, cv=5, scoring="roc_auc")</code></pre>
+
+      <h2>Feature selection</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.feature_selection import (
+    SelectKBest, f_classif, mutual_info_classif,
+    SelectFromModel, RFECV
+)
+from sklearn.ensemble import RandomForestClassifier
+
+# Filter: statistical test
+selector = SelectKBest(score_func=f_classif, k=10)
+X_selected = selector.fit_transform(X_train, y_train)
+print("Selected features:", selector.get_support(indices=True))
+
+# Embedded: feature importance from tree model
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+sfm = SelectFromModel(rf, threshold="median")
+X_sfm = sfm.fit_transform(X_train, y_train)
+print(f"Features kept: {X_sfm.shape[1]} / {X_train.shape[1]}")
+
+# Wrapper: recursive feature elimination with CV (slow but thorough)
+rfecv = RFECV(
+    estimator=RandomForestClassifier(n_estimators=50, random_state=42),
+    step=1, cv=5, scoring="roc_auc", n_jobs=-1
+)
+rfecv.fit(X_train, y_train)
+print(f"Optimal features: {rfecv.n_features_}")</code></pre>
+
+      <div class="callout tip"><strong>Pipeline is mandatory:</strong> Always wrap preprocessing steps in a <code>Pipeline</code>. This prevents <strong>data leakage</strong> — if you scale the full dataset before splitting, your test set statistics contaminate the training process, causing falsely optimistic evaluation scores. The Pipeline ensures <code>fit</code> only happens on training data during cross-validation.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

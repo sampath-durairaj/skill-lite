@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nodes &amp; Edges — LangGraph Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangGraph</a><span class="sep">/</span>Nodes &amp; Edges</div>
+      <h1>Nodes &amp; Edges</h1>
+      <p class="lead">Nodes are Python functions that process state. Edges are the connections between them — either fixed (always go to node B after A) or conditional (decide at runtime which node to go to next based on state). Together they define your workflow's logic.</p>
+
+      <h2>Nodes — the workhorses</h2>
+      <pre class="code" data-lang="python"><code>from typing import TypedDict, Annotated, List
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langchain_core.messages import BaseMessage, AIMessage, HumanMessage
+from langchain_openai import ChatOpenAI
+
+class State(TypedDict):
+    messages: Annotated[List[BaseMessage], add_messages]
+    tool_result: str
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+# Simple node — transform state
+def llm_node(state: State) -> dict:
+    response = llm.invoke(state["messages"])
+    return {"messages": [response]}
+
+# Node with conditional logic
+def validate_node(state: State) -> dict:
+    last_msg = state["messages"][-1].content if state["messages"] else ""
+    if len(last_msg) < 10:
+        return {"tool_result": "too_short"}
+    return {"tool_result": "ok"}
+
+# Node that calls tools
+from langchain_core.tools import tool
+
+@tool
+def search(query: str) -> str:
+    """Search for information."""
+    return f"Results for: {query}"
+
+tools = [search]
+llm_with_tools = llm.bind_tools(tools)
+
+def agent_node(state: State) -> dict:
+    response = llm_with_tools.invoke(state["messages"])
+    return {"messages": [response]}</code></pre>
+
+      <h2>Adding nodes to the graph</h2>
+      <pre class="code" data-lang="python"><code>graph = StateGraph(State)
+
+# Add node with a name
+graph.add_node("llm", llm_node)
+graph.add_node("validate", validate_node)
+graph.add_node("agent", agent_node)
+
+# You can also add a lambda inline
+graph.add_node("uppercase", lambda state: {
+    "tool_result": state["tool_result"].upper()
+})</code></pre>
+
+      <h2>Fixed edges — deterministic flow</h2>
+      <pre class="code" data-lang="python"><code># Always go from A → B
+graph.add_edge(START, "llm")       # entry point
+graph.add_edge("llm", "validate")  # then validate
+graph.add_edge("validate", END)    # then exit
+
+# Multiple out-edges: both B and C run after A (parallel)
+graph.add_edge("preprocess", "branch_a")
+graph.add_edge("preprocess", "branch_b")</code></pre>
+
+      <h2>Conditional edges — dynamic routing</h2>
+      <pre class="code" data-lang="python"><code># Router function: reads state, returns the NEXT NODE NAME (as a string)
+def should_continue(state: State) -> str:
+    last_message = state["messages"][-1]
+
+    # If the LLM returned tool calls, run the tool executor
+    if hasattr(last_message, "tool_calls") and last_message.tool_calls:
+        return "tools"
+
+    # Otherwise we're done
+    return END
+
+# Add a conditional edge FROM "agent"
+# The router function decides WHICH node to go to
+graph.add_conditional_edges("agent", should_continue)
+
+# You can also map return values to node names explicitly
+graph.add_conditional_edges(
+    "validate",
+    lambda state: state["tool_result"],
+    {
+        "ok":        "proceed",   # if result == "ok" → proceed node
+        "too_short": "retry",     # if result == "too_short" → retry node
+        "error":     END,         # if result == "error" → exit
+    }
+)</code></pre>
+
+      <h2>Complete ReAct agent loop</h2>
+      <pre class="code" data-lang="python"><code>import json
+from langchain_core.messages import ToolMessage
+
+class AgentState(TypedDict):
+    messages: Annotated[List[BaseMessage], add_messages]
+
+# Node 1: LLM decides what to do
+def call_llm(state: AgentState) -> dict:
+    response = llm_with_tools.invoke(state["messages"])
+    return {"messages": [response]}
+
+# Node 2: Execute tool calls from the LLM
+def call_tools(state: AgentState) -> dict:
+    last_msg = state["messages"][-1]
+    tool_map = {t.name: t for t in tools}
+    results = []
+    for tc in last_msg.tool_calls:
+        result = tool_map[tc["name"]].invoke(tc["args"])
+        results.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
+    return {"messages": results}
+
+# Router: tool calls present → call_tools; else → END
+def route(state: AgentState) -> str:
+    last = state["messages"][-1]
+    if hasattr(last, "tool_calls") and last.tool_calls:
+        return "call_tools"
+    return END
+
+# Build graph
+g = StateGraph(AgentState)
+g.add_node("llm",  call_llm)
+g.add_node("tools", call_tools)
+g.add_edge(START, "llm")
+g.add_conditional_edges("llm", route)
+g.add_edge("tools", "llm")   # ← CYCLE: after tools, ask LLM again
+
+app = g.compile()
+result = app.invoke({"messages": [HumanMessage(content="Search for LangGraph docs")]})
+print(result["messages"][-1].content)</code></pre>
+
+      <h2>Entry and finish points</h2>
+      <pre class="code" data-lang="python"><code># Default entry is START; override with set_entry_point
+graph.set_entry_point("my_first_node")  # same as add_edge(START, "my_first_node")
+
+# Default finish is END; also set conditionally
+graph.set_finish_point("my_last_node")  # same as add_edge("my_last_node", END)
+
+# Multiple entry/exit paths are fine
+graph.add_edge(START, "node_a")
+graph.add_edge(START, "node_b")   # both start simultaneously</code></pre>
+
+      <div class="callout tip"><strong>Cycle design:</strong> When building a loop (agent → tools → agent), always have an exit condition in your conditional edge. Use a loop counter in state and route to <code>END</code> after <code>max_iterations</code> to prevent runaway graphs and runaway API costs.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

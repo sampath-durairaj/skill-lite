@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chains &amp; LCEL — LangChain Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangChain</a><span class="sep">/</span>Chains &amp; LCEL</div>
+      <h1>Chains &amp; LCEL</h1>
+      <p class="lead">LangChain Expression Language (LCEL) is the modern, composable way to build chains using the <code>|</code> pipe operator. Every component — prompts, models, parsers, retrievers — is a <strong>Runnable</strong> that can be chained, parallelised, and streamed.</p>
+
+      <h2>What is a Runnable?</h2>
+      <p>Every LCEL component implements the <code>Runnable</code> interface, which provides four core methods:</p>
+      <table>
+        <tr><th>Method</th><th>Description</th></tr>
+        <tr><td><code>.invoke(input)</code></td><td>Run synchronously, return result</td></tr>
+        <tr><td><code>.stream(input)</code></td><td>Return an iterator of streamed chunks</td></tr>
+        <tr><td><code>.batch([inputs])</code></td><td>Run multiple inputs in parallel</td></tr>
+        <tr><td><code>.ainvoke / .astream / .abatch</code></td><td>Async variants of the above</td></tr>
+      </table>
+
+      <h2>Basic chain with | pipe operator</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+# Each | connects Runnables: prompt → model → parser
+chain = (
+    ChatPromptTemplate.from_template("Summarise this in one sentence: {text}")
+    | llm
+    | StrOutputParser()
+)
+
+result = chain.invoke({"text": "Docker is an open platform for developing, shipping, and running applications..."})
+print(result)   # "Docker is a platform for containerising and running applications."</code></pre>
+
+      <h2>Sequential chain — multi-step pipeline</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+step1_prompt = ChatPromptTemplate.from_template(
+    "Extract the key technical concepts from: {text}"
+)
+step2_prompt = ChatPromptTemplate.from_template(
+    "For each concept: {concepts}\n\nWrite a one-line definition."
+)
+
+step1 = step1_prompt | llm | StrOutputParser()
+step2 = step2_prompt | llm | StrOutputParser()
+
+# Chain the chains: output of step1 becomes {concepts} for step2
+pipeline = step1 | (lambda concepts: {"concepts": concepts}) | step2
+
+result = pipeline.invoke({"text": "Kubernetes uses Pods, Services, and Deployments to run containers at scale."})
+print(result)</code></pre>
+
+      <h2>RunnableParallel — run steps side-by-side</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.runnables import RunnableParallel
+
+# Run two LLM calls simultaneously
+parallel_chain = RunnableParallel(
+    summary=ChatPromptTemplate.from_template("Summarise: {topic}") | llm | StrOutputParser(),
+    example=ChatPromptTemplate.from_template("Give one example of: {topic}") | llm | StrOutputParser(),
+)
+
+result = parallel_chain.invoke({"topic": "Docker volumes"})
+print(result["summary"])   # "Docker volumes persist container data..."
+print(result["example"])   # "Example: -v /host/data:/app/data"</code></pre>
+
+      <h2>RunnablePassthrough — pass input through</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+
+# Keep the original input alongside a computed value
+chain = RunnableParallel(
+    question=RunnablePassthrough(),          # pass {question} as-is
+    answer=(
+        ChatPromptTemplate.from_template("Answer briefly: {question}")
+        | llm | StrOutputParser()
+    ),
+)
+
+result = chain.invoke({"question": "What is a Docker image?"})
+print(result["question"])   # "What is a Docker image?"
+print(result["answer"])     # "A Docker image is a read-only template..."</code></pre>
+
+      <h2>RunnableLambda — custom Python functions</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.runnables import RunnableLambda
+
+def word_count(text: str) -> dict:
+    return {"text": text, "words": len(text.split())}
+
+# Wrap any Python function as a Runnable
+chain = (
+    ChatPromptTemplate.from_template("Write a poem about {topic}")
+    | llm
+    | StrOutputParser()
+    | RunnableLambda(word_count)
+)
+
+result = chain.invoke({"topic": "containers"})
+print(result["words"])   # e.g. 42</code></pre>
+
+      <h2>Streaming a chain</h2>
+      <pre class="code" data-lang="python"><code>chain = (
+    ChatPromptTemplate.from_template("Write a short story about {topic}")
+    | ChatOpenAI(model="gpt-4o-mini", streaming=True)
+    | StrOutputParser()
+)
+
+# Print tokens as they stream in
+for chunk in chain.stream({"topic": "a Kubernetes pod that escapes its namespace"}):
+    print(chunk, end="", flush=True)
+
+# Async version
+import asyncio
+async def stream():
+    async for chunk in chain.astream({"topic": "a Docker container at sea"}):
+        print(chunk, end="", flush=True)
+
+asyncio.run(stream())</code></pre>
+
+      <h2>Branching with RunnableBranch</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.runnables import RunnableBranch
+
+code_prompt  = ChatPromptTemplate.from_template("Write Python code for: {task}")
+prose_prompt = ChatPromptTemplate.from_template("Explain in plain English: {task}")
+
+branch = RunnableBranch(
+    (lambda x: "code" in x["task"].lower(),  code_prompt  | llm | StrOutputParser()),
+    (lambda x: True,                          prose_prompt | llm | StrOutputParser()),  # default
+)
+
+print(branch.invoke({"task": "Write code to list Docker containers"}))
+print(branch.invoke({"task": "Explain what Kubernetes does"}))</code></pre>
+
+      <h2>Error handling with fallbacks</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+
+primary_llm  = ChatOpenAI(model="gpt-4o")
+fallback_llm = ChatAnthropic(model="claude-haiku-4-5")
+
+# If gpt-4o throws (rate limit, timeout), automatically retry with Claude
+resilient_llm = primary_llm.with_fallbacks([fallback_llm])
+
+chain = (
+    ChatPromptTemplate.from_template("Answer: {question}")
+    | resilient_llm
+    | StrOutputParser()
+)
+
+result = chain.invoke({"question": "What is RAG?"})</code></pre>
+
+      <div class="callout tip"><strong>LCEL vs legacy chains:</strong> If you see <code>LLMChain</code>, <code>SequentialChain</code>, or <code>ConversationChain</code> in older code, these are deprecated. Replace them with LCEL (<code>prompt | llm | parser</code>). LCEL chains are simpler, faster, and support streaming + async natively.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

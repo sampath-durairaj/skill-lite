@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction — Kubernetes Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kubernetes</a><span class="sep">/</span>Introduction</div>
+      <h1>Introduction to Kubernetes</h1>
+      <p class="lead">Kubernetes (often abbreviated as <strong>K8s</strong> — "K", 8 letters, "s") is an open-source platform for automating the deployment, scaling, and management of containerized applications. This tutorial takes you from zero to comfortably running real workloads on a cluster.</p>
+
+      <h2>Why does Kubernetes exist?</h2>
+      <p>Containers (Docker, containerd, etc.) solved the packaging problem: your app and its dependencies travel together as one image that runs the same everywhere. But once you move past a single machine, new questions appear:</p>
+      <ul>
+        <li>Where should each container run when you have dozens of servers?</li>
+        <li>What happens when a container crashes, or an entire server dies at 3 AM?</li>
+        <li>How do you roll out a new version without downtime — and roll back when it misbehaves?</li>
+        <li>How do containers find and talk to each other as they move between machines?</li>
+        <li>How do you add capacity when traffic spikes and remove it when it drops?</li>
+      </ul>
+      <p>Kubernetes answers all of these. It is a <strong>container orchestrator</strong>: you describe the state you want ("run 3 replicas of this image, expose them on port 80"), and Kubernetes continuously works to make reality match that description.</p>
+
+      <div class="callout tip"><strong>Key idea — declarative desired state:</strong> you never tell Kubernetes <em>how</em> to do something step by step. You declare <em>what</em> you want in YAML manifests, and controllers reconcile the actual state toward it. If a pod dies, Kubernetes notices the drift and replaces it automatically.</div>
+
+      <h2>What Kubernetes gives you</h2>
+      <table>
+        <tr><th>Capability</th><th>What it means</th></tr>
+        <tr><td>Self-healing</td><td>Restarts failed containers, replaces pods on dead nodes, kills containers that fail health checks.</td></tr>
+        <tr><td>Horizontal scaling</td><td>Scale an app up or down with one command, or automatically based on CPU/memory/custom metrics.</td></tr>
+        <tr><td>Service discovery &amp; load balancing</td><td>Gives pods stable DNS names and IPs, and spreads traffic across replicas.</td></tr>
+        <tr><td>Automated rollouts &amp; rollbacks</td><td>Deploys new versions gradually and can revert instantly if something breaks.</td></tr>
+        <tr><td>Config &amp; secret management</td><td>Injects configuration and credentials without rebuilding images.</td></tr>
+        <tr><td>Storage orchestration</td><td>Mounts local disks, cloud volumes, or network storage into containers on demand.</td></tr>
+        <tr><td>Bin packing</td><td>Schedules containers onto nodes efficiently based on their resource requests.</td></tr>
+      </table>
+
+      <h2>Kubernetes vs. Docker</h2>
+      <p>A common point of confusion: Docker and Kubernetes are not competitors — they operate at different layers.</p>
+      <ul>
+        <li><strong>Docker</strong> builds container images and runs individual containers on one machine.</li>
+        <li><strong>Kubernetes</strong> coordinates <em>many</em> containers across <em>many</em> machines. It uses a container runtime (containerd, CRI-O) under the hood to actually run them.</li>
+      </ul>
+      <p>Think of Docker as the shipping container and Kubernetes as the port authority deciding which ship carries which containers, replacing lost ones, and routing cargo.</p>
+
+      <h2>The vocabulary you'll meet in this tutorial</h2>
+      <table>
+        <tr><th>Object</th><th>One-line definition</th></tr>
+        <tr><td>Cluster</td><td>A set of machines (nodes) managed by Kubernetes as one unit.</td></tr>
+        <tr><td>Node</td><td>A single worker machine (VM or physical server) that runs your containers.</td></tr>
+        <tr><td>Pod</td><td>The smallest deployable unit — one or more tightly coupled containers sharing network and storage.</td></tr>
+        <tr><td>Deployment</td><td>Manages a set of identical pod replicas and handles rolling updates.</td></tr>
+        <tr><td>Service</td><td>A stable network endpoint that load-balances across a set of pods.</td></tr>
+        <tr><td>Ingress</td><td>HTTP(S) routing from outside the cluster to services inside it.</td></tr>
+        <tr><td>ConfigMap / Secret</td><td>Configuration data and credentials injected into pods.</td></tr>
+        <tr><td>Namespace</td><td>A virtual sub-cluster used to group and isolate resources.</td></tr>
+      </table>
+
+      <h2>Try it yourself: a local cluster in minutes</h2>
+      <p>You don't need a cloud account to learn Kubernetes. Any of these run a full cluster on your laptop:</p>
+      <ul>
+        <li><strong>minikube</strong> — the classic single-node learning cluster (<code>minikube start</code>).</li>
+        <li><strong>kind</strong> — "Kubernetes in Docker", great for fast, disposable clusters (<code>kind create cluster</code>).</li>
+        <li><strong>k3s / k3d</strong> — a lightweight distribution popular for edge and dev machines.</li>
+        <li><strong>Docker Desktop</strong> — has a built-in one-click Kubernetes cluster (Settings &rarr; Kubernetes).</li>
+      </ul>
+      <p>You will also need <code>kubectl</code>, the command-line client used throughout this tutorial. Verify everything works:</p>
+      <pre class="code" data-lang="bash"><code># Check the client is installed
+kubectl version --client
+
+# List the clusters kubectl knows about
+kubectl config get-contexts
+
+# Confirm the cluster is reachable
+kubectl cluster-info
+kubectl get nodes</code></pre>
+      <pre class="code" data-lang="text"><code>NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   2m    v1.30.0</code></pre>
+      <div class="callout"><strong>Note:</strong> every concept page in this tutorial includes runnable YAML and <code>kubectl</code> commands. Keep a local cluster open in a terminal and try them as you read — it is by far the fastest way to learn.</div>
+
+      <h2>How this tutorial is organized</h2>
+      <ol>
+        <li><strong>Getting Started</strong> — this page, plus the cluster architecture that everything else builds on.</li>
+        <li><strong>Core Workloads</strong> — Pods, Deployments &amp; ReplicaSets, and scaling them manually and automatically.</li>
+        <li><strong>Networking</strong> — Services for in-cluster traffic and Ingress for HTTP traffic from outside.</li>
+        <li><strong>Config &amp; Storage</strong> — ConfigMaps, Secrets, Volumes, PersistentVolumes, and StorageClasses.</li>
+        <li><strong>Operations</strong> — Namespaces, RBAC security, and a kubectl cheat sheet you'll come back to daily.</li>
+      </ol>
+      <p>Use the sidebar to jump to any concept, or the <em>Next</em> button below to follow the recommended path.</p>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Images &amp; Dockerfiles — Docker Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Docker</a><span class="sep">/</span>Images &amp; Dockerfiles</div>
+      <h1>Images &amp; Dockerfiles</h1>
+      <p class="lead">A Docker image is a read-only, layered filesystem snapshot. It contains everything your app needs to run — OS libraries, runtime, dependencies, and your code. Dockerfiles are the recipes that build images step by step.</p>
+
+      <h2>Image layers</h2>
+      <p>Every image is composed of <strong>layers</strong>. Each instruction in a Dockerfile creates a new layer that stacks on the previous one using a union filesystem. Layers are <strong>immutable and cached</strong> — if nothing changed, Docker reuses the cached layer, making rebuilds fast.</p>
+      <div class="diagram">
+        <div class="diagram-box"><h4>Layer 4 (top)</h4><ul><li>Your app code (COPY)</li></ul></div>
+        <div class="diagram-box"><h4>Layer 3</h4><ul><li>App dependencies (RUN npm install)</li></ul></div>
+        <div class="diagram-box"><h4>Layer 2</h4><ul><li>OS packages (RUN apt-get)</li></ul></div>
+        <div class="diagram-box hl"><h4>Layer 1 (base)</h4><ul><li>FROM node:20-alpine</li></ul></div>
+      </div>
+
+      <h2>Dockerfile instructions</h2>
+      <table>
+        <tr><th>Instruction</th><th>Purpose</th></tr>
+        <tr><td><code>FROM</code></td><td>Set the base image. Every Dockerfile starts here.</td></tr>
+        <tr><td><code>RUN</code></td><td>Execute a shell command and commit the result as a new layer.</td></tr>
+        <tr><td><code>COPY</code></td><td>Copy files/directories from the build context into the image.</td></tr>
+        <tr><td><code>ADD</code></td><td>Like COPY but also unpacks tar archives and accepts URLs. Prefer COPY.</td></tr>
+        <tr><td><code>WORKDIR</code></td><td>Set the working directory for subsequent instructions.</td></tr>
+        <tr><td><code>ENV</code></td><td>Set environment variables that persist at runtime.</td></tr>
+        <tr><td><code>ARG</code></td><td>Define a build-time variable (not available at runtime).</td></tr>
+        <tr><td><code>EXPOSE</code></td><td>Document which port the container listens on (informational).</td></tr>
+        <tr><td><code>USER</code></td><td>Set the user/UID for subsequent instructions and the default runtime user.</td></tr>
+        <tr><td><code>CMD</code></td><td>Default command when container starts. Overridable by <code>docker run</code>.</td></tr>
+        <tr><td><code>ENTRYPOINT</code></td><td>The main executable. Arguments from CMD or CLI are appended.</td></tr>
+        <tr><td><code>HEALTHCHECK</code></td><td>Command Docker runs to check container health.</td></tr>
+        <tr><td><code>LABEL</code></td><td>Add metadata key=value pairs to the image.</td></tr>
+      </table>
+
+      <h2>A real-world Dockerfile</h2>
+      <pre class="code" data-lang="dockerfile"><code># ── Stage 1: build ──────────────────────────────────────────
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Copy package files first — cached if unchanged
+COPY package*.json ./
+RUN npm ci --only=production
+
+# ── Stage 2: runtime ────────────────────────────────────────
+FROM node:20-alpine
+WORKDIR /app
+
+# Run as non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+# Copy only the production dependencies from builder
+COPY --from=builder /app/node_modules ./node_modules
+COPY --chown=appuser:appgroup . .
+
+ENV NODE_ENV=production
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "server.js"]</code></pre>
+
+      <h2>Building an image</h2>
+      <pre class="code" data-lang="bash"><code># Build from Dockerfile in current directory, tag as myapp:1.0
+docker build -t myapp:1.0 .
+
+# Build with a build argument
+docker build --build-arg NODE_ENV=production -t myapp:prod .
+
+# Build from a specific Dockerfile path
+docker build -f deploy/Dockerfile -t myapp:prod .
+
+# Show the image layers (history)
+docker image history myapp:1.0
+
+# Inspect image metadata
+docker image inspect myapp:1.0</code></pre>
+
+      <h2>Layer caching strategy</h2>
+      <p>Docker rebuilds all layers from the first changed instruction downward. <strong>Order matters</strong> — put slow, rarely-changing steps early and frequently-changing steps last.</p>
+      <div class="callout tip"><strong>Best practice:</strong> copy dependency manifests (<code>package.json</code>, <code>requirements.txt</code>, <code>pom.xml</code>) and install dependencies <em>before</em> copying your source code. Dependency installation is slow; source changes are fast and frequent.</div>
+
+      <h2>Multi-stage builds</h2>
+      <p>Multi-stage builds let you use one stage to compile or build, and a separate minimal stage for the final image. This dramatically reduces image size by excluding build tools, compilers, and intermediate files.</p>
+      <pre class="code" data-lang="dockerfile"><code># Go example: build binary in full SDK, ship in scratch
+FROM golang:1.22 AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o /app ./cmd/server
+
+FROM scratch
+COPY --from=builder /app /app
+EXPOSE 8080
+ENTRYPOINT ["/app"]</code></pre>
+
+      <h2>.dockerignore</h2>
+      <p>Like <code>.gitignore</code> but for the Docker build context. Prevents unnecessary files from being sent to the daemon, speeding up builds and preventing secrets from leaking into images.</p>
+      <pre class="code" data-lang=".dockerignore"><code>node_modules
+.git
+.env
+*.log
+dist
+coverage
+.DS_Store
+README.md</code></pre>
+
+      <h2>Image management</h2>
+      <pre class="code" data-lang="bash"><code># List local images
+docker images
+
+# Remove an image
+docker rmi myapp:1.0
+
+# Remove all dangling (untagged) images
+docker image prune
+
+# Remove all unused images
+docker image prune -a
+
+# Tag an existing image
+docker tag myapp:1.0 myregistry.io/team/myapp:1.0</code></pre>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Actuator — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>Actuator</div>
+      <h1>Actuator</h1>
+      <p class="lead">Spring Boot Actuator adds production-ready features to your application: health checks, metrics, thread dumps, environment info, and more — all exposed as HTTP endpoints. Kubernetes liveness and readiness probes, Prometheus scraping, and on-call dashboards all integrate directly with Actuator.</p>
+
+      <h2>Dependency</h2>
+      <pre class="code" data-lang="xml"><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- Expose metrics to Prometheus --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.micrometer&lt;/groupId&gt;
+  &lt;artifactId&gt;micrometer-registry-prometheus&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+
+      <h2>Built-in endpoints</h2>
+      <table>
+        <tr><th>Endpoint</th><th>Path</th><th>What it shows</th></tr>
+        <tr><td>health</td><td>/actuator/health</td><td>Application and component health status</td></tr>
+        <tr><td>info</td><td>/actuator/info</td><td>Arbitrary app info (version, git commit, etc.)</td></tr>
+        <tr><td>metrics</td><td>/actuator/metrics</td><td>List of available metrics</td></tr>
+        <tr><td>metrics/{name}</td><td>/actuator/metrics/jvm.memory.used</td><td>Specific metric details and tags</td></tr>
+        <tr><td>prometheus</td><td>/actuator/prometheus</td><td>All metrics in Prometheus text format</td></tr>
+        <tr><td>env</td><td>/actuator/env</td><td>Environment properties (sanitized)</td></tr>
+        <tr><td>loggers</td><td>/actuator/loggers</td><td>Current log levels; can change at runtime</td></tr>
+        <tr><td>threaddump</td><td>/actuator/threaddump</td><td>JVM thread dump</td></tr>
+        <tr><td>heapdump</td><td>/actuator/heapdump</td><td>JVM heap dump file</td></tr>
+        <tr><td>beans</td><td>/actuator/beans</td><td>All Spring beans in the context</td></tr>
+        <tr><td>mappings</td><td>/actuator/mappings</td><td>All @RequestMapping routes</td></tr>
+        <tr><td>shutdown</td><td>/actuator/shutdown</td><td>Graceful shutdown (POST, disabled by default)</td></tr>
+      </table>
+
+      <h2>Configuration</h2>
+      <pre class="code" data-lang="yaml"><code>management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus  # whitelist
+        # include: "*"                           # expose all (not for public)
+      base-path: /actuator                       # default; change if needed
+  endpoint:
+    health:
+      show-details: when-authorized              # never | always | when-authorized
+      show-components: always
+    prometheus:
+      enabled: true
+  info:
+    env:
+      enabled: true                              # expose info.* properties in /info
+    git:
+      mode: full                                 # include git.properties in /info
+
+# App metadata shown in /info
+info:
+  app:
+    name: my-service
+    version: 1.4.2
+    description: Product catalogue API</code></pre>
+
+      <h2>Health indicators</h2>
+      <p>Spring Boot auto-configures health indicators for common components. Each shows UP, DOWN, or OUT_OF_SERVICE.</p>
+      <pre class="code" data-lang="bash"><code># GET /actuator/health
+{
+  "status": "UP",
+  "components": {
+    "db": { "status": "UP", "details": { "database": "PostgreSQL", "validationQuery": "isValid()" } },
+    "diskSpace": { "status": "UP", "details": { "free": 128849018880, "threshold": 10485760 } },
+    "redis": { "status": "UP" }
+  }
+}</code></pre>
+
+      <h2>Custom health indicator</h2>
+      <pre class="code" data-lang="java"><code>@Component
+public class PaymentGatewayHealthIndicator implements HealthIndicator {
+
+    private final PaymentClient client;
+
+    @Override
+    public Health health() {
+        try {
+            boolean reachable = client.ping();
+            return reachable
+                ? Health.up().withDetail("provider", "Stripe").build()
+                : Health.down().withDetail("reason", "Ping failed").build();
+        } catch (Exception e) {
+            return Health.down(e).build();
+        }
+    }
+}</code></pre>
+
+      <h2>Kubernetes probes</h2>
+      <p>Spring Boot auto-configures <code>/actuator/health/liveness</code> and <code>/actuator/health/readiness</code> when running in Kubernetes (detected from env vars).</p>
+      <pre class="code" data-lang="yaml"><code># Kubernetes deployment manifest
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5</code></pre>
+
+      <h2>Custom metrics with Micrometer</h2>
+      <pre class="code" data-lang="java"><code>@Service
+public class OrderService {
+
+    private final Counter ordersCreated;
+    private final Timer orderProcessingTime;
+
+    public OrderService(MeterRegistry registry) {
+        this.ordersCreated = registry.counter("orders.created",
+                "currency", "USD");
+        this.orderProcessingTime = registry.timer("orders.processing.time");
+    }
+
+    public Order placeOrder(OrderRequest req) {
+        return orderProcessingTime.record(() -> {
+            Order order = processOrder(req);
+            ordersCreated.increment();
+            return order;
+        });
+    }
+}</code></pre>
+
+      <h2>Changing log level at runtime</h2>
+      <pre class="code" data-lang="bash"><code># View current level for a package
+curl http://localhost:8080/actuator/loggers/com.example.myapp
+
+# Set to DEBUG at runtime (no restart needed)
+curl -X POST http://localhost:8080/actuator/loggers/com.example.myapp \
+  -H 'Content-Type: application/json' \
+  -d '{"configuredLevel": "DEBUG"}'</code></pre>
+
+      <div class="callout warn"><strong>Security:</strong> never expose Actuator endpoints to the public internet, especially <code>/env</code>, <code>/heapdump</code>, and <code>/shutdown</code>. In production, run Actuator on a separate management port accessible only internally, or protect endpoints with Spring Security.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

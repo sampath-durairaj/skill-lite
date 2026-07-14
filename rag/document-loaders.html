@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document Loaders — RAG Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">RAG</a><span class="sep">/</span>Document Loaders</div>
+      <h1>Document Loaders</h1>
+      <p class="lead">Document loaders ingest raw data from any source — PDFs, websites, databases, APIs, cloud storage — and convert it into LangChain <code>Document</code> objects: a <code>page_content</code> string plus a <code>metadata</code> dict. Every loader returns a list of Documents.</p>
+
+      <h2>The Document object</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.documents import Document
+
+doc = Document(
+    page_content="Docker containers are isolated environments...",
+    metadata={
+        "source": "docs/docker-guide.pdf",
+        "page": 3,
+        "author": "Jane Smith",
+    }
+)
+print(doc.page_content)   # the text
+print(doc.metadata)       # {"source": ..., "page": 3, ...}</code></pre>
+
+      <h2>PDF loaders</h2>
+      <pre class="code" data-lang="bash"><code>pip install pypdf          # PyPDFLoader (lightweight)
+pip install pdfminer.six   # PDFMinerLoader (better layout)
+pip install pymupdf        # PyMuPDFLoader (fastest, best quality)</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import (
+    PyPDFLoader, PDFMinerLoader, PyMuPDFLoader
+)
+
+# One Document per page
+loader = PyPDFLoader("report.pdf")
+pages  = loader.load()
+print(f"Loaded {len(pages)} pages")
+print(pages[0].metadata)  # {"source": "report.pdf", "page": 0}
+
+# Better text extraction (handles tables, columns)
+loader = PyMuPDFLoader("report.pdf")
+pages  = loader.load()
+
+# Lazy loading (memory-efficient for large files)
+for page in loader.lazy_load():
+    process(page)</code></pre>
+
+      <h2>Web loaders</h2>
+      <pre class="code" data-lang="bash"><code>pip install beautifulsoup4 requests   # WebBaseLoader
+pip install playwright                # PlaywrightURLLoader (JavaScript sites)</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import (
+    WebBaseLoader, RecursiveUrlLoader, SitemapLoader
+)
+import bs4
+
+# Load a single page (static HTML)
+loader = WebBaseLoader(
+    web_paths=["https://docs.langchain.com/docs/"],
+    bs_kwargs={"parse_only": bs4.SoupStrainer(class_=("post-content", "post-title"))},
+)
+docs = loader.load()
+
+# Crawl an entire site recursively (respects robots.txt)
+loader = RecursiveUrlLoader(
+    url="https://docs.docker.com/",
+    max_depth=3,
+    extractor=lambda x: BeautifulSoup(x, "html.parser").text,
+)
+docs = loader.load()
+
+# Load from a sitemap
+loader = SitemapLoader(web_path="https://docs.langchain.com/sitemap.xml")
+docs = loader.load()</code></pre>
+
+      <h2>File format loaders</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import (
+    CSVLoader, JSONLoader, UnstructuredMarkdownLoader,
+    UnstructuredWordDocumentLoader, UnstructuredExcelLoader,
+    TextLoader,
+)
+
+# CSV — one Document per row
+loader = CSVLoader("data.csv", source_column="id")
+rows = loader.load()
+
+# JSON — use jq to extract fields
+loader = JSONLoader(
+    file_path="data.json",
+    jq_schema=".records[].content",
+    text_content=False,
+)
+docs = loader.load()
+
+# Markdown
+loader = UnstructuredMarkdownLoader("README.md")
+docs  = loader.load()
+
+# Word / Excel (requires unstructured)
+loader = UnstructuredWordDocumentLoader("report.docx")
+docs  = loader.load()
+
+# Plain text
+loader = TextLoader("notes.txt", encoding="utf-8")
+docs  = loader.load()</code></pre>
+
+      <h2>Directory loader — load entire folders</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import DirectoryLoader, TextLoader, PyPDFLoader
+
+# All .md files in a directory (recursive)
+loader = DirectoryLoader(
+    path="docs/",
+    glob="**/*.md",
+    loader_cls=TextLoader,
+    loader_kwargs={"encoding": "utf-8"},
+    show_progress=True,
+    use_multithreading=True,   # parallel loading
+)
+docs = loader.load()
+print(f"Loaded {len(docs)} documents")
+
+# Mixed: PDFs in one folder
+pdf_loader = DirectoryLoader("reports/", glob="**/*.pdf", loader_cls=PyPDFLoader)
+pdfs = pdf_loader.load()</code></pre>
+
+      <h2>Database loaders</h2>
+      <pre class="code" data-lang="bash"><code>pip install sqlalchemy psycopg2-binary</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import SQLDatabaseLoader
+from langchain_community.utilities import SQLDatabase
+
+db = SQLDatabase.from_uri("postgresql://user:pass@localhost/mydb")
+loader = SQLDatabaseLoader(
+    query="SELECT id, title, body FROM articles WHERE published = true",
+    db=db,
+    page_content_columns=["title", "body"],
+    metadata_columns=["id"],
+)
+docs = loader.load()</code></pre>
+
+      <h2>Cloud storage loaders</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import (
+    S3FileLoader, S3DirectoryLoader,
+    GCSFileLoader,
+)
+
+# AWS S3
+loader = S3FileLoader(bucket="my-bucket", key="docs/manual.pdf")
+docs = loader.load()
+
+loader = S3DirectoryLoader(bucket="my-bucket", prefix="docs/")
+docs = loader.load()
+
+# Google Cloud Storage
+loader = GCSFileLoader(project_name="my-project", bucket="my-bucket", blob="file.pdf")
+docs = loader.load()</code></pre>
+
+      <h2>Adding custom metadata</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import PyPDFLoader
+from datetime import datetime
+
+loader = PyPDFLoader("handbook.pdf")
+docs   = loader.load()
+
+# Enrich metadata after loading
+for doc in docs:
+    doc.metadata.update({
+        "department": "HR",
+        "indexed_at": datetime.now().isoformat(),
+        "version": "2025-Q1",
+    })
+    # Optionally clean the text
+    doc.page_content = doc.page_content.strip().replace("\x00", "")</code></pre>
+
+      <div class="callout tip"><strong>Loader selection guide:</strong> Use <code>PyMuPDFLoader</code> for scanned PDFs (best OCR). Use <code>WebBaseLoader</code> for static sites, <code>PlaywrightURLLoader</code> for JavaScript-rendered pages. For large directories, always set <code>use_multithreading=True</code> — it cuts load time 4–8× on multi-core machines.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

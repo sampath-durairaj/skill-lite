@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timezone Converter</title>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/advancedFormat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js"></script>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <style>
+    /* ── Page layout ── */
+    .page {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      overflow: hidden;
+    }
+
+    /* ── Left panel ── */
+    .left-panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 22px 20px;
+      overflow-y: auto;
+    }
+
+    .section-label { margin-bottom: 7px; }
+
+    #datetimeInput {
+      width: 100%;
+      background: #13151f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #datetimeInput:focus { border-color: var(--accent); }
+    #datetimeInput::placeholder { color: #3a3d52; font-family: inherit; }
+
+    .quick-btns { display: flex; gap: 7px; margin-top: 8px; }
+
+    .btn.danger  { margin-left: auto; }
+    .btn.primary { width: 100%; padding: 11px; }
+    select { width: 100%; }
+    .divider { margin: 0 -20px; }
+
+    /* Swap button row */
+    .swap-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .swap-row .line { flex: 1; height: 1px; background: var(--border); }
+    .swap-btn {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text-muted);
+      cursor: pointer; padding: 7px 13px; font-size: 17px;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+    .swap-btn:hover { color: var(--accent); border-color: var(--accent); background: #2a2e45; }
+
+    #errorBanner {
+      font-size: 12px; color: var(--danger);
+      background: rgba(255,107,107,.1); border: 1px solid rgba(255,107,107,.25);
+      border-radius: 6px; padding: 8px 12px; display: none;
+    }
+
+    /* ── Right panel ── */
+    .right-panel { display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Conversion hero */
+    .conv-hero {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px 16px;
+      flex-shrink: 0;
+    }
+
+    .conv-grid {
+      display: grid;
+      grid-template-columns: 1fr 44px 1fr;
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .conv-box {
+      background: #13151f;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .conv-box.target {
+      border-color: rgba(108,99,255,.45);
+      background: rgba(108,99,255,.06);
+    }
+
+    .conv-role {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.7px;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .conv-tz {
+      font-size: 12px; color: var(--accent); font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .conv-date { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .conv-time {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 26px; font-weight: 700; color: #a8d8b0;
+      letter-spacing: -0.5px; line-height: 1.2;
+    }
+    .conv-time.placeholder { color: #3a3d52; font-size: 14px; font-weight: 400; font-family: inherit; line-height: 1.5; }
+    .conv-offset { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .conv-arrow {
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 20px; opacity: 0.7;
+    }
+
+    .hero-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 12px;
+    }
+    #diffNote { font-size: 12px; color: var(--text-muted); }
+
+    /* World clock table */
+    .wc-wrap { flex: 1; overflow-y: auto; padding: 0 24px 28px; }
+
+    .wc-region { margin-top: 20px; }
+    .wc-region-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--text-muted);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2px;
+    }
+
+    .wc-row {
+      display: grid;
+      grid-template-columns: 155px 1fr 75px auto;
+      align-items: center;
+      padding: 8px 6px;
+      border-bottom: 1px solid rgba(46,50,72,.45);
+      gap: 10px;
+      border-radius: 6px;
+      transition: background 0.1s;
+    }
+    .wc-row:hover { background: rgba(108,99,255,.04); }
+    .wc-row.src-highlight { background: rgba(245,166,35,.06); }
+    .wc-row.tgt-highlight { background: rgba(108,99,255,.09); }
+
+    .wc-city { font-size: 13px; color: var(--text); }
+    .wc-city small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    .wc-datetime {
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 13px; color: #a8d8b0;
+    }
+    .wc-datetime.empty-cell { color: #3a3d52; font-family: inherit; }
+
+    .wc-offset { font-size: 12px; color: var(--text-muted); text-align: right; }
+
+    .copy-btn {
+      background: none; border: 1px solid transparent;
+      color: var(--text-muted); cursor: pointer;
+      padding: 4px 8px; border-radius: 5px;
+      font-size: 12px; white-space: nowrap;
+      transition: color .15s, border-color .15s, background .15s;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--border); background: var(--surface2); }
+    .copy-btn:disabled { opacity: 0.2; cursor: default; pointer-events: none; }
+
+    /* Day badges */
+    .badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      padding: 2px 5px; border-radius: 4px; margin-left: 5px;
+      vertical-align: middle;
+    }
+    .badge-next { background: rgba(108,99,255,.2); color: #9d96ff; }
+    .badge-prev { background: rgba(255,107,107,.15); color: var(--danger); }
+    .badge-src  { background: rgba(245,166,35,.15); color: #f5a623; }
+    .badge-tgt  { background: rgba(108,99,255,.2); color: #9d96ff; }
+
+    @media (max-width: 760px) {
+      .page { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .left-panel { border-right: none; border-bottom: 1px solid var(--border); overflow-y: visible; }
+      .conv-grid { grid-template-columns: 1fr; }
+      .conv-arrow { transform: rotate(90deg); padding: 4px 0; }
+      .wc-row { grid-template-columns: 130px 1fr 65px auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#127758;</div>
+    <div class="app-title">
+      <h1>Timezone Converter</h1>
+      <p>Convert datetime between any timezones worldwide</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../index.html"              class="nav-dropdown-item">&#127968; Home</a>
+        <div class="nav-dropdown-divider"></div>
+        <a href="sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="timezone-converter.html" class="nav-dropdown-item active">&#127758; Timezone Converter</a>
+        <a href="api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="cron-generator.html"         class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="k8s-yaml-validator.html"    class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="page">
+
+  <!-- ── Left: Inputs ── -->
+  <div class="left-panel">
+
+    <div>
+      <div class="section-label">Date &amp; Time</div>
+      <input type="text" id="datetimeInput"
+        placeholder="e.g. 2024-01-15 10:30:00"
+        oninput="clearError()"
+        onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();convert()}" />
+      <div class="quick-btns">
+        <button class="btn" onclick="useNow()">Now</button>
+        <button class="btn" onclick="useToday()">Today</button>
+        <button class="btn danger" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field-group">
+      <label>Input Format</label>
+      <select id="inputFormat">
+        <option value="auto">&#128270; Auto Detect</option>
+        <optgroup label="Date &amp; Time">
+          <option value="YYYY-MM-DD HH:mm:ss">YYYY-MM-DD HH:mm:ss</option>
+          <option value="YYYY-MM-DDTHH:mm:ss">ISO 8601 (T separator)</option>
+          <option value="MM/DD/YYYY HH:mm:ss">MM/DD/YYYY HH:mm:ss</option>
+          <option value="DD/MM/YYYY HH:mm:ss">DD/MM/YYYY HH:mm:ss</option>
+          <option value="MM/DD/YYYY hh:mm:ss A">MM/DD/YYYY hh:mm:ss AM/PM</option>
+          <option value="YYYY-MM-DD HH:mm">YYYY-MM-DD HH:mm</option>
+          <option value="DD MMM YYYY HH:mm:ss">DD MMM YYYY HH:mm:ss</option>
+          <option value="MMMM DD, YYYY HH:mm:ss">MMMM DD, YYYY HH:mm:ss</option>
+        </optgroup>
+        <optgroup label="Date Only (time = 00:00:00)">
+          <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+          <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+          <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <div class="section-label">Source Timezone</div>
+      <select id="sourceTz"></select>
+    </div>
+
+    <div class="swap-row">
+      <div class="line"></div>
+      <button class="swap-btn" onclick="swapZones()" title="Swap source &amp; target">&#8645;</button>
+      <div class="line"></div>
+    </div>
+
+    <div>
+      <div class="section-label">Target Timezone</div>
+      <select id="targetTz"></select>
+    </div>
+
+    <div id="errorBanner"></div>
+
+    <button class="btn primary" onclick="convert()">
+      &#10227;&nbsp; Convert &nbsp;<span style="opacity:.5;font-size:11px;font-weight:400">Ctrl+Enter</span>
+    </button>
+
+  </div>
+
+  <!-- ── Right: Results ── -->
+  <div class="right-panel">
+
+    <!-- Conversion hero -->
+    <div class="conv-hero">
+      <div class="conv-grid">
+
+        <!-- Source box -->
+        <div class="conv-box" id="srcBox">
+          <div class="conv-role">Source</div>
+          <div class="conv-tz" id="srcTzLabel">UTC</div>
+          <div class="conv-date" id="srcDateLabel">&nbsp;</div>
+          <div class="conv-time placeholder" id="srcTime">Enter a datetime and click Convert</div>
+          <div class="conv-offset" id="srcOffset">&nbsp;</div>
+        </div>
+
+        <!-- Arrow -->
+        <div class="conv-arrow">&#8594;</div>
+
+        <!-- Target box -->
+        <div class="conv-box target" id="tgtBox">
+          <div class="conv-role">Target</div>
+          <div class="conv-tz" id="tgtTzLabel">America / Los_Angeles</div>
+          <div class="conv-date" id="tgtDateLabel">&nbsp;</div>
+          <div class="conv-time placeholder" id="tgtTime">—</div>
+          <div class="conv-offset" id="tgtOffset">&nbsp;</div>
+        </div>
+
+      </div>
+
+      <div class="hero-footer">
+        <span id="diffNote"></span>
+        <button class="btn" id="heroCopyBtn" onclick="copyHero()" disabled>&#128203; Copy Result</button>
+      </div>
+    </div>
+
+    <!-- World clock -->
+    <div class="wc-wrap">
+      <div class="empty-state" id="emptyState">
+        <div class="big">&#127758;</div>
+        <div>Enter a datetime and click <strong>Convert</strong><br>to see the world clock.</div>
+        <div style="font-size:12px;color:#3a3d52;margin-top:6px">
+          Highlights your source &amp; target — shows the same moment in every major timezone
+        </div>
+      </div>
+      <div id="worldClock" style="display:none"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+  // ── Init dayjs plugins ──
+  dayjs.extend(window.dayjs_plugin_customParseFormat);
+  dayjs.extend(window.dayjs_plugin_advancedFormat);
+  dayjs.extend(window.dayjs_plugin_utc);
+  dayjs.extend(window.dayjs_plugin_timezone);
+
+  // ── Timezone data ──
+  const TZ_GROUPS = [
+    {
+      region: 'UTC / Universal',
+      zones: [
+        { city: 'Coordinated Universal Time', tz: 'UTC' },
+      ],
+    },
+    {
+      region: 'Americas',
+      zones: [
+        // { city: 'Newfoundland',                  tz: 'America/St_Johns' },
+        // { city: 'Halifax (Atlantic)',             tz: 'America/Halifax' },
+        { city: 'New York / Toronto (Eastern)',  tz: 'America/New_York' },
+        // { city: 'Chicago / Dallas (Central)',    tz: 'America/Chicago' },
+        // { city: 'Phoenix (Mountain, no DST)',    tz: 'America/Phoenix' },
+        // { city: 'Denver / Salt Lake (Mountain)', tz: 'America/Denver' },
+        { city: 'Los Angeles / Seattle (Pacific)', tz: 'America/Los_Angeles' },
+        // { city: 'Anchorage (Alaska)',            tz: 'America/Anchorage' },
+        // { city: 'Honolulu (Hawaii, no DST)',     tz: 'Pacific/Honolulu' },
+        // { city: 'Mexico City',                   tz: 'America/Mexico_City' },
+        // { city: 'Bogotá',                        tz: 'America/Bogota' },
+        // { city: 'Lima',                          tz: 'America/Lima' },
+        // { city: 'Caracas',                       tz: 'America/Caracas' },
+        // { city: 'São Paulo / Rio de Janeiro',    tz: 'America/Sao_Paulo' },
+        // { city: 'Buenos Aires',                  tz: 'America/Argentina/Buenos_Aires' },
+        // { city: 'Santiago',                      tz: 'America/Santiago' },
+      ],
+    }
+    // ,
+    // {
+    //   region: 'Europe',
+    //   zones: [
+    //     { city: 'London (GMT/BST)',              tz: 'Europe/London' },
+    //     { city: 'Lisbon',                        tz: 'Europe/Lisbon' },
+    //     { city: 'Paris / Berlin / Rome (CET)',   tz: 'Europe/Paris' },
+    //     { city: 'Amsterdam / Brussels',          tz: 'Europe/Amsterdam' },
+    //     { city: 'Madrid',                        tz: 'Europe/Madrid' },
+    //     { city: 'Zurich / Vienna',               tz: 'Europe/Zurich' },
+    //     { city: 'Warsaw / Budapest',             tz: 'Europe/Warsaw' },
+    //     { city: 'Helsinki / Tallinn (EET)',      tz: 'Europe/Helsinki' },
+    //     { city: 'Athens / Bucharest',            tz: 'Europe/Athens' },
+    //     { city: 'Moscow (MSK)',                  tz: 'Europe/Moscow' },
+    //     { city: 'Istanbul',                      tz: 'Europe/Istanbul' },
+    //   ],
+    // },
+    // {
+    //   region: 'Africa & Middle East',
+    //   zones: [
+    //     { city: 'Lagos / West Africa (WAT)',     tz: 'Africa/Lagos' },
+    //     { city: 'Cairo / Egypt (EET)',           tz: 'Africa/Cairo' },
+    //     { city: 'Nairobi / East Africa (EAT)',   tz: 'Africa/Nairobi' },
+    //     { city: 'Jerusalem / Tel Aviv',          tz: 'Asia/Jerusalem' },
+    //     { city: 'Riyadh / Kuwait (AST)',         tz: 'Asia/Riyadh' },
+    //     { city: 'Dubai / Abu Dhabi (GST)',       tz: 'Asia/Dubai' },
+    //     { city: 'Tehran (IRST)',                 tz: 'Asia/Tehran' },
+    //   ],
+    // },
+    // {
+    //   region: 'Asia',
+    //   zones: [
+    //     { city: 'Karachi / Islamabad (PKT)',     tz: 'Asia/Karachi' },
+    //     { city: 'Kolkata / Mumbai (IST)',        tz: 'Asia/Kolkata' },
+    //     { city: 'Kathmandu (NPT)',               tz: 'Asia/Kathmandu' },
+    //     { city: 'Dhaka (BST)',                   tz: 'Asia/Dhaka' },
+    //     { city: 'Yangon (MMT)',                  tz: 'Asia/Yangon' },
+    //     { city: 'Bangkok / Jakarta (ICT)',       tz: 'Asia/Bangkok' },
+    //     { city: 'Singapore / Kuala Lumpur (SGT)', tz: 'Asia/Singapore' },
+    //     { city: 'Hong Kong (HKT)',               tz: 'Asia/Hong_Kong' },
+    //     { city: 'Beijing / Shanghai (CST)',      tz: 'Asia/Shanghai' },
+    //     { city: 'Taipei',                        tz: 'Asia/Taipei' },
+    //     { city: 'Seoul (KST)',                   tz: 'Asia/Seoul' },
+    //     { city: 'Tokyo (JST)',                   tz: 'Asia/Tokyo' },
+    //   ],
+    // },
+    // {
+    //   region: 'Oceania',
+    //   zones: [
+    //     { city: 'Perth (AWST)',                  tz: 'Australia/Perth' },
+    //     { city: 'Adelaide (ACST/ACDT)',          tz: 'Australia/Adelaide' },
+    //     { city: 'Sydney / Melbourne (AEST/AEDT)', tz: 'Australia/Sydney' },
+    //     { city: 'Brisbane (AEST, no DST)',       tz: 'Australia/Brisbane' },
+    //     { city: 'Auckland (NZST/NZDT)',          tz: 'Pacific/Auckland' },
+    //     { city: 'Fiji (FJT)',                    tz: 'Pacific/Fiji' },
+    //   ],
+    // },
+  ];
+
+  const ALL_ZONES = TZ_GROUPS.flatMap(g => g.zones);
+
+  // ── Build <select> options ──
+  function buildOptions(defaultTz) {
+    return TZ_GROUPS.map(grp =>
+      `<optgroup label="${grp.region}">${
+        grp.zones.map(z =>
+          `<option value="${z.tz}"${z.tz === defaultTz ? ' selected' : ''}>${z.city} — ${z.tz}</option>`
+        ).join('')
+      }</optgroup>`
+    ).join('');
+  }
+
+  document.getElementById('sourceTz').innerHTML = buildOptions('UTC');
+  document.getElementById('targetTz').innerHTML = buildOptions('America/Los_Angeles');
+
+  // ── Auto-detect format list ──
+  const DETECT_FMTS = [
+    'YYYY-MM-DDTHH:mm:ssZ',
+    'YYYY-MM-DDTHH:mm:ss',
+    'YYYY-MM-DD HH:mm:ss',
+    'YYYY-MM-DD HH:mm',
+    'YYYY-MM-DD',
+    'MM/DD/YYYY hh:mm:ss A',
+    'MM/DD/YYYY HH:mm:ss',
+    'MM/DD/YYYY HH:mm',
+    'MM/DD/YYYY',
+    'DD/MM/YYYY HH:mm:ss',
+    'DD/MM/YYYY HH:mm',
+    'DD/MM/YYYY',
+    'DD MMM YYYY HH:mm:ss',
+    'DD MMM YYYY',
+    'MMMM DD, YYYY HH:mm:ss',
+    'MMMM DD, YYYY',
+    'MMM DD, YYYY HH:mm:ss',
+    'MMM DD, YYYY',
+  ];
+
+  // ── Parse ──
+  function parseInTz(raw, fmtVal, tz) {
+    raw = raw.trim();
+    if (!raw) return null;
+
+    let naiveStr = null;
+
+    if (fmtVal === 'auto') {
+      for (const f of DETECT_FMTS) {
+        const d = dayjs(raw, f, true);
+        if (d.isValid()) { naiveStr = d.format('YYYY-MM-DD HH:mm:ss'); break; }
+      }
+      if (!naiveStr) {
+        const d = dayjs(raw);
+        if (d.isValid()) naiveStr = d.format('YYYY-MM-DD HH:mm:ss');
+      }
+    } else {
+      const d = dayjs(raw, fmtVal, true);
+      if (d.isValid()) naiveStr = d.format('YYYY-MM-DD HH:mm:ss');
+    }
+
+    if (!naiveStr) return null;
+    const dt = dayjs.tz(naiveStr, tz);
+    return dt.isValid() ? dt : null;
+  }
+
+  // ── State ──
+  let activeMoment = null;
+
+  // ── Main convert ──
+  function convert() {
+    const raw      = document.getElementById('datetimeInput').value;
+    const fmtVal   = document.getElementById('inputFormat').value;
+    const srcTz    = document.getElementById('sourceTz').value;
+    const tgtTz    = document.getElementById('targetTz').value;
+
+    clearError();
+
+    if (!raw.trim()) { showError('Please enter a date and time.'); return; }
+
+    const dt = parseInTz(raw, fmtVal, srcTz);
+    if (!dt) {
+      showError('Could not parse that datetime. Try selecting the input format manually.');
+      resetHero();
+      renderWorldClock(null, null, null);
+      return;
+    }
+
+    activeMoment = dt;
+    const converted = dt.tz(tgtTz);
+    updateHero(dt, converted, srcTz, tgtTz);
+    renderWorldClock(dt, srcTz, tgtTz);
+  }
+
+  // ── Hero update ──
+  function updateHero(src, tgt, srcTz, tgtTz) {
+    const srcCity = cityFor(srcTz);
+    const tgtCity = cityFor(tgtTz);
+
+    document.getElementById('srcTzLabel').textContent = srcCity + ' (' + srcTz + ')';
+    document.getElementById('tgtTzLabel').textContent = tgtCity + ' (' + tgtTz + ')';
+
+    document.getElementById('srcDateLabel').textContent = src.format('ddd, MMM D, YYYY');
+    document.getElementById('tgtDateLabel').textContent = tgt.format('ddd, MMM D, YYYY');
+
+    const srcTimeEl = document.getElementById('srcTime');
+    srcTimeEl.textContent = src.format('HH:mm:ss');
+    srcTimeEl.className = 'conv-time';
+
+    const tgtTimeEl = document.getElementById('tgtTime');
+    tgtTimeEl.textContent = tgt.format('HH:mm:ss');
+    tgtTimeEl.className = 'conv-time';
+
+    document.getElementById('srcOffset').textContent = 'UTC ' + src.format('Z') + ' • ' + src.format('z');
+    document.getElementById('tgtOffset').textContent = 'UTC ' + tgt.format('Z') + ' • ' + tgt.format('z');
+
+    // Hour difference note
+    const srcOff = src.utcOffset();
+    const tgtOff = tgt.utcOffset();
+    const diff   = (tgtOff - srcOff) / 60;
+    const sign   = diff >= 0 ? '+' : '';
+    document.getElementById('diffNote').textContent =
+      diff === 0 ? 'Same UTC offset' : `Target is ${sign}${diff}h relative to source`;
+
+    // Day difference badge
+    const srcDay = dayjs(src.format('YYYY-MM-DD'));
+    const tgtDay = dayjs(tgt.format('YYYY-MM-DD'));
+    const dayDiff = tgtDay.diff(srcDay, 'day');
+    if (dayDiff !== 0) {
+      const sign = dayDiff > 0 ? '+' : '';
+      document.getElementById('diffNote').textContent +=
+        ` (${sign}${dayDiff} day${Math.abs(dayDiff) > 1 ? 's' : ''})`;
+    }
+
+    document.getElementById('heroCopyBtn').disabled = false;
+  }
+
+  function resetHero() {
+    ['srcTzLabel','tgtTzLabel'].forEach((id, i) => {
+      document.getElementById(id).textContent = i === 0
+        ? document.getElementById('sourceTz').options[document.getElementById('sourceTz').selectedIndex].value
+        : document.getElementById('targetTz').options[document.getElementById('targetTz').selectedIndex].value;
+    });
+    ['srcDateLabel','tgtDateLabel','srcOffset','tgtOffset','diffNote'].forEach(id =>
+      document.getElementById(id).textContent = ''
+    );
+    const st = document.getElementById('srcTime');
+    st.textContent = 'Enter a datetime and click Convert';
+    st.className = 'conv-time placeholder';
+    const tt = document.getElementById('tgtTime');
+    tt.textContent = '—';
+    tt.className = 'conv-time placeholder';
+    document.getElementById('heroCopyBtn').disabled = true;
+    activeMoment = null;
+  }
+
+  // ── World clock ──
+  function renderWorldClock(dt, srcTz, tgtTz) {
+    const empty = document.getElementById('emptyState');
+    const wc    = document.getElementById('worldClock');
+    if (!dt) { empty.style.display='flex'; wc.style.display='none'; return; }
+
+    empty.style.display = 'none';
+    wc.style.display    = 'block';
+
+    const srcDateStr = dt.format('YYYY-MM-DD');
+    let html = '';
+
+    for (const grp of TZ_GROUPS) {
+      html += `<div class="wc-region"><div class="wc-region-title">${grp.region}</div>`;
+
+      for (const z of grp.zones) {
+        const local       = dt.tz(z.tz);
+        const localDateStr = local.format('YYYY-MM-DD');
+        const dayDiff     = dayjs(localDateStr).diff(dayjs(srcDateStr), 'day');
+        const isSource    = z.tz === srcTz;
+        const isTarget    = z.tz === tgtTz;
+
+        let rowClass = 'wc-row';
+        if (isSource) rowClass += ' src-highlight';
+        if (isTarget) rowClass += ' tgt-highlight';
+
+        let badge = '';
+        if (dayDiff > 0)       badge = `<span class="badge badge-next">+${dayDiff}d</span>`;
+        else if (dayDiff < 0)  badge = `<span class="badge badge-prev">${dayDiff}d</span>`;
+
+        let tag = '';
+        if (isSource) tag = `<small><span class="badge badge-src">Source</span></small>`;
+        if (isTarget) tag = `<small><span class="badge badge-tgt">Target</span></small>`;
+
+        const copyVal = local.format('YYYY-MM-DD HH:mm:ss') + ' (' + z.tz + ', UTC' + local.format('Z') + ')';
+
+        html += `<div class="${rowClass}">
+          <div class="wc-city">${esc(z.city)}${tag}</div>
+          <div class="wc-datetime">${local.format('ddd, MMM D')}${badge}&nbsp;&nbsp;${local.format('HH:mm:ss')}</div>
+          <div class="wc-offset">UTC ${local.format('Z')}</div>
+          <button class="copy-btn" data-copy="${esc(copyVal)}">Copy</button>
+        </div>`;
+      }
+
+      html += '</div>';
+    }
+
+    wc.innerHTML = html;
+
+    // Event delegation for copy buttons
+    wc.onclick = e => {
+      const btn = e.target.closest('.copy-btn');
+      if (btn) copyText(btn.dataset.copy);
+    };
+  }
+
+  // ── Helpers ──
+  function cityFor(tz) {
+    return ALL_ZONES.find(z => z.tz === tz)?.city || tz;
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // ── Swap ──
+  function swapZones() {
+    const src = document.getElementById('sourceTz').value;
+    const tgt = document.getElementById('targetTz').value;
+    document.getElementById('sourceTz').value = tgt;
+    document.getElementById('targetTz').value = src;
+    clearError();
+    if (activeMoment) convert();
+  }
+
+  // ── Quick fill ──
+  function useNow() {
+    document.getElementById('datetimeInput').value = dayjs().format('YYYY-MM-DD HH:mm:ss');
+    document.getElementById('inputFormat').value   = 'YYYY-MM-DD HH:mm:ss';
+    clearError();
+    convert();
+  }
+
+  function useToday() {
+    document.getElementById('datetimeInput').value = dayjs().format('YYYY-MM-DD') + ' 00:00:00';
+    document.getElementById('inputFormat').value   = 'YYYY-MM-DD HH:mm:ss';
+    clearError();
+    convert();
+  }
+
+  function clearAll() {
+    document.getElementById('datetimeInput').value = '';
+    clearError();
+    resetHero();
+    renderWorldClock(null, null, null);
+  }
+
+  // ── Error ──
+  function clearError() { document.getElementById('errorBanner').style.display = 'none'; }
+  function showError(msg) {
+    const el = document.getElementById('errorBanner');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  // ── Copy ──
+  function copyHero() {
+    if (!activeMoment) return;
+    const tgtTz    = document.getElementById('targetTz').value;
+    const converted = activeMoment.tz(tgtTz);
+    copyText(converted.format('YYYY-MM-DD HH:mm:ss') + ' (' + tgtTz + ', UTC' + converted.format('Z') + ')');
+  }
+
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    }
+    const el = document.getElementById('toast');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1800);
+  }
+
+  // ── Keyboard shortcut ──
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); convert(); }
+  });
+</script>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

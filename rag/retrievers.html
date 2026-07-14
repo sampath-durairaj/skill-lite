@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retrievers &amp; Search — RAG Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">RAG</a><span class="sep">/</span>Retrievers &amp; Search</div>
+      <h1>Retrievers &amp; Search</h1>
+      <p class="lead">A retriever takes a query string and returns the most relevant documents. LangChain's <code>Retriever</code> interface is the glue between your vector store and your generation chain — and there are many strategies beyond basic similarity search that dramatically improve retrieval quality.</p>
+
+      <h2>Basic vector store retriever</h2>
+      <pre class="code" data-lang="python"><code>from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+db = Chroma(persist_directory="./chroma_db", embedding_function=OpenAIEmbeddings())
+
+# Convert vector store to a retriever
+retriever = db.as_retriever(
+    search_type="similarity",    # default
+    search_kwargs={"k": 4},      # return 4 most similar chunks
+)
+
+# Use it directly
+docs = retriever.invoke("How does Docker networking work?")
+for doc in docs:
+    print(f"[{doc.metadata.get('source')}] {doc.page_content[:100]}")</code></pre>
+
+      <h2>Search types</h2>
+      <pre class="code" data-lang="python"><code># 1. Similarity — pure cosine/L2 distance
+retriever = db.as_retriever(
+    search_type="similarity",
+    search_kwargs={"k": 4},
+)
+
+# 2. Similarity with score threshold — filter out low-quality matches
+retriever = db.as_retriever(
+    search_type="similarity_score_threshold",
+    search_kwargs={"k": 6, "score_threshold": 0.7},
+)
+
+# 3. MMR (Maximal Marginal Relevance) — balances relevance AND diversity
+# Avoids returning 4 near-identical chunks
+retriever = db.as_retriever(
+    search_type="mmr",
+    search_kwargs={
+        "k": 4,           # return 4 docs
+        "fetch_k": 20,    # consider 20 candidates
+        "lambda_mult": 0.7,  # 1.0 = pure relevance, 0.0 = pure diversity
+    },
+)</code></pre>
+
+      <h2>MultiQueryRetriever — overcome query phrasing sensitivity</h2>
+      <pre class="code" data-lang="python"><code>from langchain.retrievers import MultiQueryRetriever
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+# Generates 3-5 alternative phrasings of the question,
+# retrieves for each, and deduplicates results
+retriever = MultiQueryRetriever.from_llm(
+    retriever=db.as_retriever(search_kwargs={"k": 3}),
+    llm=llm,
+)
+
+# For "Docker networking" it might also search:
+# "How do containers communicate?" / "Docker bridge networks" / "container port mapping"
+docs = retriever.invoke("Docker networking")</code></pre>
+
+      <h2>ContextualCompressionRetriever — remove irrelevant content</h2>
+      <pre class="code" data-lang="python"><code>from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors import (
+    LLMChainExtractor, EmbeddingsFilter, DocumentCompressorPipeline
+)
+from langchain_openai import OpenAIEmbeddings
+
+# Option 1: LLM extracts only relevant sentences from each chunk
+compressor = LLMChainExtractor.from_llm(llm)
+compression_retriever = ContextualCompressionRetriever(
+    base_compressor=compressor,
+    base_retriever=db.as_retriever(search_kwargs={"k": 6}),
+)
+
+# Option 2: Embedding filter — faster, no LLM cost
+embeddings_filter = EmbeddingsFilter(
+    embeddings=OpenAIEmbeddings(),
+    similarity_threshold=0.76,
+)
+compression_retriever = ContextualCompressionRetriever(
+    base_compressor=embeddings_filter,
+    base_retriever=db.as_retriever(search_kwargs={"k": 6}),
+)</code></pre>
+
+      <h2>Ensemble / hybrid retrieval (BM25 + vector)</h2>
+      <pre class="code" data-lang="bash"><code>pip install rank-bm25</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain.retrievers import EnsembleRetriever
+from langchain_community.retrievers import BM25Retriever
+
+# BM25 is keyword-based (exact match strength)
+bm25_retriever   = BM25Retriever.from_documents(chunks)
+bm25_retriever.k = 4
+
+# Vector retriever (semantic match strength)
+vector_retriever = db.as_retriever(search_kwargs={"k": 4})
+
+# Combine: BM25 handles exact terms, vector handles synonyms/meaning
+ensemble = EnsembleRetriever(
+    retrievers=[bm25_retriever, vector_retriever],
+    weights=[0.4, 0.6],   # 40% BM25, 60% vector
+)
+
+docs = ensemble.invoke("docker-compose networking port mapping")</code></pre>
+
+      <h2>Self-querying retriever — filter from natural language</h2>
+      <pre class="code" data-lang="python"><code>from langchain.retrievers.self_query.base import SelfQueryRetriever
+from langchain.chains.query_constructor.base import AttributeInfo
+
+metadata_fields = [
+    AttributeInfo(name="source",     description="Source document filename", type="string"),
+    AttributeInfo(name="page",       description="Page number",              type="integer"),
+    AttributeInfo(name="department", description="Owning department",        type="string"),
+    AttributeInfo(name="year",       description="Publication year",         type="integer"),
+]
+
+retriever = SelfQueryRetriever.from_llm(
+    llm=llm,
+    vectorstore=db,
+    document_contents="HR policies and company handbook",
+    metadata_field_info=metadata_fields,
+)
+
+# LLM converts this into a structured filter automatically:
+# → similarity search + filter(department="HR", year=2025)
+docs = retriever.invoke("Show me HR vacation policies from 2025")</code></pre>
+
+      <div class="callout tip"><strong>Retrieval strategy guide:</strong> Start with basic similarity + MMR. Add <strong>MultiQuery</strong> if users phrase questions inconsistently. Add <strong>BM25 ensemble</strong> if your documents contain exact product names, IDs, or codes. Add <strong>ContextualCompression</strong> when retrieved chunks have too much irrelevant padding. Layer these — they compose cleanly.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

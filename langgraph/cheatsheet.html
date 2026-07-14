@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LangGraph Cheat Sheet — LangGraph Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangGraph</a><span class="sep">/</span>Cheat Sheet</div>
+      <h1>LangGraph Cheat Sheet</h1>
+      <p class="lead">Quick reference for all LangGraph patterns, classes, and APIs in one page.</p>
+
+      <h2>Installation</h2>
+      <pre class="code" data-lang="bash"><code>pip install langgraph langchain-openai
+pip install langgraph-checkpoint-sqlite   # persistent checkpointing</code></pre>
+
+      <h2>Graph skeleton</h2>
+      <pre class="code" data-lang="python"><code>from typing import TypedDict, Annotated, List
+from langgraph.graph import StateGraph, START, END, MessagesState
+from langgraph.graph.message import add_messages
+from langchain_core.messages import BaseMessage
+
+# 1. State
+class State(TypedDict):
+    messages: Annotated[List[BaseMessage], add_messages]
+    counter: int
+
+# 2. Nodes
+def my_node(state: State) -> dict:
+    return {"counter": state["counter"] + 1}
+
+# 3. Build
+graph = StateGraph(State)
+graph.add_node("my_node", my_node)
+graph.add_edge(START, "my_node")
+graph.add_edge("my_node", END)
+
+# 4. Compile
+app = graph.compile()
+
+# 5. Run
+result = app.invoke({"messages": [], "counter": 0})</code></pre>
+
+      <h2>State reducers</h2>
+      <pre class="code" data-lang="python"><code>import operator
+from langgraph.graph.message import add_messages
+
+class State(TypedDict):
+    messages:  Annotated[List[BaseMessage], add_messages]  # appends
+    totals:    Annotated[int, operator.add]                 # sums
+    items:     Annotated[List[str], operator.add]           # extends list
+    best:      Annotated[float, max]                        # keeps max
+    overwrite: str                                          # default: replaces</code></pre>
+
+      <h2>Edges</h2>
+      <pre class="code" data-lang="python"><code># Fixed edge
+graph.add_edge("a", "b")
+graph.add_edge(START, "first_node")
+graph.add_edge("last_node", END)
+
+# Conditional edge — router returns node name
+def router(state: State) -> str:
+    return "node_b" if state["counter"] > 5 else "node_c"
+
+graph.add_conditional_edges("a", router)
+
+# Conditional with explicit mapping
+graph.add_conditional_edges(
+    "a", router,
+    {"node_b": "node_b", "node_c": "node_c", "done": END}
+)
+
+# Fan-out: run b and c in parallel after a
+graph.add_edge("a", "b")
+graph.add_edge("a", "c")</code></pre>
+
+      <h2>Checkpointing</h2>
+      <pre class="code" data-lang="python"><code">from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
+
+# Dev: in-memory
+app = graph.compile(checkpointer=MemorySaver())
+
+# Prod: SQLite
+with SqliteSaver.from_conn_string("state.db") as cp:
+    app = graph.compile(checkpointer=cp)
+
+# Always pass thread_id
+config = {"configurable": {"thread_id": "session_1"}}
+app.invoke(input_state, config=config)
+
+# Inspect state
+snapshot = app.get_state(config)
+snapshot.values   # full state
+snapshot.next     # next nodes (empty if done)
+
+# History / time travel
+history = list(app.get_state_history(config))
+app.invoke(None, config=history[2].config)   # replay from step 2
+
+# Manual state update
+app.update_state(config, {"counter": 0})</code></pre>
+
+      <h2>Human-in-the-loop</h2>
+      <pre class="code" data-lang="python"><code>from langgraph.types import interrupt, Command
+
+# Compile with breakpoint
+app = graph.compile(
+    checkpointer=MemorySaver(),
+    interrupt_before=["send_email"],   # pause before this node
+    # interrupt_after=["draft"],       # or pause after
+)
+
+# Run until interrupt
+app.invoke(initial_state, config=config)
+
+# Inspect, optionally update
+app.update_state(config, new_partial_state)
+
+# Resume
+app.invoke(None, config=config)
+
+# Dynamic interrupt inside a node
+def approval_node(state):
+    decision = interrupt({"message": "Approve this action?"})
+    return {"approved": decision == "yes"}
+
+# Resume with answer
+app.invoke(Command(resume="yes"), config=config)</code></pre>
+
+      <h2>Streaming</h2>
+      <pre class="code" data-lang="python"><code"># Full state after each node
+for s in app.stream(input, stream_mode="values"):
+    print(s)
+
+# State delta per node
+for update in app.stream(input, stream_mode="updates"):
+    node, delta = list(update.items())[0]
+    print(node, delta)
+
+# LLM tokens
+for chunk, meta in app.stream(input, stream_mode="messages"):
+    print(chunk.content, end="")
+
+# Async
+async for chunk, meta in app.astream(input, stream_mode="messages"):
+    print(chunk.content, end="")
+
+# Rich events
+async for event in app.astream_events(input, version="v2"):
+    if event["event"] == "on_chat_model_stream":
+        print(event["data"]["chunk"].content, end="")</code></pre>
+
+      <h2>Multi-agent</h2>
+      <pre class="code" data-lang="python"><code">from langgraph.types import Command
+
+# Handoff via Command
+def agent_a(state):
+    return Command(goto="agent_b", update={"messages": [...]})
+
+# Supervisor routing
+def supervisor(state):
+    choice = llm.invoke(...)   # decides which agent
+    return {"next": choice.content}
+
+graph.add_conditional_edges("supervisor",
+    lambda s: s["next"],
+    {"agent_a": "agent_a", "agent_b": "agent_b", "FINISH": END}
+)
+
+# Subgraph as node
+sub_app = sub_graph.compile()
+parent_graph.add_node("sub", lambda s: sub_app.invoke({"q": s["task"]}))</code></pre>
+
+      <h2>Key imports quick-reference</h2>
+      <table>
+        <tr><th>What</th><th>Import</th></tr>
+        <tr><td>StateGraph</td><td><code>from langgraph.graph import StateGraph</code></td></tr>
+        <tr><td>START, END</td><td><code>from langgraph.graph import START, END</code></td></tr>
+        <tr><td>MessagesState</td><td><code>from langgraph.graph import MessagesState</code></td></tr>
+        <tr><td>add_messages</td><td><code>from langgraph.graph.message import add_messages</code></td></tr>
+        <tr><td>MemorySaver</td><td><code>from langgraph.checkpoint.memory import MemorySaver</code></td></tr>
+        <tr><td>SqliteSaver</td><td><code>from langgraph.checkpoint.sqlite import SqliteSaver</code></td></tr>
+        <tr><td>interrupt</td><td><code>from langgraph.types import interrupt</code></td></tr>
+        <tr><td>Command</td><td><code>from langgraph.types import Command</code></td></tr>
+      </table>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

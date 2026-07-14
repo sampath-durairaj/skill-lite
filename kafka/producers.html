@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Producers — Apache Kafka Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kafka</a><span class="sep">/</span>Producers</div>
+      <h1>Kafka Producers</h1>
+      <p class="lead">A Kafka producer is any application that writes events to Kafka topics. The Java producer client handles serialization, partitioning, batching, compression, retries, and delivery guarantees — all configurable to match your throughput and durability requirements.</p>
+
+      <h2>A minimal Java producer</h2>
+      <pre class="code" data-lang="java"><code>import org.apache.kafka.clients.producer.*;
+import java.util.Properties;
+
+Properties props = new Properties();
+props.put("bootstrap.servers", "localhost:9092");
+props.put("key.serializer",   "org.apache.kafka.common.serialization.StringSerializer");
+props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+KafkaProducer&lt;String, String&gt; producer = new KafkaProducer&lt;&gt;(props);
+
+// Fire-and-forget (async)
+producer.send(new ProducerRecord&lt;&gt;("orders", "order-123", "{\"total\":99.99}"));
+
+// With callback to detect errors
+producer.send(new ProducerRecord&lt;&gt;("orders", "order-456", "{\"total\":49.00}"),
+    (metadata, exception) -&gt; {
+        if (exception != null) {
+            exception.printStackTrace();
+        } else {
+            System.out.printf("Sent to %s partition %d offset %d%n",
+                metadata.topic(), metadata.partition(), metadata.offset());
+        }
+    });
+
+producer.flush();
+producer.close();</code></pre>
+
+      <h2>Acknowledgment levels (acks)</h2>
+      <p>The <code>acks</code> setting controls how many broker acknowledgments the producer waits for before considering a send successful.</p>
+
+      <table>
+        <tr><th>acks value</th><th>Durability</th><th>Throughput</th><th>When to use</th></tr>
+        <tr><td><code>0</code></td><td>None — fire and forget</td><td>Highest</td><td>Metrics, logs where occasional loss is acceptable</td></tr>
+        <tr><td><code>1</code></td><td>Leader only</td><td>High</td><td>General purpose, balanced default</td></tr>
+        <tr><td><code>all</code> (or <code>-1</code>)</td><td>All in-sync replicas</td><td>Lower latency cost</td></tr>
+      </table>
+
+      <div class="callout"><strong>Production recommendation:</strong> use <code>acks=all</code> with <code>min.insync.replicas=2</code> and <code>enable.idempotence=true</code> for exactly-once delivery guarantees.</div>
+
+      <h2>Partitioning strategy</h2>
+      <p>How an event is assigned to a partition depends on its key:</p>
+      <ul>
+        <li><strong>Key present</strong> — the default partitioner hashes the key with <code>murmur2</code> and takes the result modulo the partition count. All events with the same key always go to the same partition, preserving order per key.</li>
+        <li><strong>Key null</strong> — since Kafka 2.4 the <em>sticky partitioner</em> is used: events accumulate in one partition until the batch is full or <code>linger.ms</code> fires, then the next batch picks a different partition. This maximises batching efficiency.</li>
+        <li><strong>Custom partitioner</strong> — implement <code>org.apache.kafka.clients.producer.Partitioner</code> and set <code>partitioner.class</code>.</li>
+      </ul>
+
+      <pre class="code" data-lang="java"><code>// Explicit partition targeting
+producer.send(new ProducerRecord&lt;&gt;(
+    "orders",   // topic
+    2,          // partition (overrides partitioner)
+    "order-789",// key
+    "{\"total\":15.00}" // value
+));</code></pre>
+
+      <h2>Batching and compression</h2>
+      <p>The producer does not send each record individually. It accumulates records in an in-memory buffer per partition and sends them as a batch. Two settings control this:</p>
+
+      <table>
+        <tr><th>Config</th><th>Default</th><th>Effect</th></tr>
+        <tr><td><code>batch.size</code></td><td>16 384 bytes</td><td>Max batch size. Larger → fewer requests, higher throughput, more memory.</td></tr>
+        <tr><td><code>linger.ms</code></td><td>0</td><td>How long to wait for more records before sending. <code>0</code> sends immediately; 5–20 ms improves batching at small latency cost.</td></tr>
+        <tr><td><code>buffer.memory</code></td><td>33 554 432 (32 MB)</td><td>Total memory for all partition buffers. Blocks if full.</td></tr>
+        <tr><td><code>compression.type</code></td><td><code>none</code></td><td>Apply <code>snappy</code>, <code>lz4</code>, <code>zstd</code>, or <code>gzip</code> per batch.</td></tr>
+      </table>
+
+      <pre class="code" data-lang="java"><code>props.put("batch.size",        "65536");    // 64 KB
+props.put("linger.ms",         "10");       // wait up to 10 ms
+props.put("compression.type",  "lz4");     // fast compression
+props.put("buffer.memory",     "67108864"); // 64 MB</code></pre>
+
+      <div class="callout tip"><strong>Compression tip:</strong> <code>lz4</code> is the best default — very fast CPU-wise with ~40% size reduction. Use <code>zstd</code> when CPU is not a bottleneck and you want the best compression ratio.</div>
+
+      <h2>Idempotent and transactional producers</h2>
+      <h3>Idempotent producer (exactly-once per partition)</h3>
+      <p>Setting <code>enable.idempotence=true</code> assigns a <em>Producer ID (PID)</em> and sequence number to each record. If a broker receives a duplicate (e.g., after a retry), it deduplicates it automatically. This gives you exactly-once delivery per partition with zero code changes.</p>
+
+      <pre class="code" data-lang="java"><code>props.put("enable.idempotence", "true");
+props.put("acks",               "all");   // required by idempotence
+props.put("retries",            "2147483647");</code></pre>
+
+      <h3>Transactional producer (exactly-once across partitions)</h3>
+      <p>For atomically writing to multiple topics — or for read-process-write pipelines — use transactions.</p>
+
+      <pre class="code" data-lang="java"><code>props.put("enable.idempotence",   "true");
+props.put("transactional.id",     "my-service-prod-1"); // unique per producer instance
+
+KafkaProducer&lt;String, String&gt; producer = new KafkaProducer&lt;&gt;(props);
+producer.initTransactions();
+
+try {
+    producer.beginTransaction();
+    producer.send(new ProducerRecord&lt;&gt;("orders",   "o1", "{\"status\":\"placed\"}"));
+    producer.send(new ProducerRecord&lt;&gt;("inventory", "p1", "{\"reserved\":1}"));
+    producer.commitTransaction();
+} catch (Exception e) {
+    producer.abortTransaction();
+    throw e;
+}</code></pre>
+
+      <h2>Key producer configs reference</h2>
+      <table>
+        <tr><th>Config</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>bootstrap.servers</code></td><td>—</td><td>Comma-separated host:port list</td></tr>
+        <tr><td><code>acks</code></td><td><code>all</code></td><td>Delivery acknowledgment level</td></tr>
+        <tr><td><code>retries</code></td><td><code>2147483647</code></td><td>Number of automatic retries on transient failures</td></tr>
+        <tr><td><code>max.in.flight.requests.per.connection</code></td><td>5</td><td>Set to 1 to guarantee ordering without idempotence</td></tr>
+        <tr><td><code>delivery.timeout.ms</code></td><td>120 000</td><td>Upper bound on total time for send + retries</td></tr>
+        <tr><td><code>request.timeout.ms</code></td><td>30 000</td><td>Time waiting for broker response per attempt</td></tr>
+        <tr><td><code>max.block.ms</code></td><td>60 000</td><td>How long <code>send()</code> blocks when buffer is full</td></tr>
+      </table>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

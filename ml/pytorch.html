@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyTorch — ML Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Machine Learning</a><span class="sep">/</span>PyTorch</div>
+      <h1>PyTorch</h1>
+      <p class="lead">PyTorch is the dominant deep learning framework — used by most research labs and increasingly in production. Its define-by-run approach (dynamic computation graph) makes debugging natural and enables complex architectures that are hard to express in static-graph frameworks.</p>
+
+      <h2>Tensors — the building block</h2>
+      <pre class="code" data-lang="python"><code>import torch
+
+# Create tensors
+a = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+b = torch.zeros(2, 3)
+c = torch.ones(4)
+d = torch.randn(3, 3)           # standard normal
+e = torch.arange(0, 10, 2)     # [0, 2, 4, 6, 8]
+
+# Device
+device = "cuda" if torch.cuda.is_available() else "cpu"
+a = a.to(device)
+
+# Shape manipulation
+print(a.shape)                  # torch.Size([2, 2])
+print(a.reshape(1, 4))
+print(a.T)                      # transpose
+print(a.flatten())
+
+# NumPy bridge (CPU tensors only)
+import numpy as np
+n = a.cpu().numpy()
+t = torch.from_numpy(n)         # shares memory</code></pre>
+
+      <h2>Autograd — automatic differentiation</h2>
+      <pre class="code" data-lang="python"><code>import torch
+
+x = torch.tensor(3.0, requires_grad=True)
+y = x ** 2 + 2 * x + 1   # y = (x+1)²
+
+y.backward()              # compute dy/dx
+print(x.grad)             # dy/dx = 2x + 2 = 8.0
+
+# Multi-variable
+x = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+loss = (x ** 2).sum()
+loss.backward()
+print(x.grad)             # [2, 4, 6] — gradient of each element
+
+# No grad during inference (saves memory + compute)
+with torch.no_grad():
+    pred = model(x_input)</code></pre>
+
+      <h2>Building a model with nn.Module</h2>
+      <pre class="code" data-lang="python"><code>import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class MLP(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, dropout=0.3):
+        super().__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim // 2)
+        self.fc3 = nn.Linear(hidden_dim // 2, output_dim)
+        self.dropout = nn.Dropout(dropout)
+        self.bn1 = nn.BatchNorm1d(hidden_dim)
+        self.bn2 = nn.BatchNorm1d(hidden_dim // 2)
+
+    def forward(self, x):
+        x = F.relu(self.bn1(self.fc1(x)))
+        x = self.dropout(x)
+        x = F.relu(self.bn2(self.fc2(x)))
+        x = self.dropout(x)
+        return self.fc3(x)   # logits (no softmax — CrossEntropyLoss handles it)
+
+model = MLP(input_dim=20, hidden_dim=128, output_dim=5)
+print(model)
+print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")</code></pre>
+
+      <h2>Complete training loop</h2>
+      <pre class="code" data-lang="python"><code>import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+# Data
+X, y = make_classification(n_samples=2000, n_features=20, n_classes=3,
+                            n_informative=10, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test  = scaler.transform(X_test)
+
+# Tensors
+X_tr = torch.tensor(X_train, dtype=torch.float32)
+y_tr = torch.tensor(y_train, dtype=torch.long)
+X_te = torch.tensor(X_test,  dtype=torch.float32)
+y_te = torch.tensor(y_test,  dtype=torch.long)
+
+# DataLoader
+train_ds = TensorDataset(X_tr, y_tr)
+train_dl = DataLoader(train_ds, batch_size=64, shuffle=True)
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model  = MLP(20, 128, 3).to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=50)
+
+# Training loop
+for epoch in range(50):
+    model.train()
+    total_loss = 0
+    for xb, yb in train_dl:
+        xb, yb = xb.to(device), yb.to(device)
+        optimizer.zero_grad()
+        logits = model(xb)
+        loss   = criterion(logits, yb)
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+    scheduler.step()
+
+    if (epoch + 1) % 10 == 0:
+        model.eval()
+        with torch.no_grad():
+            test_logits = model(X_te.to(device))
+            test_acc    = (test_logits.argmax(1) == y_te.to(device)).float().mean()
+        print(f"Epoch {epoch+1:3d} | loss={total_loss/len(train_dl):.4f} | test_acc={test_acc:.3f}")</code></pre>
+
+      <h2>Save & load models</h2>
+      <pre class="code" data-lang="python"><code># Save — state dict only (recommended)
+torch.save(model.state_dict(), "model.pt")
+
+# Load
+loaded = MLP(20, 128, 3)
+loaded.load_state_dict(torch.load("model.pt", map_location="cpu"))
+loaded.eval()
+
+# Save full model (fragile — tied to code structure)
+torch.save(model, "full_model.pt")
+
+# Export to ONNX for deployment
+dummy = torch.randn(1, 20)
+torch.onnx.export(model.cpu(), dummy, "model.onnx",
+                  input_names=["input"], output_names=["logits"])</code></pre>
+
+      <h2>Transfer learning</h2>
+      <pre class="code" data-lang="python"><code">import torchvision.models as models
+
+# Load pretrained ResNet-18
+backbone = models.resnet18(weights="IMAGENET1K_V1")
+
+# Freeze all layers
+for param in backbone.parameters():
+    param.requires_grad = False
+
+# Replace final layer for your number of classes
+n_classes = 5
+backbone.fc = nn.Linear(backbone.fc.in_features, n_classes)
+
+# Only the new head trains
+optimizer = torch.optim.Adam(backbone.fc.parameters(), lr=1e-3)</code></pre>
+
+      <div class="callout tip"><strong>Training tips:</strong> (1) Use <code>model.train()</code> before training and <code>model.eval()</code> before inference — this toggles Dropout and BatchNorm behaviour. (2) Always call <code>optimizer.zero_grad()</code> before <code>loss.backward()</code>. (3) Use a learning rate scheduler — <code>CosineAnnealingLR</code> or <code>ReduceLROnPlateau</code> consistently improve final accuracy.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

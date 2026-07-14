@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction to Machine Learning — ML Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Machine Learning</a><span class="sep">/</span>Introduction</div>
+      <h1>Introduction to Machine Learning</h1>
+      <p class="lead">Machine Learning teaches computers to learn patterns from data without being explicitly programmed for each task. It is the engine behind recommendation systems, image recognition, natural language processing, and predictive analytics.</p>
+
+      <h2>The three types of ML</h2>
+      <div class="diagram">
+        <div class="diagram-box hl">
+          <h4>Supervised Learning</h4>
+          <ul>
+            <li>Labelled training data</li>
+            <li>Learns input → output mapping</li>
+            <li>Regression, classification</li>
+          </ul>
+        </div>
+        <div class="diagram-box">
+          <h4>Unsupervised Learning</h4>
+          <ul>
+            <li>No labels — find structure</li>
+            <li>Clustering, dimensionality reduction</li>
+            <li>k-Means, PCA, autoencoders</li>
+          </ul>
+        </div>
+        <div class="diagram-box">
+          <h4>Reinforcement Learning</h4>
+          <ul>
+            <li>Agent takes actions in environment</li>
+            <li>Learns via reward signals</li>
+            <li>Game playing, robotics, LLM RLHF</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>The ML pipeline</h2>
+      <pre class="code" data-lang="text"><code>1. Define the problem       → What are we predicting? Success metric?
+2. Collect data             → Gather labelled examples
+3. Explore & clean data     → EDA, handle missing values, outliers
+4. Feature engineering      → Transform raw data into useful signals
+5. Choose a model           → Linear, tree, neural network, etc.
+6. Train the model          → Fit on training data
+7. Evaluate                 → Measure on held-out test data
+8. Tune hyperparameters     → Grid search / Bayesian optimisation
+9. Deploy & monitor         → Serve predictions; watch for drift</code></pre>
+
+      <h2>Your first ML model with scikit-learn</h2>
+      <pre class="code" data-lang="python"><code>import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+# 1. Load data
+data = load_iris()
+X, y = data.data, data.target           # 150 samples, 4 features
+print(f"Features: {data.feature_names}")
+print(f"Classes:  {data.target_names}")
+
+# 2. Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# 3. Scale
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)   # fit on train only
+X_test  = scaler.transform(X_test)        # apply same transform
+
+# 4. Train
+model = KNeighborsClassifier(n_neighbors=5)
+model.fit(X_train, y_train)
+
+# 5. Evaluate
+y_pred = model.predict(X_test)
+print(f"Accuracy: {accuracy_score(y_test, y_pred):.2%}")
+print(classification_report(y_test, y_pred, target_names=data.target_names))</code></pre>
+
+      <h2>Key terminology</h2>
+      <table>
+        <tr><th>Term</th><th>Meaning</th></tr>
+        <tr><td><code>Feature (X)</code></td><td>Input variable used for prediction</td></tr>
+        <tr><td><code>Label / Target (y)</code></td><td>Output the model tries to predict</td></tr>
+        <tr><td><code>Training set</code></td><td>Data the model learns from</td></tr>
+        <tr><td><code>Validation set</code></td><td>Used to tune hyperparameters during development</td></tr>
+        <tr><td><code>Test set</code></td><td>Held-out data for final evaluation — never touched during training</td></tr>
+        <tr><td><code>Hyperparameter</code></td><td>Model setting chosen before training (e.g. <code>n_neighbors</code>, learning rate)</td></tr>
+        <tr><td><code>Overfitting</code></td><td>Model memorises training data, poor generalisation</td></tr>
+        <tr><td><code>Underfitting</code></td><td>Model too simple, misses patterns even in training data</td></tr>
+        <tr><td><code>Bias</code></td><td>Error from wrong assumptions — high bias → underfitting</td></tr>
+        <tr><td><code>Variance</code></td><td>Sensitivity to training data noise — high variance → overfitting</td></tr>
+      </table>
+
+      <h2>The bias-variance tradeoff</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+import numpy as np
+
+# Generate noisy sine curve
+rng = np.random.default_rng(0)
+X = np.sort(rng.uniform(0, 1, 40))
+y = np.sin(2 * np.pi * X) + rng.normal(0, 0.3, 40)
+X = X.reshape(-1, 1)
+
+# Underfit: degree 1 (too simple)
+# Good fit: degree 4
+# Overfit:  degree 15 (too complex)
+for degree in [1, 4, 15]:
+    pipe = Pipeline([
+        ("poly", PolynomialFeatures(degree)),
+        ("reg",  LinearRegression()),
+    ])
+    pipe.fit(X, y)
+    train_score = pipe.score(X, y)
+    print(f"Degree {degree:2d} | train R² = {train_score:.3f}")</code></pre>
+
+      <h2>Environment setup</h2>
+      <pre class="code" data-lang="bash"><code># Create isolated environment
+python -m venv ml-env
+source ml-env/bin/activate      # Windows: ml-env\Scripts\activate
+
+# Core ML stack
+pip install numpy pandas scikit-learn matplotlib seaborn jupyter
+
+# Deep learning (choose one)
+pip install torch torchvision    # PyTorch  (recommended)
+pip install tensorflow           # TensorFlow / Keras
+
+# Extras
+pip install xgboost lightgbm     # gradient boosting
+pip install shap                 # model explainability</code></pre>
+
+      <div class="callout tip"><strong>Which library?</strong> Start with <strong>scikit-learn</strong> for classical ML (regression, trees, SVM, clustering). Move to <strong>PyTorch</strong> when you need neural networks. Use <strong>XGBoost / LightGBM</strong> for tabular competitions — they consistently outperform everything else on structured data.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

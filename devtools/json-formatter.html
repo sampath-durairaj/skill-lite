@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON Formatter</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <style>
+    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .toolbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 20px; display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0; flex-wrap: wrap;
+    }
+
+    .btn {
+      font-size: 13px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text);
+      padding: 6px 14px; cursor: pointer; font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+      transition: background .15s, border-color .15s;
+    }
+    .btn:hover { background: var(--surface); border-color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; padding: 6px 20px; }
+    .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn.danger { color: var(--danger); }
+    .btn.danger:hover { border-color: var(--danger); }
+
+    .sep { flex: 1; }
+    .v-sep { width: 1px; background: var(--border); height: 24px; margin: 0 4px; }
+
+    .option-group { display: flex; align-items: center; gap: 8px; }
+    .option-label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+    select {
+      font-size: 12px; background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 5px; padding: 5px 8px;
+      cursor: pointer; outline: none;
+    }
+    select:hover { border-color: var(--accent); }
+
+    .toggle-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+    .toggle-wrap input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+
+    main {
+      display: grid; grid-template-columns: 1fr 1fr; flex: 1; overflow: hidden;
+    }
+
+    .panel {
+      display: flex; flex-direction: column;
+      border-right: 1px solid var(--border); overflow: hidden;
+    }
+    .panel:last-child { border-right: none; }
+
+    .panel-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .panel-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-in  { background: #f5a623; }
+    .dot-out { background: var(--success); }
+    .panel-header span { font-size: 12px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--text-muted); }
+    .panel-actions { margin-left: auto; display: flex; gap: 6px; }
+    .icon-btn {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      padding: 3px 6px; border-radius: 4px; font-size: 13px;
+      transition: color .15s, background .15s;
+    }
+    .icon-btn:hover { color: var(--text); background: var(--surface2); }
+
+    textarea {
+      flex: 1; background: #13151f; color: var(--text); border: none; resize: none;
+      padding: 16px 18px;
+      font-family: 'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;
+      font-size: 12.5px; line-height: 1.75; outline: none;
+    }
+    textarea:focus { background: #0d0f1a; }
+    textarea::placeholder { color: #3a3d52; }
+
+    /* Output panel */
+    .output-wrap {
+      flex: 1; overflow: auto; padding: 16px 18px; background: #13151f;
+      position: relative;
+    }
+
+    .output-pre {
+      font-family: 'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;
+      font-size: 12.5px; line-height: 1.75; margin: 0;
+      white-space: pre; overflow-x: visible; background: none; color: var(--text);
+    }
+
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; color: var(--text-muted); gap: 10px; font-size: 14px; text-align: center;
+    }
+    .empty-state .icon { font-size: 48px; opacity: .3; }
+
+    .error-state { padding: 16px 18px; color: var(--danger); font-size: 13px; }
+    .error-state pre {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px 14px; margin-top: 8px;
+      font-family: 'Cascadia Code','Fira Code',monospace; font-size: 12px;
+      white-space: pre-wrap; color: var(--danger);
+    }
+
+    /* Syntax highlighting */
+    .jk { color: #93c5fd; }
+    .js { color: #86efac; }
+    .ji { color: #fbbf24; }
+    .jb { color: #f472b6; }
+    .jn { color: #94a3b8; }
+
+    /* Stats bar */
+    .stats-bar {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 6px 20px; display: flex; align-items: center; gap: 20px;
+      font-size: 12px; color: var(--text-muted); flex-shrink: 0;
+    }
+    #statusMsg { margin-left: auto; font-weight: 500; transition: color .3s; }
+    #statusMsg.ok  { color: var(--success); }
+    #statusMsg.err { color: var(--danger); }
+
+    /* Presets dropdown */
+    .preset-wrap { position: relative; }
+    .preset-menu {
+      position: absolute; top: calc(100% + 6px); left: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,.3);
+      min-width: 200px; z-index: 200; overflow: hidden; display: none;
+    }
+    .preset-menu.open { display: block; }
+    .preset-menu a {
+      display: block; padding: 8px 14px; font-size: 13px; color: var(--text);
+      text-decoration: none; cursor: pointer;
+      transition: background .1s;
+    }
+    .preset-menu a:hover { background: var(--surface2); }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .panel { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="sql-formatter.html"         class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="date-formatter.html"        class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="timezone-converter.html"    class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="api-tester.html"            class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="cron-generator.html"        class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="k8s-yaml-validator.html"    class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="jwt-decoder.html"           class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="json-formatter.html"        class="nav-dropdown-item active">&#128220; JSON Formatter</a>
+        <a href="kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <div class="option-group">
+    <span class="option-label">Indent:</span>
+    <select id="indentSel">
+      <option value="2" selected>2 spaces</option>
+      <option value="4">4 spaces</option>
+      <option value="tab">Tab</option>
+    </select>
+  </div>
+  <div class="v-sep"></div>
+  <label class="toggle-wrap"><input type="checkbox" id="sortKeys" />&nbsp;Sort keys</label>
+  <div class="v-sep"></div>
+  <div class="preset-wrap">
+    <button class="btn" onclick="togglePresets(this)">&#128218; Examples &#9662;</button>
+    <div class="preset-menu" id="presetMenu">
+      <a onclick="loadPreset('user')">User object</a>
+      <a onclick="loadPreset('nested')">Nested config</a>
+      <a onclick="loadPreset('array')">Array of records</a>
+      <a onclick="loadPreset('api')">API response</a>
+      <a onclick="loadPreset('broken')">Broken JSON</a>
+    </div>
+  </div>
+  <div class="sep"></div>
+  <button class="btn" onclick="minifyJSON()">&#128465; Minify</button>
+  <button class="btn danger" onclick="clearAll()">&#10005; Clear</button>
+  <button class="btn primary" onclick="formatJSON()">&#9998; Format</button>
+</div>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-in"></span>
+      <span>Input JSON</span>
+      <div class="panel-actions">
+        <button class="icon-btn" onclick="pasteInput()" title="Paste from clipboard">&#128203;</button>
+        <button class="icon-btn" onclick="clearAll()" title="Clear">&#10005;</button>
+      </div>
+    </div>
+    <textarea id="jsonInput" spellcheck="false"
+      placeholder='Paste or type JSON here...
+
+{"name":"Alice","age":30}
+
+Press Ctrl+Enter to format.'
+      oninput="onInput()"
+    ></textarea>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-out"></span>
+      <span>Formatted Output</span>
+      <div class="panel-actions">
+        <button class="icon-btn" onclick="copyOutput()" title="Copy output">&#128203; Copy</button>
+      </div>
+    </div>
+    <div class="output-wrap" id="outputWrap">
+      <div class="empty-state" id="emptyState">
+        <div class="icon">&#128220;</div>
+        <div>Paste JSON and click <strong>Format</strong></div>
+        <div style="font-size:12px;opacity:.6">or press Ctrl+Enter</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="stats-bar">
+  <span>&#128204; <span id="inChars">0</span> chars in</span>
+  <span>&#9656; <span id="outChars">0</span> chars out</span>
+  <span>&#128290; <span id="keyCount">—</span> keys</span>
+  <span>&#9776; <span id="depthInfo">—</span> depth</span>
+  <span id="statusMsg"></span>
+</div>
+
+<script>
+var PRESETS = {
+  user: '{"id":"usr_8a4f3b","name":"Alice Johnson","email":"alice@example.com","age":30,"role":"admin","active":true,"tags":["power-user","beta"],"address":{"street":"123 Main St","city":"Springfield","state":"IL","zip":"62701"},"createdAt":"2024-01-15T08:30:00Z","lastLogin":null}',
+  nested: '{"server":{"host":"localhost","port":8080,"tls":true},"database":{"url":"postgres://localhost:5432/mydb","pool":{"min":2,"max":10,"idleTimeout":30000}},"cache":{"driver":"redis","ttl":3600,"prefix":"app:"},"features":{"darkMode":true,"betaEditor":false,"maxUploadMb":50}}',
+  array: '[{"id":1,"product":"Widget A","qty":3,"price":9.99,"inStock":true},{"id":2,"product":"Widget B","qty":0,"price":24.99,"inStock":false},{"id":3,"product":"Widget C","qty":15,"price":4.50,"inStock":true}]',
+  api: '{"status":"success","code":200,"data":{"users":[{"id":101,"username":"jdoe","email":"jdoe@example.com","roles":["viewer","editor"]},{"id":102,"username":"msmith","email":"msmith@example.com","roles":["admin"]}],"total":2,"page":1,"perPage":20},"meta":{"requestId":"req-7f8a2c","duration":42,"timestamp":"2025-06-01T12:00:00Z"}}',
+  broken: '{"name": "broken"  "age": 25, "city": "NY"}'
+};
+
+function sortObjKeys(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(sortObjKeys);
+  return Object.keys(obj).sort().reduce(function(acc, k) {
+    acc[k] = sortObjKeys(obj[k]);
+    return acc;
+  }, {});
+}
+
+function countKeys(obj, depth) {
+  if (depth === undefined) depth = 0;
+  if (obj === null || typeof obj !== 'object') return { keys: 0, depth: depth };
+  var total = 0, maxDepth = depth;
+  var entries = Array.isArray(obj) ? obj : Object.values(obj);
+  if (!Array.isArray(obj)) total += Object.keys(obj).length;
+  entries.forEach(function(v) {
+    var r = countKeys(v, depth + 1);
+    total += r.keys;
+    if (r.depth > maxDepth) maxDepth = r.depth;
+  });
+  return { keys: total, depth: maxDepth };
+}
+
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function highlight(json) {
+  return escH(json).replace(
+    /("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    function(m) {
+      var cls = /^"/.test(m) ? (/:$/.test(m) ? 'jk' : 'js') : /true|false/.test(m) ? 'jb' : /null/.test(m) ? 'jn' : 'ji';
+      return '<span class="' + cls + '">' + m + '</span>';
+    }
+  );
+}
+
+function getIndent() {
+  var v = document.getElementById('indentSel').value;
+  return v === 'tab' ? '\t' : parseInt(v);
+}
+
+var lastFormatted = '';
+
+function formatJSON() {
+  var raw = document.getElementById('jsonInput').value;
+  var msg = document.getElementById('statusMsg');
+  var out = document.getElementById('outputWrap');
+
+  if (!raw.trim()) {
+    out.innerHTML = '<div class="empty-state"><div class="icon">&#128220;</div><div>Paste JSON and click <strong>Format</strong></div><div style="font-size:12px;opacity:.6">or press Ctrl+Enter</div></div>';
+    updateStats(0, null);
+    return;
+  }
+
+  try {
+    var parsed = JSON.parse(raw);
+    if (document.getElementById('sortKeys').checked) parsed = sortObjKeys(parsed);
+    var indent = getIndent();
+    var formatted = JSON.stringify(parsed, null, indent);
+    lastFormatted = formatted;
+
+    var stats = countKeys(parsed, 0);
+    document.getElementById('keyCount').textContent = stats.keys;
+    document.getElementById('depthInfo').textContent = stats.depth;
+    document.getElementById('outChars').textContent = formatted.length.toLocaleString();
+
+    out.innerHTML = '<pre class="output-pre" id="outputPre">' + highlight(formatted) + '</pre>';
+    msg.textContent = 'Formatted ✓'; msg.className = 'ok';
+    setTimeout(function() { msg.textContent = ''; msg.className = ''; }, 2500);
+  } catch(e) {
+    lastFormatted = '';
+    out.innerHTML = '<div class="error-state">&#10005; ' + escH(e.message) + '<pre>' + escH(raw.trim().slice(0, 500)) + '</pre></div>';
+    msg.textContent = 'Invalid JSON'; msg.className = 'err';
+    document.getElementById('keyCount').textContent = '—';
+    document.getElementById('depthInfo').textContent = '—';
+    document.getElementById('outChars').textContent = '0';
+  }
+}
+
+function minifyJSON() {
+  var raw = document.getElementById('jsonInput').value;
+  var msg = document.getElementById('statusMsg');
+  var out = document.getElementById('outputWrap');
+
+  if (!raw.trim()) return;
+  try {
+    var parsed = JSON.parse(raw);
+    var minified = JSON.stringify(parsed);
+    lastFormatted = minified;
+    document.getElementById('outChars').textContent = minified.length.toLocaleString();
+    out.innerHTML = '<pre class="output-pre" id="outputPre" style="white-space:pre-wrap;word-break:break-all">' + highlight(minified) + '</pre>';
+    msg.textContent = 'Minified ✓ (' + Math.round((1 - minified.length / raw.length) * 100) + '% smaller)';
+    msg.className = 'ok';
+    setTimeout(function() { msg.textContent = ''; msg.className = ''; }, 3000);
+  } catch(e) {
+    msg.textContent = 'Invalid JSON'; msg.className = 'err';
+  }
+}
+
+function clearAll() {
+  document.getElementById('jsonInput').value = '';
+  document.getElementById('outputWrap').innerHTML = '<div class="empty-state" id="emptyState"><div class="icon">&#128220;</div><div>Paste JSON and click <strong>Format</strong></div><div style="font-size:12px;opacity:.6">or press Ctrl+Enter</div></div>';
+  updateStats(0, null);
+  lastFormatted = '';
+  var msg = document.getElementById('statusMsg');
+  msg.textContent = ''; msg.className = '';
+}
+
+function updateStats(inLen, parsed) {
+  document.getElementById('inChars').textContent = inLen.toLocaleString();
+  if (parsed === null) {
+    document.getElementById('keyCount').textContent = '—';
+    document.getElementById('depthInfo').textContent = '—';
+    document.getElementById('outChars').textContent = '0';
+  }
+}
+
+function onInput() {
+  var v = document.getElementById('jsonInput').value;
+  document.getElementById('inChars').textContent = v.length.toLocaleString();
+}
+
+async function copyOutput() {
+  if (!lastFormatted) return;
+  try {
+    await navigator.clipboard.writeText(lastFormatted);
+    var msg = document.getElementById('statusMsg');
+    msg.textContent = 'Copied ✓'; msg.className = 'ok';
+    setTimeout(function() { msg.textContent = ''; msg.className = ''; }, 2000);
+  } catch(e) { alert('Copy failed: ' + e.message); }
+}
+
+async function pasteInput() {
+  try {
+    var t = await navigator.clipboard.readText();
+    document.getElementById('jsonInput').value = t;
+    onInput();
+    formatJSON();
+  } catch { document.getElementById('jsonInput').focus(); }
+}
+
+function loadPreset(key) {
+  document.getElementById('jsonInput').value = PRESETS[key] || '';
+  onInput();
+  formatJSON();
+  document.getElementById('presetMenu').classList.remove('open');
+}
+
+function togglePresets(btn) {
+  document.getElementById('presetMenu').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+  var pm = document.getElementById('presetMenu');
+  if (!pm.contains(e.target) && !e.target.closest('.preset-wrap')) {
+    pm.classList.remove('open');
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); formatJSON(); }
+});
+
+document.getElementById('indentSel').addEventListener('change', function() {
+  if (lastFormatted) formatJSON();
+});
+document.getElementById('sortKeys').addEventListener('change', function() {
+  if (document.getElementById('jsonInput').value.trim()) formatJSON();
+});
+</script>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

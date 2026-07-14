@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture — Kubernetes Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kubernetes</a><span class="sep">/</span>Architecture</div>
+      <h1>Cluster Architecture</h1>
+      <p class="lead">A Kubernetes cluster is split into two planes: the <strong>control plane</strong>, which makes decisions, and the <strong>worker nodes</strong>, which run your containers. Understanding what each component does makes everything else in Kubernetes — and every error message — far easier to reason about.</p>
+
+      <h2>The big picture</h2>
+      <div class="diagram">
+        <div class="diagram-box hl">
+          <h4>Control Plane</h4>
+          <ul>
+            <li><b>kube-apiserver</b> — the front door; everything talks to it</li>
+            <li><b>etcd</b> — the cluster database</li>
+            <li><b>kube-scheduler</b> — picks a node for each new pod</li>
+            <li><b>controller-manager</b> — runs the reconciliation loops</li>
+            <li><b>cloud-controller-manager</b> — talks to your cloud provider</li>
+          </ul>
+        </div>
+        <div class="diagram-box">
+          <h4>Worker Node (× N)</h4>
+          <ul>
+            <li><b>kubelet</b> — the node agent; starts and watches pods</li>
+            <li><b>kube-proxy</b> — programs networking rules for Services</li>
+            <li><b>container runtime</b> — containerd / CRI-O; runs containers</li>
+            <li><b>Pods</b> — your application workloads</li>
+          </ul>
+        </div>
+      </div>
+      <p>Every interaction — <code>kubectl</code> commands, controllers, kubelets reporting status — flows through the API server. Components never talk to each other directly; they all read and write objects in the API, which makes the system loosely coupled and observable.</p>
+
+      <h2>Control plane components</h2>
+
+      <h3>kube-apiserver</h3>
+      <p>The API server exposes the Kubernetes REST API. It validates requests, enforces authentication and authorization (RBAC), and is the <em>only</em> component that reads or writes <code>etcd</code>. When you run <code>kubectl apply</code>, you are making an HTTPS request to this component.</p>
+
+      <h3>etcd</h3>
+      <p>A consistent, distributed key-value store that holds the entire cluster state: every object you create, every status update. Lose etcd without a backup and you lose the cluster's memory — which is why production clusters run it in an odd-numbered quorum (3 or 5 members) and back it up regularly.</p>
+
+      <h3>kube-scheduler</h3>
+      <p>Watches for pods that have no node assigned and picks the best one for each. Scheduling runs in two phases:</p>
+      <ul>
+        <li><strong>Filtering</strong> — remove nodes that can't run the pod (not enough CPU/memory, missing labels required by a <code>nodeSelector</code>, taints the pod doesn't tolerate).</li>
+        <li><strong>Scoring</strong> — rank the survivors (spread across zones, prefer less-loaded nodes, honor affinity rules) and bind the pod to the winner.</li>
+      </ul>
+
+      <h3>kube-controller-manager</h3>
+      <p>A single binary that runs dozens of <strong>controllers</strong> — the reconciliation loops that give Kubernetes its self-healing behavior. Each controller watches one object type and drives actual state toward desired state. Examples:</p>
+      <ul>
+        <li><strong>Deployment controller</strong> — keeps ReplicaSets in line with the Deployment spec.</li>
+        <li><strong>ReplicaSet controller</strong> — creates or deletes pods to match the replica count.</li>
+        <li><strong>Node controller</strong> — notices unresponsive nodes and evicts their pods.</li>
+        <li><strong>Job controller</strong> — runs pods to completion and tracks retries.</li>
+      </ul>
+      <div class="callout tip"><strong>The reconciliation loop</strong> is the heart of Kubernetes: <em>observe</em> current state → <em>diff</em> against desired state → <em>act</em> to close the gap → repeat forever. Every controller follows this pattern.</div>
+
+      <h3>cloud-controller-manager</h3>
+      <p>Bridges the cluster to a cloud provider's APIs: provisioning load balancers for <code>Service type: LoadBalancer</code>, attaching cloud disks, and syncing node metadata. Local clusters (minikube, kind) simply don't run it.</p>
+
+      <h2>Node components</h2>
+
+      <h3>kubelet</h3>
+      <p>The agent on every node. It watches the API server for pods assigned to its node, tells the container runtime to start their containers, runs liveness/readiness probes, and reports pod and node status back. The kubelet only manages containers created through Kubernetes — it ignores containers you start manually.</p>
+
+      <h3>kube-proxy</h3>
+      <p>Implements the virtual IPs behind Services. It programs <code>iptables</code> or <code>IPVS</code> rules so traffic addressed to a Service IP is transparently forwarded to one of the healthy backing pods — no user-space proxying on the data path.</p>
+
+      <h3>Container runtime</h3>
+      <p>The software that actually pulls images and runs containers — typically <strong>containerd</strong> or <strong>CRI-O</strong>. Kubernetes talks to it through the Container Runtime Interface (CRI), which is why Docker Engine itself is no longer required on nodes.</p>
+
+      <h2>Add-ons you'll find in almost every cluster</h2>
+      <table>
+        <tr><th>Add-on</th><th>Purpose</th></tr>
+        <tr><td>CoreDNS</td><td>Cluster DNS — gives Services and Pods resolvable names like <code>my-svc.my-namespace.svc.cluster.local</code>.</td></tr>
+        <tr><td>CNI plugin</td><td>Pod networking (Calico, Cilium, Flannel…). Gives every pod its own IP and connects them across nodes.</td></tr>
+        <tr><td>metrics-server</td><td>Collects CPU/memory usage; required for <code>kubectl top</code> and the Horizontal Pod Autoscaler.</td></tr>
+        <tr><td>Ingress controller</td><td>Implements Ingress rules (NGINX, Traefik, cloud ALB…). Covered in the Ingress chapter.</td></tr>
+      </table>
+
+      <h2>Follow a <code>kubectl apply</code> through the system</h2>
+      <p>Tying it together — here is what happens when you deploy an app:</p>
+      <ol>
+        <li><code>kubectl apply -f deploy.yaml</code> sends the Deployment to the <strong>API server</strong>, which validates it and stores it in <strong>etcd</strong>.</li>
+        <li>The <strong>Deployment controller</strong> sees the new object and creates a ReplicaSet; the <strong>ReplicaSet controller</strong> creates pod objects — still unscheduled.</li>
+        <li>The <strong>scheduler</strong> notices pods with no node, filters and scores nodes, and binds each pod to one.</li>
+        <li>The <strong>kubelet</strong> on each chosen node sees a pod assigned to it, asks the <strong>container runtime</strong> to pull the image and start containers, and reports status back.</li>
+        <li><strong>kube-proxy</strong> updates networking rules if a Service selects these pods; <strong>CoreDNS</strong> resolves the Service name.</li>
+      </ol>
+      <p>Inspect the moving parts on your own cluster:</p>
+      <pre class="code" data-lang="bash"><code># Control plane components run as pods in kube-system
+kubectl get pods -n kube-system
+
+# Detailed view of a node and its capacity
+kubectl describe node &lt;node-name&gt;
+
+# Watch the event stream — the cluster narrating its own actions
+kubectl get events --sort-by=.metadata.creationTimestamp</code></pre>
+
+      <div class="callout"><strong>Next:</strong> with the machinery clear, we can look at the object everything revolves around — the <strong>Pod</strong>.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

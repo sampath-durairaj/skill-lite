@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAG Cheat Sheet — RAG Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">RAG</a><span class="sep">/</span>Cheat Sheet</div>
+      <h1>RAG Cheat Sheet</h1>
+      <p class="lead">Complete reference for all RAG patterns, APIs, and configurations on one page.</p>
+
+      <h2>Installation</h2>
+      <pre class="code" data-lang="bash"><code>pip install langchain langchain-openai langchain-chroma langchain-community
+pip install langchain-huggingface sentence-transformers faiss-cpu
+pip install pypdf unstructured beautifulsoup4 tiktoken python-dotenv</code></pre>
+
+      <h2>Full indexing pipeline</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader, WebBaseLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain_chroma import Chroma
+
+# 1. Load
+docs = PyPDFLoader("file.pdf").load()
+# or: DirectoryLoader("docs/", glob="**/*.md").load()
+# or: WebBaseLoader(["https://example.com"]).load()
+
+# 2. Split
+chunks = RecursiveCharacterTextSplitter(
+    chunk_size=1000, chunk_overlap=200
+).split_documents(docs)
+
+# 3. Embed + Store
+db = Chroma.from_documents(
+    documents=chunks,
+    embedding=OpenAIEmbeddings(model="text-embedding-3-small"),
+    persist_directory="./chroma_db",
+    collection_name="my_docs",
+)</code></pre>
+
+      <h2>Full RAG chain (LCEL)</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+# Load existing store
+db = Chroma(persist_directory="./chroma_db", embedding_function=OpenAIEmbeddings())
+retriever = db.as_retriever(search_kwargs={"k": 4})
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", """Answer using ONLY the context below.
+If the answer is not in the context, say "I don't know."
+
+Context:
+{context}"""),
+    ("human", "{question}"),
+])
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt | llm | StrOutputParser()
+)
+
+answer = rag_chain.invoke("What is the vacation policy?")</code></pre>
+
+      <h2>Document loaders quick reference</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import (
+    PyPDFLoader,           # PDF files
+    PyMuPDFLoader,         # PDF (better quality)
+    WebBaseLoader,         # HTML pages
+    RecursiveUrlLoader,    # crawl entire site
+    CSVLoader,             # CSV spreadsheets
+    JSONLoader,            # JSON with jq
+    TextLoader,            # plain text
+    DirectoryLoader,       # entire folders
+    SQLDatabaseLoader,     # SQL databases
+    S3FileLoader,          # AWS S3
+)</code></pre>
+
+      <h2>Text splitters quick reference</h2>
+      <pre class="code" data-lang="python"><code>from langchain_text_splitters import (
+    RecursiveCharacterTextSplitter,    # general (default)
+    MarkdownHeaderTextSplitter,        # Markdown files
+    Language,                          # source code
+)
+from langchain_experimental.text_splitter import SemanticChunker  # semantic
+
+# General
+splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+
+# Markdown
+md = MarkdownHeaderTextSplitter([("#","h1"),("##","h2"),("###","h3")])
+
+# Code
+py = RecursiveCharacterTextSplitter.from_language(Language.PYTHON, chunk_size=500)
+
+# Token-based
+tok = RecursiveCharacterTextSplitter.from_tiktoken_encoder("gpt-4o", chunk_size=256)</code></pre>
+
+      <h2>Embeddings quick reference</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
+
+openai = OpenAIEmbeddings(model="text-embedding-3-small", dimensions=512)
+hf     = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
+ollama = OllamaEmbeddings(model="nomic-embed-text")
+
+# Embed
+vector = openai.embed_query("text")        # single query
+vectors = openai.embed_documents(["a","b"]) # batch</code></pre>
+
+      <h2>Retrievers quick reference</h2>
+      <pre class="code" data-lang="python"><code>from langchain.retrievers import MultiQueryRetriever, ContextualCompressionRetriever, EnsembleRetriever, ParentDocumentRetriever
+from langchain.retrievers.document_compressors import LLMChainExtractor, EmbeddingsFilter
+from langchain_community.retrievers import BM25Retriever
+
+# Basic similarity
+r = db.as_retriever(search_kwargs={"k": 4})
+
+# MMR (diverse results)
+r = db.as_retriever(search_type="mmr", search_kwargs={"k":4,"fetch_k":20})
+
+# Score threshold
+r = db.as_retriever(search_type="similarity_score_threshold",
+                    search_kwargs={"k":4,"score_threshold":0.7})
+
+# MultiQuery (LLM rewrites question)
+r = MultiQueryRetriever.from_llm(retriever=r, llm=llm)
+
+# Compression (LLM trims irrelevant content)
+r = ContextualCompressionRetriever(
+    base_compressor=LLMChainExtractor.from_llm(llm), base_retriever=r)
+
+# Hybrid BM25 + vector
+r = EnsembleRetriever(
+    retrievers=[BM25Retriever.from_documents(chunks), db.as_retriever()],
+    weights=[0.4, 0.6])</code></pre>
+
+      <h2>Key imports quick-reference</h2>
+      <table>
+        <tr><th>What</th><th>Import</th></tr>
+        <tr><td>Chroma</td><td><code>from langchain_chroma import Chroma</code></td></tr>
+        <tr><td>FAISS</td><td><code>from langchain_community.vectorstores import FAISS</code></td></tr>
+        <tr><td>OpenAIEmbeddings</td><td><code>from langchain_openai import OpenAIEmbeddings</code></td></tr>
+        <tr><td>HuggingFaceEmbeddings</td><td><code>from langchain_huggingface import HuggingFaceEmbeddings</code></td></tr>
+        <tr><td>RecursiveCharacterTextSplitter</td><td><code>from langchain_text_splitters import RecursiveCharacterTextSplitter</code></td></tr>
+        <tr><td>PyPDFLoader</td><td><code>from langchain_community.document_loaders import PyPDFLoader</code></td></tr>
+        <tr><td>MultiQueryRetriever</td><td><code>from langchain.retrievers import MultiQueryRetriever</code></td></tr>
+        <tr><td>EnsembleRetriever</td><td><code>from langchain.retrievers import EnsembleRetriever</code></td></tr>
+        <tr><td>BM25Retriever</td><td><code>from langchain_community.retrievers import BM25Retriever</code></td></tr>
+        <tr><td>CacheBackedEmbeddings</td><td><code>from langchain.embeddings import CacheBackedEmbeddings</code></td></tr>
+      </table>
+
+      <h2>Chunk size guide</h2>
+      <table>
+        <tr><th>Content type</th><th>chunk_size</th><th>chunk_overlap</th></tr>
+        <tr><td>General prose</td><td>800–1200</td><td>150–200</td></tr>
+        <tr><td>Technical docs with code</td><td>500–800</td><td>100</td></tr>
+        <tr><td>FAQs / short Q&amp;A</td><td>200–400</td><td>50</td></tr>
+        <tr><td>Legal / dense text</td><td>1000–1500</td><td>200–300</td></tr>
+        <tr><td>Source code (tokens)</td><td>256–512 tok</td><td>32–64 tok</td></tr>
+      </table>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neural Networks — ML Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Machine Learning</a><span class="sep">/</span>Neural Networks</div>
+      <h1>Neural Networks</h1>
+      <p class="lead">Neural networks are universal function approximators built from layers of interconnected neurons. Each neuron computes a weighted sum of its inputs and passes it through a non-linear activation function. Stacking many layers creates a deep network that can learn extraordinarily complex representations.</p>
+
+      <h2>Anatomy of a neuron</h2>
+      <pre class="code" data-lang="python"><code>import numpy as np
+
+def neuron(inputs, weights, bias, activation="relu"):
+    z = np.dot(weights, inputs) + bias   # linear combination
+    if activation == "relu":    return max(0, z)
+    if activation == "sigmoid": return 1 / (1 + np.exp(-z))
+    if activation == "tanh":    return np.tanh(z)
+    return z   # linear (no activation)
+
+# Example: single neuron with 3 inputs
+inputs  = np.array([0.5, -1.2, 0.8])
+weights = np.array([0.4,  0.3, -0.6])
+bias    = 0.1
+print(neuron(inputs, weights, bias))   # relu(0.5*0.4 + (-1.2)*0.3 + 0.8*(-0.6) + 0.1)</code></pre>
+
+      <h2>Activation functions</h2>
+      <table>
+        <tr><th>Function</th><th>Range</th><th>Use</th><th>Vanishing gradient?</th></tr>
+        <tr><td>Sigmoid</td><td>(0, 1)</td><td>Binary output layer</td><td>Yes — saturates at extremes</td></tr>
+        <tr><td>Tanh</td><td>(-1, 1)</td><td>Hidden layers (older)</td><td>Yes — but centred at 0</td></tr>
+        <tr><td>ReLU</td><td>[0, ∞)</td><td>Hidden layers (default)</td><td>Dying ReLU problem</td></tr>
+        <tr><td>Leaky ReLU</td><td>(-∞, ∞)</td><td>Hidden layers</td><td>No</td></tr>
+        <tr><td>GELU</td><td>(-∞, ∞)</td><td>Transformers</td><td>No</td></tr>
+        <tr><td>Softmax</td><td>(0, 1), sums to 1</td><td>Multi-class output layer</td><td>—</td></tr>
+      </table>
+
+      <h2>MLP with scikit-learn</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.neural_network import MLPClassifier
+from sklearn.datasets import load_digits
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+digits = load_digits()
+X_train, X_test, y_train, y_test = train_test_split(
+    digits.data, digits.target, test_size=0.2, random_state=42
+)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test  = scaler.transform(X_test)
+
+mlp = MLPClassifier(
+    hidden_layer_sizes=(256, 128),   # two hidden layers
+    activation="relu",
+    solver="adam",
+    learning_rate_init=1e-3,
+    max_iter=300,
+    early_stopping=True,             # stop when val loss stops improving
+    validation_fraction=0.1,
+    random_state=42,
+)
+mlp.fit(X_train, y_train)
+print(f"Test accuracy: {mlp.score(X_test, y_test):.3f}")
+print(f"Loss curve: {len(mlp.loss_curve_)} epochs")</code></pre>
+
+      <h2>Backpropagation — the algorithm</h2>
+      <pre class="code" data-lang="python"><code>import numpy as np
+
+# Tiny 2-layer network: input(2) → hidden(3) → output(1)
+def sigmoid(z): return 1 / (1 + np.exp(-z))
+def sigmoid_prime(z): s = sigmoid(z); return s * (1 - s)
+
+# Random weights
+rng = np.random.default_rng(0)
+W1 = rng.standard_normal((3, 2)) * 0.1   # hidden: 3 neurons, 2 inputs
+b1 = np.zeros((3, 1))
+W2 = rng.standard_normal((1, 3)) * 0.1   # output: 1 neuron, 3 inputs
+b2 = np.zeros((1, 1))
+
+lr = 0.1
+X = np.array([[0,0],[0,1],[1,0],[1,1]]).T   # XOR input  (2, 4)
+y = np.array([[0,1,1,0]])                   # XOR output (1, 4)
+
+for epoch in range(5000):
+    # ── Forward pass ──
+    z1 = W1 @ X + b1      # (3, 4)
+    a1 = sigmoid(z1)
+    z2 = W2 @ a1 + b2     # (1, 4)
+    a2 = sigmoid(z2)
+
+    # ── Loss (MSE) ──
+    loss = ((a2 - y) ** 2).mean()
+
+    # ── Backward pass ──
+    dz2 = 2 * (a2 - y) * sigmoid_prime(z2) / y.shape[1]
+    dW2 = dz2 @ a1.T
+    db2 = dz2.sum(axis=1, keepdims=True)
+
+    dz1 = (W2.T @ dz2) * sigmoid_prime(z1)
+    dW1 = dz1 @ X.T
+    db1 = dz1.sum(axis=1, keepdims=True)
+
+    # ── Gradient descent ──
+    W1 -= lr * dW1; b1 -= lr * db1
+    W2 -= lr * dW2; b2 -= lr * db2
+
+    if epoch % 1000 == 0:
+        print(f"Epoch {epoch:5d}  loss={loss:.5f}")
+
+print("XOR predictions:", a2.round(2))</code></pre>
+
+      <h2>Regularisation techniques</h2>
+      <pre class="code" data-lang="python"><code>import torch
+import torch.nn as nn
+
+class RegularisedNet(nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, dropout=0.3):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.BatchNorm1d(hidden_dim),   # normalise activations
+            nn.ReLU(),
+            nn.Dropout(dropout),          # randomly zero p fraction of neurons
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.BatchNorm1d(hidden_dim // 2),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim // 2, output_dim),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+# L2 regularisation = weight_decay in the optimizer
+optimizer = torch.optim.Adam(
+    RegularisedNet(10, 128, 2).parameters(),
+    lr=1e-3, weight_decay=1e-4
+)</code></pre>
+
+      <div class="callout tip"><strong>Architecture defaults:</strong> ReLU activations + Adam optimizer + BatchNorm + Dropout(0.2–0.5) is a solid default. Add more layers/neurons and increase dropout if you overfit; reduce model size if training is too slow. Always start with a simple baseline before going deep.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dependency Injection — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>Dependency Injection</div>
+      <h1>Dependency Injection</h1>
+      <p class="lead">Dependency Injection (DI) is the foundation of Spring. Instead of classes creating their own dependencies, Spring's IoC (Inversion of Control) container creates and injects them. This makes code modular, testable, and easy to swap out implementations.</p>
+
+      <h2>Stereotype annotations</h2>
+      <p>Spring discovers beans by scanning for these annotations in your application package and all sub-packages.</p>
+      <table>
+        <tr><th>Annotation</th><th>Role</th><th>Layer</th></tr>
+        <tr><td><code>@Component</code></td><td>Generic Spring-managed bean</td><td>Any</td></tr>
+        <tr><td><code>@Service</code></td><td>Business logic</td><td>Service layer</td></tr>
+        <tr><td><code>@Repository</code></td><td>Data access; also translates DB exceptions</td><td>Persistence layer</td></tr>
+        <tr><td><code>@Controller</code></td><td>Handles HTTP requests (MVC)</td><td>Web layer</td></tr>
+        <tr><td><code>@RestController</code></td><td>@Controller + @ResponseBody</td><td>Web layer (REST)</td></tr>
+        <tr><td><code>@Configuration</code></td><td>Source of @Bean method definitions</td><td>Any</td></tr>
+      </table>
+
+      <h2>Constructor injection (recommended)</h2>
+      <pre class="code" data-lang="java"><code>@Service
+public class OrderService {
+
+    private final OrderRepository orderRepo;
+    private final PaymentService paymentService;
+    private final EmailService emailService;
+
+    // Spring injects all three — no @Autowired needed with a single constructor
+    public OrderService(OrderRepository orderRepo,
+                        PaymentService paymentService,
+                        EmailService emailService) {
+        this.orderRepo      = orderRepo;
+        this.paymentService = paymentService;
+        this.emailService   = emailService;
+    }
+
+    public Order placeOrder(OrderRequest req) {
+        Order order = orderRepo.save(new Order(req));
+        paymentService.charge(order);
+        emailService.sendConfirmation(order);
+        return order;
+    }
+}</code></pre>
+      <div class="callout tip"><strong>Why constructor injection?</strong> Dependencies are explicit (visible in the constructor signature), the object is always fully initialised, fields can be <code>final</code> for thread safety, and it is trivially unit-testable without a Spring context.</div>
+
+      <h2>Field injection (avoid in production code)</h2>
+      <pre class="code" data-lang="java"><code>@Service
+public class BadExample {
+    @Autowired
+    private UserRepository repo;  // hidden dependency, can't be final, hard to test
+}</code></pre>
+
+      <h2>@Bean factory methods</h2>
+      <p>Use <code>@Bean</code> in a <code>@Configuration</code> class to register third-party objects or objects that need construction logic.</p>
+      <pre class="code" data-lang="java"><code>@Configuration
+public class AppConfig {
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return JsonMapper.builder()
+                .addModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+        return builder
+                .setConnectTimeout(Duration.ofSeconds(5))
+                .setReadTimeout(Duration.ofSeconds(10))
+                .build();
+    }
+}</code></pre>
+
+      <h2>Bean scopes</h2>
+      <table>
+        <tr><th>Scope</th><th>Behaviour</th></tr>
+        <tr><td><code>singleton</code> (default)</td><td>One instance per Spring context. Shared across all callers.</td></tr>
+        <tr><td><code>prototype</code></td><td>New instance every time the bean is requested.</td></tr>
+        <tr><td><code>request</code></td><td>One instance per HTTP request (web apps).</td></tr>
+        <tr><td><code>session</code></td><td>One instance per HTTP session.</td></tr>
+      </table>
+      <pre class="code" data-lang="java"><code>@Component
+@Scope("prototype")   // new instance per injection point
+public class ReportGenerator { ... }</code></pre>
+
+      <h2>Conditional beans</h2>
+      <pre class="code" data-lang="java"><code>// Only create this bean when a property is set
+@Bean
+@ConditionalOnProperty(name = "feature.email.enabled", havingValue = "true")
+public EmailService emailService() {
+    return new SmtpEmailService();
+}
+
+// Provide a fallback if no other EmailService bean is defined
+@Bean
+@ConditionalOnMissingBean(EmailService.class)
+public EmailService noopEmailService() {
+    return new NoopEmailService();
+}
+
+// Only active on specific profiles
+@Bean
+@Profile("dev")
+public DataSource h2DataSource() { ... }
+
+@Bean
+@Profile("prod")
+public DataSource postgresDataSource() { ... }</code></pre>
+
+      <h2>Qualifiers — disambiguating multiple beans</h2>
+      <pre class="code" data-lang="java"><code>@Bean("primaryCache")
+public CacheManager redisCacheManager() { ... }
+
+@Bean("localCache")
+public CacheManager caffeineCacheManager() { ... }
+
+// Inject by name
+@Service
+public class ProductService {
+    public ProductService(@Qualifier("primaryCache") CacheManager cache) {
+        this.cache = cache;
+    }
+}</code></pre>
+
+      <h2>Lifecycle callbacks</h2>
+      <pre class="code" data-lang="java"><code>@Component
+public class ConnectionPool {
+
+    @PostConstruct          // called after injection, before the bean is used
+    public void init() {
+        // open connections
+    }
+
+    @PreDestroy             // called on context shutdown
+    public void cleanup() {
+        // close connections
+    }
+}</code></pre>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction — LangGraph Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangGraph</a><span class="sep">/</span>Introduction</div>
+      <h1>Introduction to LangGraph</h1>
+      <p class="lead">LangGraph is a library for building stateful, multi-step AI workflows as directed graphs. Unlike LangChain chains that run once and exit, LangGraph supports <strong>cycles</strong>, <strong>persistence</strong>, and <strong>human-in-the-loop</strong> — the building blocks of real agentic systems.</p>
+
+      <h2>Why LangGraph?</h2>
+      <table>
+        <tr><th>Need</th><th>LangGraph solution</th></tr>
+        <tr><td>Agent that loops until it has an answer</td><td>Cycles in the graph — not just linear pipelines</td></tr>
+        <tr><td>Multi-step workflows with branching logic</td><td>Conditional edges based on state</td></tr>
+        <tr><td>Pause for human approval mid-execution</td><td><code>interrupt_before</code> / <code>interrupt_after</code></td></tr>
+        <tr><td>Resume a workflow from where it stopped</td><td>Checkpointing with <code>MemorySaver</code> or <code>SqliteSaver</code></td></tr>
+        <tr><td>Multiple agents collaborating</td><td>Multi-agent graphs with handoffs</td></tr>
+        <tr><td>Streaming token-by-token output</td><td>Built-in <code>stream()</code> with multiple stream modes</td></tr>
+      </table>
+
+      <h2>LangChain vs LangGraph</h2>
+      <div class="diagram">
+        <div class="diagram-box"><h4>LangChain LCEL</h4><ul><li>Linear pipeline</li><li>prompt | llm | parser</li><li>Single pass, no cycles</li><li>Great for simple chains</li><li>No built-in persistence</li></ul></div>
+        <div class="diagram-box hl"><h4>LangGraph</h4><ul><li>Graph of nodes + edges</li><li>Supports cycles &amp; loops</li><li>Stateful across steps</li><li>Checkpointing built-in</li><li>Human-in-the-loop ready</li></ul></div>
+      </div>
+
+      <h2>Installation</h2>
+      <pre class="code" data-lang="bash"><code>pip install langgraph
+pip install langchain-openai   # or langchain-anthropic
+pip install langgraph-checkpoint-sqlite   # optional: SQLite persistence</code></pre>
+
+      <h2>Core concepts</h2>
+      <table>
+        <tr><th>Concept</th><th>Description</th></tr>
+        <tr><td><strong>StateGraph</strong></td><td>The graph object — you add nodes and edges to it</td></tr>
+        <tr><td><strong>State</strong></td><td>A TypedDict shared by all nodes; nodes read &amp; update it</td></tr>
+        <tr><td><strong>Node</strong></td><td>A Python function that receives state and returns a state update</td></tr>
+        <tr><td><strong>Edge</strong></td><td>A connection between nodes — either fixed or conditional</td></tr>
+        <tr><td><strong>START / END</strong></td><td>Special sentinel nodes marking the entry and exit points</td></tr>
+        <tr><td><strong>Checkpointer</strong></td><td>Saves state after each step — enables resume and HITL</td></tr>
+      </table>
+
+      <h2>Your first graph</h2>
+      <pre class="code" data-lang="python"><code>from typing import TypedDict
+from langgraph.graph import StateGraph, START, END
+from langchain_openai import ChatOpenAI
+
+# 1. Define the shared state
+class State(TypedDict):
+    question: str
+    answer: str
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+# 2. Define nodes (functions that update state)
+def ask_llm(state: State) -> dict:
+    response = llm.invoke(state["question"])
+    return {"answer": response.content}
+
+def format_answer(state: State) -> dict:
+    formatted = f"**Answer:** {state['answer']}"
+    return {"answer": formatted}
+
+# 3. Build the graph
+graph = StateGraph(State)
+graph.add_node("ask_llm", ask_llm)
+graph.add_node("format_answer", format_answer)
+
+# 4. Connect nodes with edges
+graph.add_edge(START, "ask_llm")
+graph.add_edge("ask_llm", "format_answer")
+graph.add_edge("format_answer", END)
+
+# 5. Compile and run
+app = graph.compile()
+result = app.invoke({"question": "What is LangGraph?", "answer": ""})
+print(result["answer"])</code></pre>
+
+      <h2>Visualising the graph</h2>
+      <pre class="code" data-lang="python"><code>from IPython.display import Image, display
+
+# Render the graph as a PNG (requires graphviz)
+display(Image(app.get_graph().draw_mermaid_png()))
+
+# Or print ASCII representation
+app.get_graph().print_ascii()</code></pre>
+
+      <h2>The execution model</h2>
+      <div class="diagram">
+        <div class="diagram-box hl"><h4>START</h4><ul><li>Entry point</li><li>Initial state passed in</li></ul></div>
+        <div class="diagram-box"><h4>Node A</h4><ul><li>Reads state</li><li>Returns partial update</li></ul></div>
+        <div class="diagram-box"><h4>Node B</h4><ul><li>Reads updated state</li><li>Conditional edge check</li></ul></div>
+        <div class="diagram-box"><h4>END</h4><ul><li>Graph exits</li><li>Final state returned</li></ul></div>
+      </div>
+
+      <div class="callout tip"><strong>When to use LangGraph vs LCEL:</strong> Use LCEL for simple prompt → LLM → parser pipelines. Use LangGraph when you need loops (retry on failure, tool-use cycles), branching decisions, multi-step agent behaviour, persistence between turns, or human approval gates.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

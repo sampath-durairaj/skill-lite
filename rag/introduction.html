@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction to RAG — RAG Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">RAG</a><span class="sep">/</span>Introduction</div>
+      <h1>Introduction to RAG</h1>
+      <p class="lead">Retrieval-Augmented Generation (RAG) combines the generative power of LLMs with the precision of information retrieval. Instead of relying solely on what a model learned during training, RAG pulls in <strong>relevant, up-to-date documents</strong> at query time and feeds them to the LLM as context — giving you accurate, grounded answers on your own data.</p>
+
+      <h2>Why RAG?</h2>
+      <table>
+        <tr><th>Problem with plain LLMs</th><th>How RAG fixes it</th></tr>
+        <tr><td>Knowledge cutoff — no data after training</td><td>Retrieves current documents at query time</td></tr>
+        <tr><td>Hallucinations — confident but wrong answers</td><td>Grounds answers in retrieved source text</td></tr>
+        <tr><td>No access to private / company data</td><td>Indexes your own documents in a vector store</td></tr>
+        <tr><td>Context window limits on long documents</td><td>Retrieves only the relevant chunks, not everything</td></tr>
+        <tr><td>Expensive fine-tuning to add new knowledge</td><td>Just re-index — no model retraining needed</td></tr>
+      </table>
+
+      <h2>The RAG pipeline</h2>
+      <div class="diagram">
+        <div class="diagram-box hl"><h4>1. Load</h4><ul><li>PDF, Web, CSV, DB</li><li>Document loaders</li><li>Any data source</li></ul></div>
+        <div class="diagram-box"><h4>2. Split</h4><ul><li>Chunk into segments</li><li>Preserve context</li><li>Overlap at borders</li></ul></div>
+        <div class="diagram-box"><h4>3. Embed</h4><ul><li>Convert text → vector</li><li>Capture semantic meaning</li><li>OpenAI / local models</li></ul></div>
+        <div class="diagram-box"><h4>4. Store</h4><ul><li>Save in vector DB</li><li>Chroma, FAISS, Pinecone</li><li>Indexed for fast search</li></ul></div>
+        <div class="diagram-box"><h4>5. Retrieve</h4><ul><li>User asks a question</li><li>Embed question</li><li>Similarity search → top-k chunks</li></ul></div>
+        <div class="diagram-box"><h4>6. Generate</h4><ul><li>LLM + question + chunks</li><li>Grounded answer</li><li>Can cite sources</li></ul></div>
+      </div>
+
+      <h2>Two phases: indexing vs querying</h2>
+      <table>
+        <tr><th>Phase</th><th>When</th><th>Steps</th></tr>
+        <tr><td><strong>Indexing</strong></td><td>Once (or on data update)</td><td>Load → Split → Embed → Store</td></tr>
+        <tr><td><strong>Querying</strong></td><td>Every user request</td><td>Embed question → Retrieve → Generate</td></tr>
+      </table>
+
+      <h2>Minimal end-to-end RAG</h2>
+      <pre class="code" data-lang="bash"><code>pip install langchain langchain-openai langchain-chroma langchain-community
+pip install pypdf python-dotenv tiktoken</code></pre>
+      <pre class="code" data-lang="python"><code>import os
+from dotenv import load_dotenv
+load_dotenv()   # OPENAI_API_KEY from .env
+
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_chroma import Chroma
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+# ── 1. INDEXING PHASE ──────────────────────────────────────
+docs   = PyPDFLoader("handbook.pdf").load()
+chunks = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200).split_documents(docs)
+db     = Chroma.from_documents(chunks, OpenAIEmbeddings(), persist_directory="./db")
+
+# ── 2. QUERYING PHASE ──────────────────────────────────────
+retriever = db.as_retriever(search_kwargs={"k": 4})
+llm       = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "Answer using ONLY the context below. If unsure, say 'I don't know'.\n\nContext:\n{context}"),
+    ("human", "{question}"),
+])
+
+rag_chain = (
+    {"context": retriever | (lambda docs: "\n\n".join(d.page_content for d in docs)),
+     "question": RunnablePassthrough()}
+    | prompt | llm | StrOutputParser()
+)
+
+print(rag_chain.invoke("What is the vacation policy?"))</code></pre>
+
+      <h2>RAG use cases</h2>
+      <table>
+        <tr><th>Use case</th><th>Documents indexed</th></tr>
+        <tr><td>Enterprise Q&amp;A bot</td><td>Internal wikis, Confluence, HR policies</td></tr>
+        <tr><td>Customer support</td><td>Product docs, FAQs, troubleshooting guides</td></tr>
+        <tr><td>Legal / compliance</td><td>Contracts, regulations, case law</td></tr>
+        <tr><td>Code assistant</td><td>Codebase, API docs, architecture docs</td></tr>
+        <tr><td>Medical reference</td><td>Research papers, clinical guidelines</td></tr>
+        <tr><td>Financial analysis</td><td>Earnings reports, SEC filings, market data</td></tr>
+      </table>
+
+      <h2>RAG vs fine-tuning</h2>
+      <table>
+        <tr><th></th><th>RAG</th><th>Fine-tuning</th></tr>
+        <tr><td>Cost</td><td>Low — just indexing</td><td>High — GPU compute</td></tr>
+        <tr><td>Update data</td><td>Re-index in minutes</td><td>Re-train (hours/days)</td></tr>
+        <tr><td>Hallucination control</td><td>High — grounded in docs</td><td>Low</td></tr>
+        <tr><td>Teach new skills</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Best for</td><td>Knowledge, facts, documents</td><td>Style, format, tasks</td></tr>
+      </table>
+
+      <div class="callout tip"><strong>Start simple:</strong> A basic RAG pipeline — PDF → split → Chroma → retrieve → GPT-4o-mini — often outperforms fine-tuned models on factual Q&A tasks and takes under an hour to build. Only reach for advanced techniques (re-ranking, HyDE, CRAG) after measuring where your baseline falls short.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

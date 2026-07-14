@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consumers — Apache Kafka Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kafka</a><span class="sep">/</span>Consumers &amp; Consumer Groups</div>
+      <h1>Consumers &amp; Consumer Groups</h1>
+      <p class="lead">Kafka consumers read events from partitions using a pull model. Consumer groups coordinate which consumer instance reads which partition, enabling both horizontal scaling and independent multi-subscriber access to the same topic.</p>
+
+      <h2>Basic consumer poll loop</h2>
+      <pre class="code" data-lang="java"><code>import org.apache.kafka.clients.consumer.*;
+import java.time.Duration;
+import java.util.*;
+
+Properties props = new Properties();
+props.put("bootstrap.servers",  "localhost:9092");
+props.put("group.id",           "order-processor");
+props.put("key.deserializer",   "org.apache.kafka.common.serialization.StringDeserializer");
+props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+props.put("auto.offset.reset",  "earliest"); // start from beginning if no committed offset
+
+KafkaConsumer&lt;String, String&gt; consumer = new KafkaConsumer&lt;&gt;(props);
+consumer.subscribe(List.of("orders"));
+
+try {
+    while (true) {
+        ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(100));
+        for (ConsumerRecord&lt;String, String&gt; record : records) {
+            System.out.printf("topic=%s partition=%d offset=%d key=%s value=%s%n",
+                record.topic(), record.partition(), record.offset(),
+                record.key(), record.value());
+        }
+    }
+} finally {
+    consumer.close(); // commits offsets and triggers rebalance
+}</code></pre>
+
+      <h2>Consumer groups</h2>
+      <p>All consumers sharing the same <code>group.id</code> form a consumer group. Kafka distributes partitions among group members so each partition is consumed by exactly one member at a time.</p>
+      <ul>
+        <li>If you run <strong>fewer consumers than partitions</strong>, some consumers handle multiple partitions.</li>
+        <li>If you run <strong>consumers equal to partitions</strong>, each consumer gets exactly one partition — maximum parallelism.</li>
+        <li>If you run <strong>more consumers than partitions</strong>, the extras sit idle until a member fails or leaves.</li>
+      </ul>
+      <p>Multiple <em>different</em> consumer groups each receive all events independently — Kafka remembers each group's offset separately. This is ideal for fan-out scenarios (e.g., one group for analytics, another for archiving).</p>
+
+      <h2>Offset management</h2>
+      <p>An offset represents the position of the next record a consumer will read. Committing an offset tells Kafka "I've processed everything up to here."</p>
+
+      <h3>Auto-commit (default)</h3>
+      <p>When <code>enable.auto.commit=true</code> (the default), the consumer commits the latest polled offsets every <code>auto.commit.interval.ms</code> (5 000 ms). This is simple but can cause duplicates: if the consumer crashes after polling but before processing, the uncommitted offsets are re-processed on restart.</p>
+
+      <h3>Manual commit</h3>
+      <pre class="code" data-lang="java"><code>props.put("enable.auto.commit", "false");
+
+// ... inside the poll loop ...
+for (ConsumerRecord&lt;String, String&gt; record : records) {
+    process(record); // your business logic
+}
+
+// Sync commit — blocks until broker confirms
+consumer.commitSync();
+
+// Or async commit — non-blocking
+consumer.commitAsync((offsets, exception) -&gt; {
+    if (exception != null) log.error("Commit failed", exception);
+});</code></pre>
+
+      <h3>Commit specific offsets</h3>
+      <pre class="code" data-lang="java"><code>Map&lt;TopicPartition, OffsetAndMetadata&gt; offsets = new HashMap&lt;&gt;();
+offsets.put(
+    new TopicPartition("orders", 0),
+    new OffsetAndMetadata(record.offset() + 1) // commit next-to-read offset
+);
+consumer.commitSync(offsets);</code></pre>
+
+      <h2>Seeking to a specific offset</h2>
+      <pre class="code" data-lang="java"><code>// Assign partitions manually (no group rebalancing)
+TopicPartition p0 = new TopicPartition("orders", 0);
+consumer.assign(List.of(p0));
+
+// Seek to beginning
+consumer.seekToBeginning(List.of(p0));
+
+// Seek to end (tail)
+consumer.seekToEnd(List.of(p0));
+
+// Seek to specific offset
+consumer.seek(p0, 500L);
+
+// Seek to a timestamp
+Map&lt;TopicPartition, Long&gt; timestamps = Map.of(p0, System.currentTimeMillis() - 3_600_000);
+Map&lt;TopicPartition, OffsetAndTimestamp&gt; result = consumer.offsetsForTimes(timestamps);
+consumer.seek(p0, result.get(p0).offset());</code></pre>
+
+      <h2>Rebalancing</h2>
+      <p>A <strong>rebalance</strong> is the process of reassigning partitions among consumer group members. It triggers when:</p>
+      <ul>
+        <li>A consumer joins the group (new instance started)</li>
+        <li>A consumer leaves the group (graceful close or crash after session timeout)</li>
+        <li>Topic partitions are added</li>
+      </ul>
+      <p>During a rebalance, all consumption pauses until the new assignment is complete. To avoid data loss or duplicates, commit offsets before the rebalance with a <code>ConsumerRebalanceListener</code>:</p>
+
+      <pre class="code" data-lang="java"><code>consumer.subscribe(List.of("orders"), new ConsumerRebalanceListener() {
+    @Override
+    public void onPartitionsRevoked(Collection&lt;TopicPartition&gt; partitions) {
+        consumer.commitSync(); // commit before losing partitions
+    }
+
+    @Override
+    public void onPartitionsAssigned(Collection&lt;TopicPartition&gt; partitions) {
+        // optional: seek or load state for newly assigned partitions
+    }
+});</code></pre>
+
+      <h3>Cooperative (incremental) rebalancing</h3>
+      <p>The default eager rebalance revokes <em>all</em> partitions from all members before reassigning. Kafka 2.4 introduced the <strong>CooperativeStickyAssignor</strong>, which only moves partitions that actually need to change — dramatically reducing disruption in large consumer groups.</p>
+
+      <pre class="code" data-lang="java"><code>props.put("partition.assignment.strategy",
+    "org.apache.kafka.clients.consumer.CooperativeStickyAssignor");</code></pre>
+
+      <h2>Key consumer configs</h2>
+      <table>
+        <tr><th>Config</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>group.id</code></td><td>—</td><td>Consumer group name (required for subscribe)</td></tr>
+        <tr><td><code>auto.offset.reset</code></td><td><code>latest</code></td><td><code>earliest</code> to replay from start; <code>latest</code> to skip existing messages</td></tr>
+        <tr><td><code>enable.auto.commit</code></td><td><code>true</code></td><td>Set false for manual control</td></tr>
+        <tr><td><code>max.poll.records</code></td><td>500</td><td>Max records returned per poll call</td></tr>
+        <tr><td><code>max.poll.interval.ms</code></td><td>300 000</td><td>Max time between polls before consumer is considered dead</td></tr>
+        <tr><td><code>session.timeout.ms</code></td><td>45 000</td><td>Heartbeat timeout — if broker hears nothing, consumer is evicted</td></tr>
+        <tr><td><code>heartbeat.interval.ms</code></td><td>3 000</td><td>How often consumer sends heartbeat; should be ⅓ of session.timeout.ms</td></tr>
+        <tr><td><code>fetch.min.bytes</code></td><td>1</td><td>Minimum bytes broker accumulates before responding; increase for throughput</td></tr>
+        <tr><td><code>fetch.max.wait.ms</code></td><td>500</td><td>Max wait if fetch.min.bytes not yet reached</td></tr>
+      </table>
+
+      <div class="callout"><strong>Tuning tip:</strong> if your consumer processes records slowly (e.g., calls an external API), increase <code>max.poll.interval.ms</code> to match your worst-case processing time, or reduce <code>max.poll.records</code> so each batch finishes faster.</div>
+
+      <h2>Monitoring consumer lag</h2>
+      <p><strong>Consumer lag</strong> is the difference between the latest offset in a partition and the consumer's committed offset. High lag means the consumer is falling behind producers.</p>
+
+      <pre class="code" data-lang="bash"><code># Check lag for all groups
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
+
+# Detailed lag for a specific group
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group order-processor --describe
+
+# Reset offsets to beginning (useful for replaying)
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group order-processor --topic orders \
+  --reset-offsets --to-earliest --execute</code></pre>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

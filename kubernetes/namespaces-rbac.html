@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Namespaces &amp; RBAC — Kubernetes Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kubernetes</a><span class="sep">/</span>Namespaces &amp; RBAC</div>
+      <h1>Namespaces &amp; RBAC</h1>
+      <p class="lead">Namespaces carve one physical cluster into logical spaces — per team, per environment, per app. RBAC (Role-Based Access Control) then decides who can do what in each space. Together they are how clusters stay organized and secure as they grow.</p>
+
+      <h2>Namespaces</h2>
+      <p>A namespace scopes resource names (two teams can both have a Deployment called <code>api</code>), and is the unit for access control and resource quotas. Every cluster starts with:</p>
+      <table>
+        <tr><th>Namespace</th><th>Contains</th></tr>
+        <tr><td>default</td><td>Where things land when you don't specify — fine for learning, avoid in production.</td></tr>
+        <tr><td>kube-system</td><td>Kubernetes' own components (CoreDNS, kube-proxy…). Don't touch casually.</td></tr>
+        <tr><td>kube-public</td><td>Readable by everyone, rarely used.</td></tr>
+        <tr><td>kube-node-lease</td><td>Node heartbeat objects.</td></tr>
+      </table>
+      <pre class="code" data-lang="bash"><code>kubectl create namespace staging
+kubectl get pods -n staging              # -n targets a namespace
+kubectl get pods -A                      # -A = all namespaces
+kubectl config set-context --current --namespace=staging   # change your default
+kubectl apply -f app.yaml -n staging</code></pre>
+      <div class="callout warn"><strong>Deleting a namespace deletes everything inside it.</strong> <code>kubectl delete namespace staging</code> removes every deployment, service, secret, and claim it contains. Powerful for cleanup, catastrophic by accident.</div>
+      <p>Cross-namespace DNS works with qualified names: <code>api.staging</code> reaches Service <code>api</code> in namespace <code>staging</code>. Note that namespaces do <em>not</em> block network traffic by default — that requires NetworkPolicies.</p>
+
+      <h3>Quotas and limits per namespace</h3>
+      <pre class="code" data-lang="yaml"><code>apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-quota
+  namespace: staging
+spec:
+  hard:
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    pods: "50"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: defaults
+  namespace: staging
+spec:
+  limits:
+    - type: Container
+      defaultRequest: { cpu: 100m, memory: 128Mi }
+      default:        { cpu: 500m, memory: 512Mi }</code></pre>
+      <p><strong>ResourceQuota</strong> caps a namespace's total consumption; <strong>LimitRange</strong> fills in requests/limits for containers that forgot to set them — which also keeps the HPA and scheduler working sensibly.</p>
+
+      <h2>RBAC: who can do what</h2>
+      <p>Every API request is checked against RBAC rules. Four objects define the model, in two pairs:</p>
+      <table>
+        <tr><th>Object</th><th>Scope</th><th>Defines</th></tr>
+        <tr><td>Role</td><td>One namespace</td><td>A set of permissions ("verbs on resources").</td></tr>
+        <tr><td>ClusterRole</td><td>Whole cluster</td><td>Same, but cluster-wide (or reusable across namespaces).</td></tr>
+        <tr><td>RoleBinding</td><td>One namespace</td><td>Grants a Role (or ClusterRole) to users/groups/ServiceAccounts in that namespace.</td></tr>
+        <tr><td>ClusterRoleBinding</td><td>Whole cluster</td><td>Grants a ClusterRole everywhere.</td></tr>
+      </table>
+      <p>Permissions are <strong>additive only</strong> — there is no "deny" rule; you start with nothing and grant what's needed.</p>
+
+      <h3>Example: read-only access for a developer</h3>
+      <pre class="code" data-lang="yaml"><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: staging
+rules:
+  - apiGroups: [""]                      # "" = the core API group
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dev-pod-reader
+  namespace: staging
+subjects:
+  - kind: User
+    name: jane@example.com
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io</code></pre>
+      <p>Jane can now read pods and logs in <code>staging</code> — and do nothing else, nowhere else.</p>
+      <p>Kubernetes ships convenient built-in ClusterRoles you can bind instead of writing your own: <code>view</code> (read-only), <code>edit</code> (read-write, no RBAC changes), <code>admin</code> (namespace admin), <code>cluster-admin</code> (everything).</p>
+      <pre class="code" data-lang="bash"><code># Give the frontend team edit rights in their namespace, one line:
+kubectl create rolebinding frontend-edit \
+  --clusterrole=edit --group=frontend-team -n frontend</code></pre>
+
+      <h3>ServiceAccounts: identity for pods</h3>
+      <p>Humans authenticate via your identity provider; <strong>pods</strong> authenticate as a <strong>ServiceAccount</strong>. Every pod gets one (<code>default</code> if unspecified). If your app talks to the Kubernetes API — operators, CI runners, controllers — give it its own account with minimal rights:</p>
+      <pre class="code" data-lang="yaml"><code>apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: log-reader
+  namespace: staging
+---
+# bind it like any subject:
+subjects:
+  - kind: ServiceAccount
+    name: log-reader
+    namespace: staging</code></pre>
+      <pre class="code" data-lang="yaml"><code># and in the pod spec:
+spec:
+  serviceAccountName: log-reader</code></pre>
+
+      <h3>Checking permissions</h3>
+      <pre class="code" data-lang="bash"><code>kubectl auth can-i delete pods -n staging                  # can *I*?
+kubectl auth can-i list secrets --as=jane@example.com      # can *she*?
+kubectl auth can-i get pods \
+  --as=system:serviceaccount:staging:log-reader            # can the service account?
+kubectl auth can-i --list -n staging                       # everything I can do here</code></pre>
+
+      <h2>A sane starting layout</h2>
+      <ul>
+        <li>One namespace per app per environment (<code>shop-staging</code>, <code>shop-prod</code>) — or per team in shared clusters.</li>
+        <li>ResourceQuota + LimitRange on every namespace from day one.</li>
+        <li>Developers get <code>edit</code> in dev/staging namespaces, <code>view</code> in prod; deploys to prod go through CI's ServiceAccount.</li>
+        <li>Nobody uses <code>cluster-admin</code> day-to-day.</li>
+      </ul>
+
+      <h2>Command recap</h2>
+      <pre class="code" data-lang="bash"><code>kubectl get namespaces
+kubectl create namespace staging
+kubectl config set-context --current --namespace=staging
+kubectl get role,rolebinding -n staging
+kubectl describe clusterrole edit          # see what a built-in role grants
+kubectl auth can-i --list</code></pre>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

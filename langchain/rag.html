@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAG &amp; Vector Stores — LangChain Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangChain</a><span class="sep">/</span>RAG &amp; Vector Stores</div>
+      <h1>RAG &amp; Vector Stores</h1>
+      <p class="lead">Retrieval-Augmented Generation (RAG) lets an LLM answer questions about your own data — documents, PDFs, databases — without retraining. You index your data into a vector store, retrieve the most relevant chunks at query time, and pass them to the LLM as context.</p>
+
+      <h2>RAG pipeline overview</h2>
+      <div class="diagram">
+        <div class="diagram-box hl"><h4>1. Load</h4><ul><li>PDF, Web, CSV, DB</li><li>Document loaders</li></ul></div>
+        <div class="diagram-box"><h4>2. Split</h4><ul><li>Chunk into segments</li><li>RecursiveCharacterTextSplitter</li></ul></div>
+        <div class="diagram-box"><h4>3. Embed</h4><ul><li>Convert to vectors</li><li>OpenAIEmbeddings</li></ul></div>
+        <div class="diagram-box"><h4>4. Store</h4><ul><li>Save to vector DB</li><li>Chroma / FAISS / Pinecone</li></ul></div>
+        <div class="diagram-box"><h4>5. Retrieve</h4><ul><li>Similarity search</li><li>Top-k relevant chunks</li></ul></div>
+        <div class="diagram-box"><h4>6. Generate</h4><ul><li>LLM + context + question</li><li>Grounded answer</li></ul></div>
+      </div>
+
+      <h2>Document loaders</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import (
+    PyPDFLoader,
+    WebBaseLoader,
+    CSVLoader,
+    TextLoader,
+    DirectoryLoader,
+)
+
+# Load a PDF
+pdf_loader = PyPDFLoader("docs/kubernetes-guide.pdf")
+pdf_docs = pdf_loader.load()   # list of Document objects
+
+# Load a web page
+web_loader = WebBaseLoader("https://docs.docker.com/get-started/")
+web_docs = web_loader.load()
+
+# Load a CSV
+csv_loader = CSVLoader("data/products.csv", source_column="name")
+csv_docs = csv_loader.load()
+
+# Load all .md files in a folder
+dir_loader = DirectoryLoader("docs/", glob="**/*.md", loader_cls=TextLoader)
+all_docs = dir_loader.load()
+
+print(f"Loaded {len(all_docs)} documents")
+print(all_docs[0].page_content[:200])
+print(all_docs[0].metadata)   # {"source": "docs/intro.md", "row": 0, ...}</code></pre>
+
+      <h2>Text splitters</h2>
+      <pre class="code" data-lang="python"><code>from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
+
+# Most versatile splitter — tries to split on paragraphs, then sentences, then chars
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,       # target chunk size in characters
+    chunk_overlap=200,     # overlap to preserve context at boundaries
+    length_function=len,
+)
+
+chunks = splitter.split_documents(all_docs)
+print(f"Split into {len(chunks)} chunks")
+
+# For Markdown — split at headers to preserve structure
+md_splitter = MarkdownHeaderTextSplitter(
+    headers_to_split_on=[("##", "section"), ("###", "subsection")]
+)
+md_chunks = md_splitter.split_text(markdown_text)</code></pre>
+
+      <h2>Vector stores — embed and index</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import OpenAIEmbeddings
+from langchain_chroma import Chroma
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+# Build vector store from documents (indexes all chunks)
+vectorstore = Chroma.from_documents(
+    documents=chunks,
+    embedding=embeddings,
+    persist_directory="./chroma_db",  # save to disk
+    collection_name="devdocs",
+)
+
+# Similarity search
+results = vectorstore.similarity_search("How do I create a Docker volume?", k=4)
+for doc in results:
+    print(doc.page_content[:200])
+    print("---")
+
+# Similarity search with relevance scores (0-1, higher = more similar)
+results_with_scores = vectorstore.similarity_search_with_relevance_scores(
+    "What is a Kubernetes Pod?", k=3
+)</code></pre>
+
+      <h2>FAISS — in-memory vector search</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.vectorstores import FAISS
+
+# Build FAISS index (in-memory, no server needed)
+faiss_store = FAISS.from_documents(chunks, embeddings)
+
+# Save and load
+faiss_store.save_local("faiss_index")
+faiss_store = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)</code></pre>
+
+      <h2>Complete RAG chain (LCEL)</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_chroma import Chroma
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+# Load existing vector store
+vectorstore = Chroma(
+    persist_directory="./chroma_db",
+    embedding_function=OpenAIEmbeddings(model="text-embedding-3-small"),
+    collection_name="devdocs",
+)
+
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+
+# Prompt that includes retrieved context
+rag_prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are a helpful assistant. Answer using ONLY the context below.
+If the answer is not in the context, say "I don't know."
+
+Context:
+{context}"""),
+    ("human", "{question}"),
+])
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+# Full RAG chain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | rag_prompt
+    | llm
+    | StrOutputParser()
+)
+
+answer = rag_chain.invoke("How do Docker volumes work?")
+print(answer)</code></pre>
+
+      <h2>Advanced retrievers</h2>
+      <pre class="code" data-lang="python"><code>from langchain.retrievers import ContextualCompressionRetriever, MultiQueryRetriever
+from langchain.retrievers.document_compressors import LLMChainExtractor
+
+# 1. MultiQuery — generates multiple phrasings of the question to improve recall
+multi_retriever = MultiQueryRetriever.from_llm(
+    retriever=vectorstore.as_retriever(),
+    llm=llm,
+)
+
+# 2. Contextual Compression — removes irrelevant parts of retrieved chunks
+compressor = LLMChainExtractor.from_llm(llm)
+compression_retriever = ContextualCompressionRetriever(
+    base_compressor=compressor,
+    base_retriever=vectorstore.as_retriever(search_kwargs={"k": 6}),
+)
+
+# 3. Max Marginal Relevance — balances relevance and diversity
+mmr_retriever = vectorstore.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 4, "fetch_k": 20, "lambda_mult": 0.7},
+)</code></pre>
+
+      <div class="callout tip"><strong>Chunk size matters:</strong> Too small (under 200 chars) loses context; too large (over 2000 chars) reduces precision. Start with 1000 chars + 200 overlap. For code files, use <code>Language</code> splitter so chunks stay on function/class boundaries.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schema Registry & Avro — Apache Kafka Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kafka</a><span class="sep">/</span>Schema Registry &amp; Avro</div>
+      <h1>Schema Registry &amp; Avro</h1>
+      <p class="lead">Without a schema contract, a Kafka topic is just bytes — any producer can send anything. Schema Registry enforces that all messages on a topic conform to a registered schema, catching compatibility breaks at produce time before they crash consumers.</p>
+
+      <h2>Why schema management matters</h2>
+      <p>In a production system with multiple producer and consumer teams:</p>
+      <ul>
+        <li>A producer renames a field → consumers break silently or with cryptic errors.</li>
+        <li>A producer adds a required field → old consumers that don't know it fail to deserialize.</li>
+        <li>A producer changes a field type from <code>int</code> to <code>string</code> → consumers get garbage data.</li>
+      </ul>
+      <p>Schema Registry prevents all of these by validating each message's schema against the registered, versioned schema for the topic before the produce call succeeds.</p>
+
+      <h2>Apache Avro</h2>
+      <p>Avro is the most popular serialization format for Kafka because:</p>
+      <ul>
+        <li><strong>Compact binary format</strong> — no field names in the payload (schema is separate), so messages are much smaller than JSON.</li>
+        <li><strong>Rich type system</strong> — primitives, records, arrays, maps, enums, unions, and logical types (date, timestamp, decimal).</li>
+        <li><strong>Schema evolution rules</strong> — adding optional fields is safe; the schema defines explicit compatibility rules.</li>
+      </ul>
+
+      <pre class="code" data-lang="json"><code>// Order schema — order.avsc
+{
+  "type": "record",
+  "name": "Order",
+  "namespace": "com.example",
+  "fields": [
+    { "name": "orderId",    "type": "string" },
+    { "name": "customerId", "type": "string" },
+    { "name": "total",      "type": "double" },
+    { "name": "status",     "type": { "type": "enum", "name": "OrderStatus",
+                                     "symbols": ["PLACED","PAID","SHIPPED","CANCELLED"] } },
+    { "name": "createdAt",  "type": { "type": "long", "logicalType": "timestamp-millis" } },
+    { "name": "notes",      "type": ["null", "string"], "default": null }
+  ]
+}</code></pre>
+
+      <h2>Schema Registry — how it works</h2>
+      <p>When a producer serializes a record with the Avro serializer:</p>
+      <ol>
+        <li>The serializer hashes the schema and checks its local cache.</li>
+        <li>If not cached, it calls the Registry's REST API to register the schema (or retrieve the existing schema ID).</li>
+        <li>If the schema is incompatible with the registered version, the registration <strong>fails</strong> and the produce call throws an exception.</li>
+        <li>The message payload is prefixed with a magic byte <code>0x00</code> and the 4-byte schema ID, then the Avro binary body.</li>
+      </ol>
+      <p>Consumers call the Registry to fetch the schema by ID embedded in each message, then deserialize.</p>
+
+      <h2>Running Schema Registry locally</h2>
+      <pre class="code" data-lang="yaml"><code># docker-compose.yml (add to your Kafka setup)
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.6.0
+    depends_on: [kafka]
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081</code></pre>
+
+      <h2>Schema Registry REST API</h2>
+      <pre class="code" data-lang="bash"><code># Register a schema
+curl -X POST http://localhost:8081/subjects/orders-value/versions \
+  -H "Content-Type: application/vnd.schemaregistry.v1+json" \
+  -d '{"schema": "{\"type\":\"record\",\"name\":\"Order\",\"fields\":[...]}"}'
+
+# List all subjects
+curl http://localhost:8081/subjects
+
+# Get all versions of a subject
+curl http://localhost:8081/subjects/orders-value/versions
+
+# Get schema by version
+curl http://localhost:8081/subjects/orders-value/versions/1
+
+# Get latest schema
+curl http://localhost:8081/subjects/orders-value/versions/latest
+
+# Check compatibility before registering
+curl -X POST http://localhost:8081/compatibility/subjects/orders-value/versions/latest \
+  -H "Content-Type: application/vnd.schemaregistry.v1+json" \
+  -d '{"schema": "..."}'</code></pre>
+
+      <h2>Compatibility modes</h2>
+      <p>Each subject has a compatibility level that controls what schema changes are allowed:</p>
+
+      <table>
+        <tr><th>Mode</th><th>New schema must be…</th><th>Use when…</th></tr>
+        <tr><td><code>BACKWARD</code> (default)</td><td>Readable by the previous version consumer</td><td>You deploy consumers before producers</td></tr>
+        <tr><td><code>FORWARD</code></td><td>Readable by the new version consumer from old data</td><td>You deploy producers before consumers</td></tr>
+        <tr><td><code>FULL</code></td><td>Both BACKWARD and FORWARD</td><td>You can't guarantee deploy order</td></tr>
+        <tr><td><code>BACKWARD_TRANSITIVE</code></td><td>Readable by <em>all</em> previous consumers</td><td>Long-lived data that old consumers must still read</td></tr>
+        <tr><td><code>NONE</code></td><td>No checks</td><td>Development only — never production</td></tr>
+      </table>
+
+      <div class="callout"><strong>Safe evolution rules (BACKWARD compatible):</strong> you may add optional fields with a default value; you may remove fields that had a default value. You must NOT rename fields, change types, or add required fields without defaults.</div>
+
+      <h2>Using Avro with Kafka in Java</h2>
+      <pre class="code" data-lang="xml"><code>&lt;!-- Maven dependencies --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.confluent&lt;/groupId&gt;
+  &lt;artifactId&gt;kafka-avro-serializer&lt;/artifactId&gt;
+  &lt;version&gt;7.6.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.avro&lt;/groupId&gt;
+  &lt;artifactId&gt;avro&lt;/artifactId&gt;
+  &lt;version&gt;1.11.3&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+      <pre class="code" data-lang="java"><code>// Avro producer
+Properties props = new Properties();
+props.put("bootstrap.servers",        "localhost:9092");
+props.put("schema.registry.url",      "http://localhost:8081");
+props.put("key.serializer",           StringSerializer.class);
+props.put("value.serializer",         KafkaAvroSerializer.class);
+
+// Using generated class (from avro-maven-plugin)
+Order order = Order.newBuilder()
+    .setOrderId("ord-001")
+    .setCustomerId("cust-42")
+    .setTotal(99.99)
+    .setStatus(OrderStatus.PLACED)
+    .setCreatedAt(Instant.now().toEpochMilli())
+    .build();
+
+producer.send(new ProducerRecord&lt;&gt;("orders", order.getOrderId().toString(), order));
+
+// Avro consumer
+props.put("value.deserializer", KafkaAvroDeserializer.class);
+props.put("specific.avro.reader", "true"); // use generated class
+
+KafkaConsumer&lt;String, Order&gt; consumer = new KafkaConsumer&lt;&gt;(props);
+consumer.subscribe(List.of("orders"));
+ConsumerRecords&lt;String, Order&gt; records = consumer.poll(Duration.ofMillis(100));
+for (ConsumerRecord&lt;String, Order&gt; r : records) {
+    Order o = r.value();
+    System.out.println(o.getOrderId() + " total: " + o.getTotal());
+}</code></pre>
+
+      <h2>Schema evolution example</h2>
+      <pre class="code" data-lang="json"><code>// Version 2 — add optional "region" field (BACKWARD compatible)
+{
+  "type": "record",
+  "name": "Order",
+  "namespace": "com.example",
+  "fields": [
+    { "name": "orderId",    "type": "string" },
+    { "name": "customerId", "type": "string" },
+    { "name": "total",      "type": "double" },
+    { "name": "status",     "type": { "type": "enum", "name": "OrderStatus",
+                                     "symbols": ["PLACED","PAID","SHIPPED","CANCELLED"] } },
+    { "name": "createdAt",  "type": { "type": "long", "logicalType": "timestamp-millis" } },
+    { "name": "notes",      "type": ["null", "string"], "default": null },
+    { "name": "region",     "type": ["null", "string"], "default": null }
+  ]
+}</code></pre>
+      <p>Old consumers reading v2 messages simply ignore the new <code>region</code> field. New consumers reading v1 messages get <code>null</code> for <code>region</code> (the default). Both directions work — this is BACKWARD compatible.</p>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

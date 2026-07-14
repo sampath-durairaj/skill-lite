@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Text Splitting — RAG Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">RAG</a><span class="sep">/</span>Text Splitting</div>
+      <h1>Text Splitting</h1>
+      <p class="lead">Text splitting (chunking) breaks long documents into pieces small enough to embed and retrieve efficiently. The size and overlap of chunks directly affects retrieval quality — too small loses context, too large reduces precision and wastes tokens.</p>
+
+      <h2>Splitter comparison</h2>
+      <table>
+        <tr><th>Splitter</th><th>Best for</th><th>Key parameter</th></tr>
+        <tr><td><code>RecursiveCharacterTextSplitter</code></td><td>General text (most common)</td><td><code>chunk_size</code>, <code>chunk_overlap</code></td></tr>
+        <tr><td><code>CharacterTextSplitter</code></td><td>Simple split on one separator</td><td><code>separator</code></td></tr>
+        <tr><td><code>MarkdownHeaderTextSplitter</code></td><td>Markdown files, preserves structure</td><td><code>headers_to_split_on</code></td></tr>
+        <tr><td><code>RecursiveJsonSplitter</code></td><td>JSON data</td><td><code>max_chunk_size</code></td></tr>
+        <tr><td><code>Language</code> (code splitter)</td><td>Source code files</td><td><code>language</code> enum</td></tr>
+        <tr><td><code>SemanticChunker</code></td><td>Semantic coherence (LLM-based)</td><td><code>breakpoint_threshold_type</code></td></tr>
+      </table>
+
+      <h2>RecursiveCharacterTextSplitter — the default choice</h2>
+      <pre class="code" data-lang="python"><code>from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,      # target size in characters
+    chunk_overlap=200,    # overlap between consecutive chunks
+    length_function=len,  # how to measure size (len = chars)
+    add_start_index=True, # add char offset to metadata
+)
+
+# Split raw text
+text = "Long document text here..."
+chunks = splitter.split_text(text)
+print(f"{len(chunks)} chunks, first: {chunks[0][:80]}")
+
+# Split Documents (preserves metadata)
+from langchain_community.document_loaders import PyPDFLoader
+docs   = PyPDFLoader("report.pdf").load()
+chunks = splitter.split_documents(docs)
+print(chunks[0].metadata)  # {"source": "report.pdf", "page": 0, "start_index": 0}</code></pre>
+
+      <h2>How recursive splitting works</h2>
+      <p>The splitter tries each separator in order until chunks fit within <code>chunk_size</code>:</p>
+      <pre class="code" data-lang="python"><code># Default separators tried in order:
+separators = [
+    "\n\n",   # paragraph break  ← tried first
+    "\n",     # line break
+    " ",      # word break
+    "",       # character break  ← last resort
+]
+
+# Custom separators for a specific format
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=800,
+    chunk_overlap=100,
+    separators=["\n## ", "\n### ", "\n\n", "\n", " ", ""],
+)</code></pre>
+
+      <h2>Token-based splitting (for LLM token limits)</h2>
+      <pre class="code" data-lang="bash"><code>pip install tiktoken</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_text_splitters import RecursiveCharacterTextSplitter
+import tiktoken
+
+# Split by tokens instead of characters
+enc = tiktoken.get_encoding("cl100k_base")  # OpenAI's tokenizer
+
+splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+    model_name="gpt-4o",
+    chunk_size=500,       # 500 tokens per chunk
+    chunk_overlap=50,
+)
+chunks = splitter.split_documents(docs)
+
+# Or with HuggingFace tokenizer
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
+splitter  = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
+    tokenizer, chunk_size=256, chunk_overlap=32
+)</code></pre>
+
+      <h2>MarkdownHeaderTextSplitter — structure-aware</h2>
+      <pre class="code" data-lang="python"><code>from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharacterTextSplitter
+
+markdown = """
+# Docker Guide
+
+## Introduction
+Docker is a platform for containerisation.
+
+## Installation
+### Linux
+Run the install script.
+
+### Windows
+Use Docker Desktop.
+"""
+
+md_splitter = MarkdownHeaderTextSplitter(
+    headers_to_split_on=[
+        ("#",  "h1"),
+        ("##", "h2"),
+        ("###","h3"),
+    ],
+    strip_headers=False,
+)
+splits = md_splitter.split_text(markdown)
+# Each split has header context in metadata:
+# {"h1": "Docker Guide", "h2": "Installation", "h3": "Linux"}
+
+# Then further split by size
+char_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+final_chunks  = char_splitter.split_documents(splits)</code></pre>
+
+      <h2>Code splitter — language-aware</h2>
+      <pre class="code" data-lang="python"><code>from langchain_text_splitters import Language, RecursiveCharacterTextSplitter
+
+# Split Python code — respects class/function boundaries
+python_splitter = RecursiveCharacterTextSplitter.from_language(
+    language=Language.PYTHON,
+    chunk_size=1000,
+    chunk_overlap=100,
+)
+
+with open("app.py") as f:
+    code = f.read()
+
+chunks = python_splitter.split_text(code)
+
+# Supported languages:
+# Language.PYTHON, Language.JS, Language.TS, Language.JAVA,
+# Language.GO, Language.RUST, Language.C, Language.CPP,
+# Language.HTML, Language.MARKDOWN, Language.SQL</code></pre>
+
+      <h2>SemanticChunker — meaning-based boundaries</h2>
+      <pre class="code" data-lang="bash"><code>pip install langchain-experimental</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_experimental.text_splitter import SemanticChunker
+from langchain_openai import OpenAIEmbeddings
+
+# Split where semantic meaning shifts significantly
+splitter = SemanticChunker(
+    embeddings=OpenAIEmbeddings(),
+    breakpoint_threshold_type="percentile",   # or "standard_deviation", "interquartile"
+    breakpoint_threshold_amount=95,
+)
+chunks = splitter.split_documents(docs)</code></pre>
+
+      <h2>Chunk size guide</h2>
+      <table>
+        <tr><th>Content type</th><th>Recommended chunk size</th><th>Overlap</th></tr>
+        <tr><td>General prose (articles, docs)</td><td>800–1200 chars</td><td>150–200</td></tr>
+        <tr><td>Technical docs with code</td><td>500–800 chars</td><td>100</td></tr>
+        <tr><td>FAQs / short Q&amp;A</td><td>200–400 chars</td><td>50</td></tr>
+        <tr><td>Legal / dense text</td><td>1000–1500 chars</td><td>200–300</td></tr>
+        <tr><td>Source code</td><td>500–1000 tokens</td><td>50–100</td></tr>
+      </table>
+
+      <div class="callout tip"><strong>Always inspect your chunks</strong> before indexing. Print the first 5, check for broken sentences or code that got split mid-function. The right chunk size is a function of your embedding model's context window, the precision your retriever needs, and the LLM's context limit. Start at 1000/200 and tune from there.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

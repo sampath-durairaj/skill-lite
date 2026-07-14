@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Skill-Lite</title>
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/common.css" />
+  <style>
+    /* ── Blog Hero ── */
+    .blog-hero {
+      background: linear-gradient(160deg, #13151f 0%, #1a1a2e 60%, #16162a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 52px 48px 44px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .blog-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 55% 45% at 50% -10%, rgba(108,99,255,.16) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .blog-hero-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 14px;
+    }
+    .blog-hero h1 {
+      font-size: 36px; font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, #e2e4f0 30%, #9d96ff 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px; line-height: 1.2;
+    }
+    .blog-hero p {
+      font-size: 15px; color: var(--text-muted);
+      max-width: 480px; margin: 0 auto; line-height: 1.65;
+    }
+
+    /* ── Filter Bar ── */
+    .blog-filters {
+      display: flex; gap: 10px; justify-content: center;
+      padding: 28px 48px 0;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-size: 12.5px; font-weight: 500;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-btn.active {
+      background: rgba(108,99,255,.12);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Blog Grid ── */
+    .blog-section {
+      flex: 1;
+      padding: 36px 48px 60px;
+      max-width: 1160px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    /* ── Blog Card ── */
+    .blog-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+    .blog-card:hover {
+      border-color: var(--c, var(--accent));
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.4);
+    }
+    .blog-card-stripe {
+      height: 3px;
+      background: var(--c, var(--accent));
+      flex-shrink: 0;
+    }
+    .blog-card-body {
+      padding: 24px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* ── Card Top Meta ── */
+    .blog-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .blog-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--ci, rgba(108,99,255,.1));
+      border: 1px solid var(--cb, rgba(108,99,255,.22));
+      border-radius: 20px;
+      color: var(--c, var(--accent));
+      font-size: 11px; font-weight: 600;
+      padding: 3px 11px;
+      letter-spacing: 0.3px;
+    }
+    .blog-read-time {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* ── Card Content ── */
+    .blog-title {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.4;
+      letter-spacing: -0.2px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .blog-excerpt {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 20px;
+    }
+
+    /* ── Card Footer ── */
+    .blog-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .blog-author {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .blog-avatar {
+      width: 30px; height: 30px;
+      background: var(--ci, rgba(108,99,255,.15));
+      border: 1px solid var(--cb, rgba(108,99,255,.25));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      color: var(--c, var(--accent));
+      flex-shrink: 0;
+    }
+    .blog-author-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .blog-date {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+    .blog-read-more {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--c, var(--accent));
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: gap 0.15s;
+      white-space: nowrap;
+    }
+    .blog-card:hover .blog-read-more { gap: 8px; }
+
+    /* ── Featured Card (spans 2 cols) ── */
+    .blog-card-featured {
+      grid-column: span 2;
+    }
+    .blog-card-featured .blog-card-body {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .blog-card-featured .blog-title {
+      font-size: 22px;
+    }
+    .blog-card-featured .blog-excerpt {
+      font-size: 14px;
+    }
+
+    /* ── Newsletter Banner ── */
+    .newsletter-banner {
+      background: linear-gradient(135deg, rgba(108,99,255,.12) 0%, rgba(62,207,142,.08) 100%);
+      border: 1px solid rgba(108,99,255,.22);
+      border-radius: 16px;
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .newsletter-text h3 {
+      font-size: 18px; font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .newsletter-text p {
+      font-size: 13.5px; color: var(--text-muted);
+    }
+    .newsletter-form {
+      display: flex; gap: 10px; flex-shrink: 0;
+    }
+    .newsletter-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13.5px;
+      padding: 10px 14px;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .newsletter-input:focus { border-color: var(--accent); }
+    .newsletter-input::placeholder { color: var(--text-muted); }
+    .newsletter-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13.5px; font-weight: 600;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .newsletter-btn:hover { background: var(--accent-hover); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 18px 48px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1000px) {
+      .blog-grid { grid-template-columns: repeat(2, 1fr); }
+      .blog-card-featured { grid-column: span 2; }
+    }
+    @media (max-width: 680px) {
+      .blog-hero { padding: 36px 20px 30px; }
+      .blog-hero h1 { font-size: 26px; }
+      .blog-section { padding: 24px 16px 40px; }
+      .blog-filters { padding: 20px 16px 0; }
+      .blog-grid { grid-template-columns: 1fr; }
+      .blog-card-featured { grid-column: span 1; }
+      .blog-card-featured .blog-title { font-size: 18px; }
+      .newsletter-banner { flex-direction: column; align-items: flex-start; }
+      .newsletter-form { flex-direction: column; width: 100%; }
+      .newsletter-input { width: 100%; }
+      footer { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="langchain/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langgraphDropdown" data-root="langgraph/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="blog.html" class="nav-link" style="color:var(--accent)">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- ── Hero ── -->
+<section class="blog-hero">
+  <div class="blog-hero-eyebrow">Skill-Lite Blog</div>
+  <h1>Tips, tutorials &amp; deep dives</h1>
+  <p>Practical articles on Docker, Kubernetes, Spring Boot, SQL, and the tools developers use every day.</p>
+</section>
+
+<!-- ── Filter Tabs ── -->
+<div class="blog-filters">
+  <button class="filter-btn active">All Posts</button>
+  <button class="filter-btn">Docker</button>
+  <button class="filter-btn">Kubernetes</button>
+  <button class="filter-btn">Spring Boot</button>
+  <button class="filter-btn">SQL</button>
+  <button class="filter-btn">DevOps</button>
+</div>
+
+<!-- ── Blog Grid ── -->
+<div class="blog-section">
+  <div class="blog-grid">
+
+    <!-- ── Featured: Docker Multi-Stage ── -->
+    <article class="blog-card blog-card-featured"
+             style="--c:#0db7ed; --ci:rgba(13,183,237,.1); --cb:rgba(13,183,237,.22)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#128051; Docker</span>
+          <span class="blog-read-time">&#128337; 7 min read</span>
+        </div>
+        <h2 class="blog-title">Docker Multi-Stage Builds: Shrink Your Images by 80%</h2>
+        <p class="blog-excerpt">A fat Docker image slows CI/CD, increases attack surface, and wastes registry storage. Multi-stage builds let you compile or bundle in a full SDK image and ship only the final artefact in a minimal runtime image — often cutting size from 1.2 GB to under 50 MB. We walk through real examples in Node.js, Go, and Java to show exactly how the pattern works and where the gains come from.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">June 28, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── Spring Boot JWT ── -->
+    <article class="blog-card"
+             style="--c:#6db33f; --ci:rgba(109,179,63,.1); --cb:rgba(109,179,63,.22)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#127807; Spring Boot</span>
+          <span class="blog-read-time">&#128337; 9 min read</span>
+        </div>
+        <h2 class="blog-title">Securing a REST API with Spring Security and JWT</h2>
+        <p class="blog-excerpt">Stateless JWT authentication is the standard for modern Spring Boot APIs. This guide covers SecurityFilterChain configuration, token generation, request filtering, and role-based access control — with working code you can drop into your project.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">June 22, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── K8s Rolling Updates ── -->
+    <article class="blog-card"
+             style="--c:#326ce5; --ci:rgba(50,108,229,.12); --cb:rgba(50,108,229,.28)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#9096; Kubernetes</span>
+          <span class="blog-read-time">&#128337; 6 min read</span>
+        </div>
+        <h2 class="blog-title">Zero-Downtime Deployments with Kubernetes Rolling Updates</h2>
+        <p class="blog-excerpt">Kubernetes rolling updates replace pods gradually so your service stays available throughout a release. Learn how to configure <code>maxSurge</code>, <code>maxUnavailable</code>, readiness probes, and rollback strategies to ship confidently every time.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">June 16, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── SQL Tips ── -->
+    <article class="blog-card"
+             style="--c:#6c63ff; --ci:rgba(108,99,255,.12); --cb:rgba(108,99,255,.25)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#128202; SQL</span>
+          <span class="blog-read-time">&#128337; 8 min read</span>
+        </div>
+        <h2 class="blog-title">10 SQL Query Optimisation Techniques Every Developer Should Know</h2>
+        <p class="blog-excerpt">Slow queries are one of the most common production bottlenecks. We cover indexing strategies, avoiding full table scans, using EXPLAIN ANALYSE, rewriting correlated subqueries as joins, and more — illustrated with before/after examples.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">June 10, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── Docker Compose Dev ── -->
+    <article class="blog-card"
+             style="--c:#0db7ed; --ci:rgba(13,183,237,.1); --cb:rgba(13,183,237,.22)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#128051; Docker</span>
+          <span class="blog-read-time">&#128337; 5 min read</span>
+        </div>
+        <h2 class="blog-title">Docker Compose for Local Development: The Complete Setup</h2>
+        <p class="blog-excerpt">Replace "it works on my machine" with a one-command dev environment. We build a Compose stack with a Node.js API, PostgreSQL, Redis, and live code reloading — covering volumes, health checks, environment files, and dev/prod override files.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">June 4, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── Spring Data JPA vs JDBC ── -->
+    <article class="blog-card"
+             style="--c:#6db33f; --ci:rgba(109,179,63,.1); --cb:rgba(109,179,63,.22)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#127807; Spring Boot</span>
+          <span class="blog-read-time">&#128337; 6 min read</span>
+        </div>
+        <h2 class="blog-title">Spring Data JPA vs JDBC: Choosing the Right Data Layer</h2>
+        <p class="blog-excerpt">JPA gives you derived queries and entity mapping out of the box; JDBC Template gives you raw SQL control with minimal overhead. This article walks through the trade-offs with benchmarks and real-world use cases to help you choose.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">May 27, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── kubectl Tips ── -->
+    <article class="blog-card"
+             style="--c:#326ce5; --ci:rgba(50,108,229,.12); --cb:rgba(50,108,229,.28)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#9096; Kubernetes</span>
+          <span class="blog-read-time">&#128337; 4 min read</span>
+        </div>
+        <h2 class="blog-title">15 kubectl Tips That Will Save You Hours Every Week</h2>
+        <p class="blog-excerpt">From aliases and auto-complete to <code>--dry-run=client</code> tricks and context switching, these kubectl productivity tips will dramatically cut the time you spend managing clusters from the command line.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">May 20, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── Docker Networking ── -->
+    <article class="blog-card"
+             style="--c:#f5a623; --ci:rgba(245,166,35,.1); --cb:rgba(245,166,35,.25)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#128051; Docker</span>
+          <span class="blog-read-time">&#128337; 6 min read</span>
+        </div>
+        <h2 class="blog-title">Docker Networking Explained: Bridge, Host, Overlay &amp; Beyond</h2>
+        <p class="blog-excerpt">Understanding Docker's network drivers unlocks proper container communication, security isolation, and multi-host connectivity. We demystify each driver, explain when DNS resolution works, and show how user-defined bridge networks beat the default.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">May 13, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ── K8s ConfigMaps ── -->
+    <article class="blog-card"
+             style="--c:#3ecf8e; --ci:rgba(62,207,142,.1); --cb:rgba(62,207,142,.22)">
+      <div class="blog-card-stripe"></div>
+      <div class="blog-card-body">
+        <div class="blog-card-top">
+          <span class="blog-tag">&#9096; Kubernetes</span>
+          <span class="blog-read-time">&#128337; 5 min read</span>
+        </div>
+        <h2 class="blog-title">ConfigMaps and Secrets: Managing Config in Kubernetes the Right Way</h2>
+        <p class="blog-excerpt">Hard-coding configuration is an anti-pattern in containerised apps. Learn how to use ConfigMaps for non-sensitive config and Secrets for credentials, injecting them as environment variables or volume mounts — with a note on external secret managers.</p>
+        <div class="blog-card-footer">
+          <div class="blog-author">
+            <div class="blog-avatar">DT</div>
+            <div>
+              <div class="blog-author-name">Skill-Lite</div>
+              <div class="blog-date">May 6, 2026</div>
+            </div>
+          </div>
+          <a href="#" class="blog-read-more">Read more &#8594;</a>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ── Newsletter ── -->
+  <div class="newsletter-banner">
+    <div class="newsletter-text">
+      <h3>&#128233; Stay in the loop</h3>
+      <p>New articles on Docker, Kubernetes, Spring Boot, and SQL — delivered to your inbox, no spam.</p>
+    </div>
+    <div class="newsletter-form">
+      <input type="email" class="newsletter-input" placeholder="you@example.com" />
+      <button class="newsletter-btn">Subscribe</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Skill-Lite &mdash; Pure HTML, CSS &amp; JavaScript &mdash; Everything runs locally in your browser. No data is collected or stored.</p>
+</footer>
+
+<script src="js/k8s-nav.js"></script>
+<script src="js/docker-nav.js"></script>
+<script src="js/springboot-nav.js"></script>
+<script src="js/langchain-nav.js"></script>
+<script src="js/langgraph-nav.js"></script>
+<script src="js/rag-nav.js"></script>
+<script src="js/ml-nav.js"></script>
+<script src="js/bestpractices-nav.js"></script>
+<script>
+  // Filter tab interaction
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  });
+</script>
+<script src="js/kafka-nav.js"></script>
+<script src="js/protect.js"></script>
+</body>
+</html>

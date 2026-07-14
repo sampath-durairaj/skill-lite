@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Storage &amp; Volumes — Kubernetes Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kubernetes</a><span class="sep">/</span>Storage &amp; Volumes</div>
+      <h1>Storage &amp; Volumes</h1>
+      <p class="lead">A container's filesystem vanishes when the container restarts. Kubernetes storage is a ladder of abstractions — Volumes, PersistentVolumes, PersistentVolumeClaims, and StorageClasses — that takes you from "scratch space for one pod" to "durable disks provisioned on demand".</p>
+
+      <h2>Volumes: storage scoped to a pod</h2>
+      <p>A <code>volume</code> is declared in the pod spec and mounted into containers. The two everyday in-line types:</p>
+      <pre class="code" data-lang="yaml"><code>apiVersion: v1
+kind: Pod
+metadata:
+  name: cache-example
+spec:
+  containers:
+    - name: app
+      image: myorg/app:1.0
+      volumeMounts:
+        - name: scratch
+          mountPath: /tmp/work
+  volumes:
+    - name: scratch
+      emptyDir:
+        sizeLimit: 1Gi</code></pre>
+      <table>
+        <tr><th>Type</th><th>Lifetime</th><th>Use for</th></tr>
+        <tr><td>emptyDir</td><td>Deleted with the pod</td><td>Scratch space, caches, sharing files between containers in a pod.</td></tr>
+        <tr><td>hostPath</td><td>The node's disk</td><td>Node agents needing host files (log collectors). Avoid for apps — ties data to one node and is a security risk.</td></tr>
+        <tr><td>configMap / secret</td><td>Follows the source object</td><td>Injecting config files (covered in the previous chapter).</td></tr>
+        <tr><td>persistentVolumeClaim</td><td>Independent of the pod</td><td>Real data that must survive — see below.</td></tr>
+      </table>
+
+      <h2>PersistentVolumes and Claims: decoupling apps from disks</h2>
+      <p>Application authors shouldn't need to know whether storage is an EBS volume, an Azure Disk, or NFS. Kubernetes splits the concern:</p>
+      <div class="diagram">
+        <div class="diagram-box">
+          <h4>PersistentVolume (PV)</h4>
+          <ul>
+            <li><b>What:</b> an actual piece of storage in the cluster</li>
+            <li><b>Created by:</b> an admin, or a provisioner automatically</li>
+            <li><b>Knows:</b> disk IDs, NFS servers, cloud details</li>
+          </ul>
+        </div>
+        <div class="diagram-box hl">
+          <h4>PersistentVolumeClaim (PVC)</h4>
+          <ul>
+            <li><b>What:</b> an app's <em>request</em> for storage</li>
+            <li><b>Created by:</b> you, next to your Deployment</li>
+            <li><b>Knows:</b> only size, access mode, and class</li>
+          </ul>
+        </div>
+      </div>
+      <p>Kubernetes <strong>binds</strong> each claim to a matching volume. Your pod references the claim; the claim resolves to whatever disk backs it.</p>
+      <pre class="code" data-lang="yaml"><code>apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+spec:
+  containers:
+    - name: postgres
+      image: postgres:16
+      volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: postgres-data</code></pre>
+      <pre class="code" data-lang="bash"><code>kubectl get pvc      # STATUS should be "Bound"
+kubectl get pv       # the volume it bound to</code></pre>
+
+      <h3>Access modes</h3>
+      <table>
+        <tr><th>Mode</th><th>Abbrev.</th><th>Meaning</th></tr>
+        <tr><td>ReadWriteOnce</td><td>RWO</td><td>Read-write by pods on <em>one node</em> at a time. Block storage (EBS, Azure Disk). The common case.</td></tr>
+        <tr><td>ReadWriteMany</td><td>RWX</td><td>Read-write from many nodes simultaneously. Needs file storage (NFS, EFS, Azure Files).</td></tr>
+        <tr><td>ReadOnlyMany</td><td>ROX</td><td>Read-only from many nodes — shared reference data.</td></tr>
+      </table>
+      <div class="callout warn"><strong>Classic pitfall:</strong> a Deployment with 2+ replicas mounting one RWO claim. The second pod hangs in <code>Pending</code>/<code>ContainerCreating</code> whenever it lands on a different node than the first, because the disk can only attach to one node.</div>
+
+      <h2>StorageClasses: disks on demand</h2>
+      <p>Nobody pre-creates PVs by hand in a cloud cluster. A <strong>StorageClass</strong> describes a <em>kind</em> of storage and the CSI driver that can create it; when a PVC names that class, the provisioner creates the disk and its PV automatically — <strong>dynamic provisioning</strong>.</p>
+      <pre class="code" data-lang="yaml"><code>apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-ssd
+provisioner: ebs.csi.aws.com          # the CSI driver
+parameters:
+  type: gp3
+reclaimPolicy: Delete                 # what happens to the disk when the PVC is deleted
+volumeBindingMode: WaitForFirstConsumer</code></pre>
+      <ul>
+        <li><strong>reclaimPolicy:</strong> <code>Delete</code> removes the real disk with the claim; <code>Retain</code> keeps it for manual recovery — use Retain for anything precious.</li>
+        <li><strong>WaitForFirstConsumer</strong> delays disk creation until a pod is scheduled, so the disk is created in the same availability zone as the node.</li>
+        <li><code>kubectl get storageclass</code> shows what your cluster offers; one is marked <code>(default)</code> and is used by PVCs that don't specify a class.</li>
+      </ul>
+
+      <h2>StatefulSets: per-replica storage</h2>
+      <p>A Deployment's replicas share claims you create manually — wrong for databases where each replica needs <em>its own</em> disk. StatefulSets stamp out a claim per pod via <code>volumeClaimTemplates</code>:</p>
+      <pre class="code" data-lang="yaml"><code>apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+spec:
+  serviceName: db
+  replicas: 3
+  selector:
+    matchLabels: { app: db }
+  template:
+    metadata:
+      labels: { app: db }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 10Gi</code></pre>
+      <p>This creates <code>data-db-0</code>, <code>data-db-1</code>, <code>data-db-2</code> — and <code>db-1</code> always reattaches to <code>data-db-1</code>, even after rescheduling.</p>
+
+      <h2>Command recap</h2>
+      <pre class="code" data-lang="bash"><code>kubectl get pv,pvc,storageclass
+kubectl describe pvc postgres-data      # binding events and provisioning errors
+kubectl get events | grep -i volume     # attach/mount failures show up here
+# Grow a volume (if the StorageClass allows expansion):
+kubectl patch pvc postgres-data -p '{"spec":{"resources":{"requests":{"storage":"20Gi"}}}}'</code></pre>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

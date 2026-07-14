@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multi-Agent Systems — LangGraph Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangGraph</a><span class="sep">/</span>Multi-Agent Systems</div>
+      <h1>Multi-Agent Systems</h1>
+      <p class="lead">Multi-agent systems break complex tasks into specialised agents — each with its own tools and expertise — coordinated by a supervisor or through direct handoffs. LangGraph makes this natural: each agent is just a subgraph or a node, and the overall coordination is just another graph.</p>
+
+      <h2>Patterns overview</h2>
+      <div class="diagram">
+        <div class="diagram-box hl"><h4>Supervisor</h4><ul><li>One LLM routes tasks</li><li>Decides which agent runs next</li><li>Best for clear specialisations</li></ul></div>
+        <div class="diagram-box"><h4>Swarm / Handoff</h4><ul><li>Agents hand off to each other</li><li>Peer-to-peer routing</li><li>Best for sequential workflows</li></ul></div>
+        <div class="diagram-box"><h4>Subgraphs</h4><ul><li>Full graph as a single node</li><li>Independent state per subgraph</li><li>Best for modular reuse</li></ul></div>
+      </div>
+
+      <h2>Supervisor pattern</h2>
+      <pre class="code" data-lang="python"><code>from typing import TypedDict, Annotated, List, Literal
+from langgraph.graph import StateGraph, START, END, MessagesState
+from langgraph.graph.message import add_messages
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage, BaseMessage
+from langchain_core.tools import tool
+
+llm = ChatOpenAI(model="gpt-4o", temperature=0)
+
+# ── Worker agents ──
+@tool
+def search_web(query: str) -> str:
+    """Search the web for information."""
+    return f"Web result for '{query}': [simulated result]"
+
+@tool
+def run_python(code: str) -> str:
+    """Execute Python code and return output."""
+    try:
+        exec_globals = {}
+        exec(code, exec_globals)
+        return str(exec_globals.get("result", "Done"))
+    except Exception as e:
+        return f"Error: {e}"
+
+researcher_llm = llm.bind_tools([search_web])
+coder_llm      = llm.bind_tools([run_python])
+
+class SupervisorState(MessagesState):
+    next_agent: str   # which agent to call next
+
+# ── Supervisor node ──
+AGENTS = ["researcher", "coder", "FINISH"]
+
+def supervisor_node(state: SupervisorState) -> dict:
+    system = SystemMessage(content=f"""You are a supervisor managing these agents: {AGENTS}.
+Given the conversation, decide who acts next.
+Reply with ONLY one of: researcher, coder, FINISH""")
+    response = llm.invoke([system] + state["messages"])
+    return {"next_agent": response.content.strip()}
+
+# ── Worker nodes ──
+def researcher_node(state: SupervisorState) -> dict:
+    resp = researcher_llm.invoke(state["messages"])
+    return {"messages": [resp]}
+
+def coder_node(state: SupervisorState) -> dict:
+    resp = coder_llm.invoke(state["messages"])
+    return {"messages": [resp]}
+
+# ── Graph ──
+g = StateGraph(SupervisorState)
+g.add_node("supervisor", supervisor_node)
+g.add_node("researcher", researcher_node)
+g.add_node("coder",      coder_node)
+
+g.add_edge(START, "supervisor")
+g.add_conditional_edges(
+    "supervisor",
+    lambda state: state["next_agent"],
+    {"researcher": "researcher", "coder": "coder", "FINISH": END},
+)
+g.add_edge("researcher", "supervisor")   # report back to supervisor
+g.add_edge("coder",      "supervisor")
+
+app = g.compile()
+result = app.invoke({"messages": [HumanMessage("Research Docker and write Python code to parse the docs.")]})
+print(result["messages"][-1].content)</code></pre>
+
+      <h2>Agent handoff with Command</h2>
+      <pre class="code" data-lang="python"><code>from langgraph.types import Command
+
+# Command lets a node directly route to the next node
+def triage_agent(state: MessagesState) -> Command:
+    msg = state["messages"][-1].content.lower()
+
+    if "search" in msg or "find" in msg:
+        return Command(goto="researcher", update={"messages": state["messages"]})
+    elif "code" in msg or "write" in msg:
+        return Command(goto="coder", update={"messages": state["messages"]})
+    else:
+        return Command(goto=END, update={})</code></pre>
+
+      <h2>Subgraphs — agents as reusable building blocks</h2>
+      <pre class="code" data-lang="python"><code">from langgraph.graph import StateGraph, START, END
+
+# Build a self-contained research subgraph
+class ResearchState(TypedDict):
+    query: str
+    findings: List[str]
+
+def fetch_sources(state: ResearchState) -> dict:
+    return {"findings": [f"Source 1 for {state['query']}", "Source 2"]}
+
+def summarise(state: ResearchState) -> dict:
+    summary = f"Summary: {'; '.join(state['findings'])}"
+    return {"findings": [summary]}
+
+research_graph = StateGraph(ResearchState)
+research_graph.add_node("fetch", fetch_sources)
+research_graph.add_node("summarise", summarise)
+research_graph.add_edge(START, "fetch")
+research_graph.add_edge("fetch", "summarise")
+research_graph.add_edge("summarise", END)
+
+research_app = research_graph.compile()
+
+# Use the subgraph as a node inside the parent graph
+class ParentState(TypedDict):
+    task: str
+    research_result: str
+
+def run_research(state: ParentState) -> dict:
+    result = research_app.invoke({"query": state["task"], "findings": []})
+    return {"research_result": result["findings"][-1]}
+
+parent = StateGraph(ParentState)
+parent.add_node("research", run_research)
+parent.add_edge(START, "research")
+parent.add_edge("research", END)
+parent_app = parent.compile()</code></pre>
+
+      <div class="callout tip"><strong>When to use which pattern:</strong> Use the <strong>supervisor</strong> when task routing is complex and dynamic. Use <strong>handoffs / Command</strong> for linear pipelines where each agent knows who comes next. Use <strong>subgraphs</strong> when you want to reuse an agent in multiple parent graphs.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

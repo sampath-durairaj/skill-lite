@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkpointing — LangGraph Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangGraph</a><span class="sep">/</span>Checkpointing</div>
+      <h1>Checkpointing</h1>
+      <p class="lead">Checkpointing saves the graph's state after every step into a store. This enables three key capabilities: <strong>multi-turn conversations</strong> (pick up where you left off), <strong>time-travel debugging</strong> (replay or branch from any past checkpoint), and <strong>human-in-the-loop</strong> (pause execution and resume after approval).</p>
+
+      <h2>MemorySaver — in-memory (development)</h2>
+      <pre class="code" data-lang="python"><code>from langgraph.graph import StateGraph, START, END, MessagesState
+from langgraph.checkpoint.memory import MemorySaver
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+def chat(state: MessagesState) -> dict:
+    return {"messages": [llm.invoke(state["messages"])]}
+
+graph = StateGraph(MessagesState)
+graph.add_node("chat", chat)
+graph.add_edge(START, "chat")
+graph.add_edge("chat", END)
+
+# Attach a checkpointer
+checkpointer = MemorySaver()
+app = graph.compile(checkpointer=checkpointer)
+
+# config MUST include thread_id to identify the session
+config = {"configurable": {"thread_id": "user_alice"}}
+
+from langchain_core.messages import HumanMessage
+
+# Turn 1
+r1 = app.invoke({"messages": [HumanMessage("My name is Alice.")]}, config=config)
+print(r1["messages"][-1].content)
+
+# Turn 2 — state is automatically restored; no need to re-send history
+r2 = app.invoke({"messages": [HumanMessage("What is my name?")]}, config=config)
+print(r2["messages"][-1].content)   # "Your name is Alice."</code></pre>
+
+      <h2>SqliteSaver — persistent across restarts</h2>
+      <pre class="code" data-lang="bash"><code>pip install langgraph-checkpoint-sqlite</code></pre>
+      <pre class="code" data-lang="python"><code>from langgraph.checkpoint.sqlite import SqliteSaver
+
+# State survives process restarts
+with SqliteSaver.from_conn_string("checkpoints.db") as checkpointer:
+    app = graph.compile(checkpointer=checkpointer)
+
+    config = {"configurable": {"thread_id": "session_42"}}
+    app.invoke({"messages": [HumanMessage("Start a new task.")]}, config=config)
+
+    # Later — even after restart — resume the same session
+    app.invoke({"messages": [HumanMessage("Continue where we left off.")]}, config=config)</code></pre>
+
+      <h2>Reading state snapshots</h2>
+      <pre class="code" data-lang="python"><code># Get the current state of a thread
+snapshot = app.get_state(config)
+
+print(snapshot.values)      # full state dict
+print(snapshot.next)        # nodes that will run next (empty if done)
+print(snapshot.config)      # config with checkpoint_id
+print(snapshot.metadata)    # step number, run_id, parent_id
+
+# List all checkpoints for a thread (most recent first)
+history = list(app.get_state_history(config))
+for checkpoint in history:
+    print(f"Step {checkpoint.metadata['step']}: {checkpoint.next}")</code></pre>
+
+      <h2>Time travel — replay from a past checkpoint</h2>
+      <pre class="code" data-lang="python"><code># Get the checkpoint ID from history
+history = list(app.get_state_history(config))
+step_2_checkpoint = history[-3]   # 3rd-from-last = step 2
+
+# Replay from that checkpoint — creates a new branch
+past_config = step_2_checkpoint.config
+result = app.invoke(
+    {"messages": [HumanMessage("Try a different approach.")]},
+    config=past_config,
+)
+# This forks the thread — the original thread is unchanged</code></pre>
+
+      <h2>Manually updating state</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.messages import AIMessage
+
+# Override part of the state without running any nodes
+app.update_state(
+    config,
+    {"messages": [AIMessage(content="Let me correct that answer: 42.")]},
+    as_node="chat",   # pretend this update came from the "chat" node
+)
+
+# Now continue from the corrected state
+app.invoke({"messages": [HumanMessage("Thanks! What's next?")]}, config=config)</code></pre>
+
+      <h2>PostgresSaver — production-grade persistence</h2>
+      <pre class="code" data-lang="bash"><code>pip install langgraph-checkpoint-postgres psycopg</code></pre>
+      <pre class="code" data-lang="python"><code>from langgraph.checkpoint.postgres import PostgresSaver
+
+DB_URI = "postgresql://user:password@localhost:5432/mydb"
+
+with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
+    checkpointer.setup()   # creates tables on first run
+    app = graph.compile(checkpointer=checkpointer)
+    # ... production usage</code></pre>
+
+      <h2>Checkpointer comparison</h2>
+      <table>
+        <tr><th>Checkpointer</th><th>Persistence</th><th>Best for</th></tr>
+        <tr><td><code>MemorySaver</code></td><td>Process memory only</td><td>Development &amp; testing</td></tr>
+        <tr><td><code>SqliteSaver</code></td><td>SQLite file on disk</td><td>Single-server apps, prototypes</td></tr>
+        <tr><td><code>PostgresSaver</code></td><td>PostgreSQL database</td><td>Production, multi-server</td></tr>
+        <tr><td><code>RedisSaver</code></td><td>Redis (in-memory + TTL)</td><td>High-throughput, short-lived sessions</td></tr>
+      </table>
+
+      <div class="callout tip"><strong>thread_id is your session key.</strong> Every distinct conversation or user session needs a unique <code>thread_id</code>. Use <code>str(uuid.uuid4())</code> for new sessions and store the ID client-side (cookie / localStorage) to resume them. The same graph compiled with different checkpointers is a common pattern: <code>MemorySaver</code> in tests, <code>PostgresSaver</code> in production.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

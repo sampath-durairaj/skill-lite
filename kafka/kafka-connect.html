@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kafka Connect — Apache Kafka Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kafka</a><span class="sep">/</span>Kafka Connect</div>
+      <h1>Kafka Connect</h1>
+      <p class="lead">Kafka Connect is a scalable, fault-tolerant framework for streaming data between Kafka and external systems — databases, object stores, search indexes, and more — without writing a single line of producer or consumer code.</p>
+
+      <h2>Source vs Sink connectors</h2>
+      <table>
+        <tr><th>Type</th><th>Direction</th><th>Examples</th></tr>
+        <tr><td><strong>Source connector</strong></td><td>External system → Kafka topic</td><td>Debezium (database CDC), File Source, JDBC Source, S3 Source</td></tr>
+        <tr><td><strong>Sink connector</strong></td><td>Kafka topic → External system</td><td>JDBC Sink, S3 Sink, Elasticsearch Sink, BigQuery Sink</td></tr>
+      </table>
+
+      <h2>Standalone vs distributed mode</h2>
+      <table>
+        <tr><th>Mode</th><th>When to use</th><th>Offset storage</th></tr>
+        <tr><td>Standalone</td><td>Development, single-node pipelines</td><td>Local file</td></tr>
+        <tr><td>Distributed</td><td>Production — multiple workers, fault-tolerant</td><td>Kafka internal topics</td></tr>
+      </table>
+      <p>In distributed mode, worker configuration (connector definitions, offsets, status) is stored in three internal Kafka topics: <code>connect-configs</code>, <code>connect-offsets</code>, and <code>connect-status</code>.</p>
+
+      <h2>Starting a Connect worker</h2>
+      <pre class="code" data-lang="bash"><code># Distributed worker config (connect-distributed.properties)
+bootstrap.servers=localhost:9092
+group.id=connect-cluster
+
+key.converter=org.apache.kafka.connect.json.JsonConverter
+value.converter=org.apache.kafka.connect.json.JsonConverter
+key.converter.schemas.enable=false
+value.converter.schemas.enable=false
+
+offset.storage.topic=connect-offsets
+offset.storage.replication.factor=1
+config.storage.topic=connect-configs
+config.storage.replication.factor=1
+status.storage.topic=connect-status
+status.storage.replication.factor=1
+
+plugin.path=/opt/kafka/plugins
+
+# Start the worker
+connect-distributed.sh connect-distributed.properties</code></pre>
+
+      <h2>Deploying connectors via the REST API</h2>
+      <p>Connect exposes a REST API on port 8083 (default). All connector lifecycle operations go through it.</p>
+
+      <pre class="code" data-lang="bash"><code># List all available connector plugins
+curl http://localhost:8083/connector-plugins | jq .
+
+# Create a JDBC Source connector (polls a database table)
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "orders-jdbc-source",
+    "config": {
+      "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+      "connection.url": "jdbc:postgresql://db:5432/shop",
+      "connection.user": "kafka",
+      "connection.password": "secret",
+      "table.whitelist": "orders",
+      "mode": "incrementing",
+      "incrementing.column.name": "id",
+      "topic.prefix": "db-",
+      "poll.interval.ms": "1000"
+    }
+  }'
+
+# Check connector status
+curl http://localhost:8083/connectors/orders-jdbc-source/status | jq .
+
+# Pause / resume
+curl -X PUT http://localhost:8083/connectors/orders-jdbc-source/pause
+curl -X PUT http://localhost:8083/connectors/orders-jdbc-source/resume
+
+# Delete connector
+curl -X DELETE http://localhost:8083/connectors/orders-jdbc-source</code></pre>
+
+      <h2>Debezium — Change Data Capture</h2>
+      <p>Debezium is the most widely used Kafka Connect source connector. It reads the database's transaction log (replication slot for PostgreSQL, binlog for MySQL) and emits one Kafka event per row change — no polling, no missed updates.</p>
+
+      <pre class="code" data-lang="bash"><code>curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "postgres-cdc",
+    "config": {
+      "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+      "database.hostname": "postgres",
+      "database.port": "5432",
+      "database.user": "replicator",
+      "database.password": "secret",
+      "database.dbname": "shop",
+      "database.server.name": "shop",
+      "plugin.name": "pgoutput",
+      "table.include.list": "public.orders,public.products",
+      "slot.name": "debezium_slot",
+      "publication.name": "debezium_pub"
+    }
+  }'</code></pre>
+
+      <p>Each row change produces an event on topic <code>shop.public.orders</code> with a before/after envelope:</p>
+      <pre class="code" data-lang="json"><code>{
+  "before": null,
+  "after": { "id": 1, "customer_id": 42, "total": 99.99, "status": "placed" },
+  "op": "c",
+  "ts_ms": 1720000000000
+}</code></pre>
+
+      <h2>Single Message Transforms (SMTs)</h2>
+      <p>SMTs let you modify records in-flight without custom code. They chain together and apply to every record the connector produces or consumes.</p>
+
+      <pre class="code" data-lang="json"><code>{
+  "transforms": "unwrap,addTimestamp",
+  "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+  "transforms.unwrap.drop.tombstones": "false",
+  "transforms.addTimestamp.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+  "transforms.addTimestamp.timestamp.field": "ingest_ts"
+}</code></pre>
+
+      <h2>Popular connectors</h2>
+      <table>
+        <tr><th>Connector</th><th>Type</th><th>Use case</th></tr>
+        <tr><td>Debezium PostgreSQL/MySQL</td><td>Source</td><td>CDC from relational databases</td></tr>
+        <tr><td>JDBC Source/Sink</td><td>Both</td><td>Poll tables or write results to a database</td></tr>
+        <tr><td>S3 Sink</td><td>Sink</td><td>Archive topic data to S3 in Avro/Parquet/JSON</td></tr>
+        <tr><td>Elasticsearch Sink</td><td>Sink</td><td>Index events for full-text search</td></tr>
+        <tr><td>BigQuery Sink</td><td>Sink</td><td>Stream analytics data into BigQuery</td></tr>
+        <tr><td>MirrorMaker 2</td><td>Both</td><td>Replicate topics between Kafka clusters (geo-replication)</td></tr>
+        <tr><td>HTTP Sink</td><td>Sink</td><td>Send records to a webhook or REST endpoint</td></tr>
+      </table>
+
+      <div class="callout"><strong>Finding connectors:</strong> the Confluent Hub (<code>confluent.io/hub</code>) lists hundreds of supported connectors. The Confluent JDBC and S3 connectors work with any Kafka deployment, not just Confluent Platform.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

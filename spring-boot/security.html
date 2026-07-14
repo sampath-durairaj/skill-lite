@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spring Security — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>Spring Security</div>
+      <h1>Spring Security</h1>
+      <p class="lead">Spring Security is a powerful, customisable authentication and access-control framework. Adding <code>spring-boot-starter-security</code> to your project immediately secures all endpoints with HTTP Basic authentication — you then progressively configure what you actually need.</p>
+
+      <h2>Dependency</h2>
+      <pre class="code" data-lang="xml"><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+
+      <h2>Security filter chain</h2>
+      <p>Spring Security intercepts every request through a chain of filters. You configure this chain via a <code>SecurityFilterChain</code> bean.</p>
+      <pre class="code" data-lang="java"><code>@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+            .csrf(csrf -> csrf.disable())              // disable for stateless REST APIs
+            .sessionManagement(sm -> sm
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**").permitAll()          // public endpoints
+                .requestMatchers("/admin/**").hasRole("ADMIN")    // role guard
+                .requestMatchers(HttpMethod.GET, "/api/**").authenticated()
+                .anyRequest().authenticated())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
+    }
+}</code></pre>
+
+      <h2>UserDetailsService — loading users</h2>
+      <pre class="code" data-lang="java"><code>@Service
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private final UserRepository userRepo;
+
+    public UserDetailsServiceImpl(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepo.findByEmail(email)
+                .map(u -> User.builder()
+                        .username(u.getEmail())
+                        .password(u.getPasswordHash())
+                        .roles(u.getRole().name())    // "ADMIN" → ROLE_ADMIN
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+    }
+}</code></pre>
+
+      <h2>Password encoding</h2>
+      <pre class="code" data-lang="java"><code>// Always register a PasswordEncoder bean
+@Bean
+public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder(12);   // cost factor 12 is a good default
+}
+
+// Encoding on registration
+@Service
+public class AuthService {
+    private final PasswordEncoder encoder;
+    private final UserRepository repo;
+
+    public void register(RegisterRequest req) {
+        User user = new User();
+        user.setEmail(req.email());
+        user.setPasswordHash(encoder.encode(req.password()));
+        repo.save(user);
+    }
+}</code></pre>
+
+      <h2>JWT authentication (stateless REST)</h2>
+      <pre class="code" data-lang="xml"><code>&lt;!-- Add the JWT library --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+  &lt;artifactId&gt;jjwt-api&lt;/artifactId&gt;
+  &lt;version&gt;0.12.5&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+      <pre class="code" data-lang="java"><code>@Component
+public class JwtService {
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration-ms:86400000}")  // 24 h
+    private long expirationMs;
+
+    public String generateToken(UserDetails user) {
+        return Jwts.builder()
+                .subject(user.getUsername())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(getKey())
+                .compact();
+    }
+
+    public String extractUsername(String token) {
+        return Jwts.parser().verifyWith(getKey()).build()
+                   .parseSignedClaims(token).getPayload().getSubject();
+    }
+
+    public boolean isValid(String token, UserDetails user) {
+        String username = extractUsername(token);
+        return username.equals(user.getUsername()) && !isExpired(token);
+    }
+
+    private boolean isExpired(String token) {
+        return Jwts.parser().verifyWith(getKey()).build()
+                   .parseSignedClaims(token).getPayload().getExpiration()
+                   .before(new Date());
+    }
+
+    private SecretKey getKey() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    }
+}</code></pre>
+
+      <h2>JWT filter</h2>
+      <pre class="code" data-lang="java"><code>@Component
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private final JwtService jwt;
+    private final UserDetailsService userDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest req,
+                                    HttpServletResponse res,
+                                    FilterChain chain) throws ServletException, IOException {
+        String authHeader = req.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            chain.doFilter(req, res);
+            return;
+        }
+
+        String token = authHeader.substring(7);
+        String username = jwt.extractUsername(token);
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails user = userDetailsService.loadUserByUsername(username);
+            if (jwt.isValid(token, user)) {
+                UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+        }
+        chain.doFilter(req, res);
+    }
+}</code></pre>
+
+      <h2>Method-level security</h2>
+      <pre class="code" data-lang="java"><code>@Configuration
+@EnableMethodSecurity
+public class MethodSecurityConfig { }
+
+// In your service or controller:
+@GetMapping("/admin/users")
+@PreAuthorize("hasRole('ADMIN')")
+public List&lt;User&gt; getAllUsers() { ... }
+
+@PutMapping("/users/{id}")
+@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+public User updateUser(@PathVariable Long id, @RequestBody User user) { ... }
+
+@PostMapping("/orders/{id}/cancel")
+@PreAuthorize("@orderService.isOwner(#id, authentication.name)")
+public void cancelOrder(@PathVariable Long id) { ... }</code></pre>
+
+      <div class="callout warn"><strong>JWT secret:</strong> use at least 256 bits of random entropy (32+ bytes Base64-encoded). Never hardcode it — use an environment variable or secrets manager. Rotate it periodically and plan for token revocation (short expiry + refresh tokens).</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

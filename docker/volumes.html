@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Volumes &amp; Data — Docker Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Docker</a><span class="sep">/</span>Volumes &amp; Data</div>
+      <h1>Volumes &amp; Data</h1>
+      <p class="lead">Container filesystems are ephemeral — all writes disappear when a container is removed. Docker provides three mechanisms to persist or share data: <strong>named volumes</strong>, <strong>bind mounts</strong>, and <strong>tmpfs mounts</strong>.</p>
+
+      <h2>The three storage types</h2>
+      <table>
+        <tr><th>Type</th><th>Managed by</th><th>Location</th><th>Best for</th></tr>
+        <tr><td>Named volume</td><td>Docker</td><td>Docker's storage area</td><td>Databases, persistent app data</td></tr>
+        <tr><td>Bind mount</td><td>You (host path)</td><td>Anywhere on host</td><td>Development (live code reload)</td></tr>
+        <tr><td>tmpfs</td><td>Docker</td><td>Host RAM only</td><td>Secrets, caches (never on disk)</td></tr>
+      </table>
+
+      <h2>Named volumes</h2>
+      <p>Named volumes are created and managed by Docker. They live in Docker's storage directory (<code>/var/lib/docker/volumes/</code> on Linux) and outlive any individual container. Multiple containers can mount the same volume.</p>
+      <pre class="code" data-lang="bash"><code># Create a named volume explicitly
+docker volume create pgdata
+
+# Use it when running a container
+docker run -d \
+  -v pgdata:/var/lib/postgresql/data \
+  --name db postgres:16
+
+# Mount the same volume in a second container (read-only)
+docker run -d \
+  -v pgdata:/data:ro \
+  --name backup alpine</code></pre>
+
+      <h2>Bind mounts</h2>
+      <p>Bind mounts map a host directory or file directly into the container. Changes on either side are immediately visible on the other. This is the standard dev workflow — edit code on the host, see it update in the running container.</p>
+      <pre class="code" data-lang="bash"><code># Mount current directory as /app in the container
+docker run -it \
+  -v "$(pwd)":/app \
+  -w /app \
+  node:20 npm start
+
+# Mount a single config file (read-only)
+docker run -d \
+  -v "$(pwd)/nginx.conf":/etc/nginx/nginx.conf:ro \
+  nginx</code></pre>
+      <div class="callout warn"><strong>Security note:</strong> bind mounts give the container full access to the mounted host path. Avoid mounting sensitive directories (like <code>/</code> or <code>$HOME</code>) or running containers as root with bind mounts in production.</div>
+
+      <h2>tmpfs mounts</h2>
+      <p>tmpfs stores data entirely in the host's RAM. The data is never written to disk and disappears when the container stops. Use it for temporary secrets or caches that must not persist.</p>
+      <pre class="code" data-lang="bash"><code># Mount a tmpfs at /tmp inside the container
+docker run -d \
+  --tmpfs /tmp:size=64m \
+  --name app myimage
+
+# Or using --mount syntax (more explicit)
+docker run -d \
+  --mount type=tmpfs,target=/tmp,tmpfs-size=64m \
+  --name app myimage</code></pre>
+
+      <h2>Volume management</h2>
+      <pre class="code" data-lang="bash"><code># List all volumes
+docker volume ls
+
+# Inspect a volume (see mount point, labels, etc.)
+docker volume inspect pgdata
+
+# Remove a specific volume
+docker volume rm pgdata
+
+# Remove all unused volumes (not referenced by any container)
+docker volume prune
+
+# Back up a volume to a tar archive
+docker run --rm \
+  -v pgdata:/data \
+  -v "$(pwd)":/backup \
+  alpine tar czf /backup/pgdata-backup.tar.gz -C /data .
+
+# Restore from backup
+docker run --rm \
+  -v pgdata:/data \
+  -v "$(pwd)":/backup \
+  alpine tar xzf /backup/pgdata-backup.tar.gz -C /data</code></pre>
+
+      <h2>--mount vs -v syntax</h2>
+      <p>Docker supports two syntaxes for mounts. The newer <code>--mount</code> is more verbose but clearer and is recommended for scripts and production use.</p>
+      <pre class="code" data-lang="bash"><code># Named volume — both are equivalent
+docker run -v pgdata:/var/lib/postgresql/data postgres
+docker run --mount type=volume,src=pgdata,target=/var/lib/postgresql/data postgres
+
+# Bind mount — both are equivalent
+docker run -v "$(pwd)":/app node:20
+docker run --mount type=bind,src="$(pwd)",target=/app node:20</code></pre>
+
+      <div class="callout tip"><strong>Best practice:</strong> use named volumes in production (Docker manages ownership, backup, and migrations) and bind mounts only in local development for live code reloading.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

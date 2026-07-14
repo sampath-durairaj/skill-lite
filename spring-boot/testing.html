@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testing — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>Testing</div>
+      <h1>Testing</h1>
+      <p class="lead">Spring Boot's test support makes writing unit and integration tests straightforward. The <code>spring-boot-starter-test</code> dependency bundles JUnit 5, Mockito, AssertJ, and MockMvc, covering everything from isolated unit tests to full server integration tests.</p>
+
+      <h2>Test slice annotations</h2>
+      <table>
+        <tr><th>Annotation</th><th>What it loads</th><th>Use when</th></tr>
+        <tr><td><code>@SpringBootTest</code></td><td>Full application context</td><td>Integration tests — all beans available</td></tr>
+        <tr><td><code>@WebMvcTest</code></td><td>MVC layer only (controllers, filters, advice)</td><td>Testing controller logic without DB</td></tr>
+        <tr><td><code>@DataJpaTest</code></td><td>JPA + in-memory H2 by default</td><td>Repository query tests</td></tr>
+        <tr><td><code>@JsonTest</code></td><td>Jackson serialization / deserialization</td><td>Testing JSON mapping</td></tr>
+        <tr><td><code>@RestClientTest</code></td><td>RestTemplate / RestClient mock server</td><td>Testing HTTP client calls</td></tr>
+      </table>
+
+      <h2>Unit test — service layer</h2>
+      <pre class="code" data-lang="java"><code>import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)   // no Spring context — fast
+class ProductServiceTest {
+
+    @Mock
+    ProductRepository repo;
+
+    @InjectMocks
+    ProductService service;
+
+    @Test
+    void findById_returnsProduct_whenFound() {
+        var product = new Product(1L, "Widget", BigDecimal.valueOf(9.99));
+        when(repo.findById(1L)).thenReturn(Optional.of(product));
+
+        Optional&lt;Product&gt; result = service.findById(1L);
+
+        assertThat(result).isPresent()
+                          .get()
+                          .extracting(Product::getName)
+                          .isEqualTo("Widget");
+        verify(repo).findById(1L);
+    }
+
+    @Test
+    void save_throwsException_whenNameExists() {
+        when(repo.existsByName("Widget")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.create(new CreateProductRequest("Widget", 9.99)))
+                .isInstanceOf(DuplicateNameException.class)
+                .hasMessageContaining("Widget");
+    }
+}</code></pre>
+
+      <h2>Controller test — @WebMvcTest + MockMvc</h2>
+      <pre class="code" data-lang="java"><code>@WebMvcTest(ProductController.class)   // only loads MVC slice
+class ProductControllerTest {
+
+    @Autowired
+    MockMvc mockMvc;
+
+    @MockBean               // replaces the real ProductService with a Mockito mock
+    ProductService service;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Test
+    void getAll_returns200WithProductList() throws Exception {
+        var products = List.of(new Product(1L, "Widget", BigDecimal.TEN));
+        when(service.findAll()).thenReturn(products);
+
+        mockMvc.perform(get("/api/products")
+                    .contentType(MediaType.APPLICATION_JSON))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$", hasSize(1)))
+               .andExpect(jsonPath("$[0].name").value("Widget"))
+               .andExpect(jsonPath("$[0].price").value(10));
+    }
+
+    @Test
+    void create_returns201_withValidBody() throws Exception {
+        var req = new CreateProductRequest("Gadget", 24.99);
+        var saved = new Product(2L, "Gadget", BigDecimal.valueOf(24.99));
+        when(service.save(any())).thenReturn(saved);
+
+        mockMvc.perform(post("/api/products")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
+               .andExpect(status().isCreated())
+               .andExpect(jsonPath("$.id").value(2));
+    }
+
+    @Test
+    void create_returns400_withMissingName() throws Exception {
+        mockMvc.perform(post("/api/products")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"price\": 9.99}"))
+               .andExpect(status().isBadRequest())
+               .andExpect(jsonPath("$.name").exists());
+    }
+}</code></pre>
+
+      <h2>Repository test — @DataJpaTest</h2>
+      <pre class="code" data-lang="java"><code>@DataJpaTest   // uses in-memory H2 by default; rolls back after each test
+class ProductRepositoryTest {
+
+    @Autowired
+    TestEntityManager em;
+
+    @Autowired
+    ProductRepository repo;
+
+    @Test
+    void findByName_returnsMatchingProducts() {
+        em.persistAndFlush(new Product(null, "Widget", BigDecimal.TEN));
+        em.persistAndFlush(new Product(null, "Gadget", BigDecimal.ONE));
+
+        List&lt;Product&gt; result = repo.findByName("Widget");
+
+        assertThat(result).hasSize(1)
+                          .first()
+                          .extracting(Product::getName)
+                          .isEqualTo("Widget");
+    }
+
+    @Test
+    void existsByName_returnsTrue_whenExists() {
+        em.persistAndFlush(new Product(null, "Widget", BigDecimal.TEN));
+        assertThat(repo.existsByName("Widget")).isTrue();
+        assertThat(repo.existsByName("Unknown")).isFalse();
+    }
+}</code></pre>
+
+      <h2>Integration test — @SpringBootTest</h2>
+      <pre class="code" data-lang="java"><code>@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class ProductIntegrationTest {
+
+    @Autowired
+    TestRestTemplate restTemplate;
+
+    @Autowired
+    ProductRepository repo;
+
+    @BeforeEach
+    void setUp() {
+        repo.deleteAll();
+        repo.save(new Product(null, "Widget", BigDecimal.TEN));
+    }
+
+    @Test
+    void getAll_returnsAllProducts() {
+        ResponseEntity&lt;List&lt;Product&gt;&gt; response = restTemplate
+                .exchange("/api/products", HttpMethod.GET, null,
+                          new ParameterizedTypeReference&lt;&gt;() {});
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).hasSize(1);
+    }
+}</code></pre>
+
+      <h2>Testcontainers — real database in tests</h2>
+      <pre class="code" data-lang="java"><code>@SpringBootTest
+@Testcontainers
+class ProductRepositoryIT {
+
+    @Container
+    static PostgreSQLContainer&lt;?&gt; postgres =
+            new PostgreSQLContainer&lt;&gt;("postgres:16-alpine");
+
+    @DynamicPropertySource
+    static void configure(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @Autowired ProductRepository repo;
+
+    @Test
+    void persistAndRetrieve() {
+        var saved = repo.save(new Product(null, "Widget", BigDecimal.TEN));
+        assertThat(repo.findById(saved.getId())).isPresent();
+    }
+}</code></pre>
+      <div class="callout tip"><strong>Testing pyramid:</strong> write many fast unit tests (no Spring context), fewer <code>@WebMvcTest</code> / <code>@DataJpaTest</code> slice tests, and a handful of full <code>@SpringBootTest</code> integration tests. Testcontainers moves the DB integration tests closer to reality without external infrastructure.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

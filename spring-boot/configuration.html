@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuration — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>Configuration</div>
+      <h1>Configuration</h1>
+      <p class="lead">Spring Boot externalises configuration so the same JAR can run in development, staging, and production with different settings. Properties can come from files, environment variables, command-line arguments, or a cloud config server — each with a well-defined precedence order.</p>
+
+      <h2>application.properties vs application.yml</h2>
+      <p>Both formats are equivalent. YAML is preferred for structured config with many nested keys; <code>.properties</code> is simpler for flat key-value pairs.</p>
+      <pre class="code" data-lang="properties"><code># application.properties
+server.port=8080
+server.servlet.context-path=/api
+spring.application.name=my-service
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/mydb
+spring.datasource.username=admin
+spring.datasource.password=secret</code></pre>
+      <pre class="code" data-lang="yaml"><code># application.yml — same values as above
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+spring:
+  application:
+    name: my-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mydb
+    username: admin
+    password: secret</code></pre>
+
+      <h2>Property precedence (highest → lowest)</h2>
+      <ol>
+        <li>Command-line arguments: <code>--server.port=9090</code></li>
+        <li>SPRING_APPLICATION_JSON environment variable</li>
+        <li>OS environment variables: <code>SERVER_PORT=9090</code></li>
+        <li>Profile-specific files: <code>application-prod.yml</code></li>
+        <li>Default: <code>application.yml</code> / <code>application.properties</code></li>
+      </ol>
+
+      <h2>Profiles</h2>
+      <p>Profiles let you maintain different configurations per environment. Spring Boot activates profiles from the <code>spring.profiles.active</code> property.</p>
+      <pre class="code" data-lang="yaml"><code># application.yml (shared base)
+spring:
+  jpa:
+    show-sql: false
+
+---
+# application-dev.yml (dev overrides)
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+
+---
+# application-prod.yml
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DATABASE_URL}
+  jpa:
+    hibernate:
+      ddl-auto: validate</code></pre>
+
+      <pre class="code" data-lang="bash"><code># Activate via command-line
+java -jar app.jar --spring.profiles.active=prod
+
+# Activate via environment variable
+export SPRING_PROFILES_ACTIVE=prod
+
+# Activate multiple profiles
+java -jar app.jar --spring.profiles.active=prod,metrics</code></pre>
+
+      <h2>Reading individual properties</h2>
+      <pre class="code" data-lang="java"><code>@RestController
+public class InfoController {
+
+    // Inject a single property value
+    @Value("${spring.application.name}")
+    private String appName;
+
+    // With a default fallback
+    @Value("${feature.dark-mode:false}")
+    private boolean darkModeEnabled;
+
+    // Inject the full Environment object
+    @Autowired
+    private Environment env;
+
+    @GetMapping("/info")
+    public Map&lt;String, Object&gt; info() {
+        return Map.of(
+            "app", appName,
+            "profile", env.getActiveProfiles()
+        );
+    }
+}</code></pre>
+
+      <h2>@ConfigurationProperties (recommended)</h2>
+      <p>Bind a whole namespace of properties to a typed Java object. This is better than scattered <code>@Value</code> annotations because it is type-safe, IDE-assisted, and testable.</p>
+      <pre class="code" data-lang="yaml"><code># application.yml
+app:
+  payment:
+    provider: stripe
+    api-key: ${STRIPE_API_KEY}
+    timeout-seconds: 30
+    retry-count: 3</code></pre>
+      <pre class="code" data-lang="java"><code>@ConfigurationProperties(prefix = "app.payment")
+@Validated
+public record PaymentProperties(
+    @NotBlank String provider,
+    @NotBlank String apiKey,
+    @Min(1) @Max(300) int timeoutSeconds,
+    @Min(0) @Max(10) int retryCount
+) {}
+
+// Register it:
+@SpringBootApplication
+@EnableConfigurationProperties(PaymentProperties.class)
+public class MyApp { ... }
+
+// Or simply annotate the record with @Component
+
+// Inject it:
+@Service
+public class PaymentService {
+    private final PaymentProperties props;
+
+    public PaymentService(PaymentProperties props) {
+        this.props = props;
+    }
+}</code></pre>
+
+      <h2>Environment variables and secrets</h2>
+      <p>Spring Boot automatically maps OS environment variables to property keys: <code>DATABASE_URL</code> → <code>database.url</code> (relaxed binding). Reference them in YAML with <code>${ENV_VAR}</code>.</p>
+      <pre class="code" data-lang="yaml"><code>spring:
+  datasource:
+    url: ${DATABASE_URL}                # required — fails fast if absent
+    password: ${DB_PASSWORD:}           # optional — empty string if absent
+    username: ${DB_USER:app}            # with default value "app"</code></pre>
+      <div class="callout warn"><strong>Never commit secrets.</strong> Use environment variables, a secrets manager (AWS Secrets Manager, HashiCorp Vault), or Spring Cloud Config Server for sensitive values. The <code>${VAR}</code> syntax keeps secrets out of your source code.</div>
+
+      <h2>Logging configuration</h2>
+      <pre class="code" data-lang="yaml"><code>logging:
+  level:
+    root: INFO
+    com.example.myapp: DEBUG          # verbose logging for your own package
+    org.hibernate.SQL: DEBUG          # log Hibernate-generated SQL
+    org.springframework.security: WARN
+  file:
+    name: logs/application.log
+  pattern:
+    console: "%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"</code></pre>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

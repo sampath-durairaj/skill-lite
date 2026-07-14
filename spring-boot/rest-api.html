@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REST API — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>REST API</div>
+      <h1>REST API</h1>
+      <p class="lead">Spring MVC makes building REST APIs straightforward. A <code>@RestController</code> combines <code>@Controller</code> and <code>@ResponseBody</code>, so every method return value is serialized directly to JSON (via Jackson) and written to the HTTP response.</p>
+
+      <h2>Request mapping annotations</h2>
+      <table>
+        <tr><th>Annotation</th><th>HTTP method</th><th>Typical use</th></tr>
+        <tr><td><code>@GetMapping</code></td><td>GET</td><td>Fetch a resource or list</td></tr>
+        <tr><td><code>@PostMapping</code></td><td>POST</td><td>Create a resource</td></tr>
+        <tr><td><code>@PutMapping</code></td><td>PUT</td><td>Full replace of a resource</td></tr>
+        <tr><td><code>@PatchMapping</code></td><td>PATCH</td><td>Partial update</td></tr>
+        <tr><td><code>@DeleteMapping</code></td><td>DELETE</td><td>Remove a resource</td></tr>
+        <tr><td><code>@RequestMapping</code></td><td>any</td><td>Generic, or class-level prefix</td></tr>
+      </table>
+
+      <h2>A complete CRUD controller</h2>
+      <pre class="code" data-lang="java"><code>package com.example.myapp.controller;
+
+import com.example.myapp.model.Product;
+import com.example.myapp.service.ProductService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+
+    private final ProductService service;
+
+    public ProductController(ProductService service) {
+        this.service = service;
+    }
+
+    // GET /api/products
+    @GetMapping
+    public List&lt;Product&gt; getAll() {
+        return service.findAll();
+    }
+
+    // GET /api/products/{id}
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;Product&gt; getById(@PathVariable Long id) {
+        return service.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // POST /api/products
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product create(@Valid @RequestBody Product product) {
+        return service.save(product);
+    }
+
+    // PUT /api/products/{id}
+    @PutMapping("/{id}")
+    public ResponseEntity&lt;Product&gt; update(@PathVariable Long id,
+                                           @Valid @RequestBody Product product) {
+        return service.update(id, product)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // DELETE /api/products/{id}
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        service.deleteById(id);
+    }
+}</code></pre>
+
+      <h2>Reading request data</h2>
+      <pre class="code" data-lang="java"><code>// Path variable — from the URL segment
+@GetMapping("/users/{id}")
+public User getUser(@PathVariable Long id) { ... }
+
+// Query parameter — ?page=2&amp;size=20
+@GetMapping("/users")
+public Page&lt;User&gt; list(@RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "20") int size) { ... }
+
+// Request body — JSON deserialized by Jackson
+@PostMapping("/users")
+public User create(@RequestBody @Valid CreateUserRequest req) { ... }
+
+// Request header
+@GetMapping("/me")
+public User me(@RequestHeader("Authorization") String token) { ... }</code></pre>
+
+      <h2>DTOs and validation</h2>
+      <pre class="code" data-lang="java"><code>import jakarta.validation.constraints.*;
+
+public record CreateUserRequest(
+    @NotBlank(message = "Name is required")
+    String name,
+
+    @Email(message = "Must be a valid email")
+    @NotBlank
+    String email,
+
+    @Size(min = 8, message = "Password must be at least 8 characters")
+    String password,
+
+    @Min(0) @Max(150)
+    Integer age
+) {}</code></pre>
+      <p>Annotate the parameter with <code>@Valid</code> to trigger validation. Constraint violations automatically produce a 400 response when paired with a global exception handler.</p>
+
+      <h2>Global exception handling</h2>
+      <pre class="code" data-lang="java"><code>import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map&lt;String, String&gt; handleValidation(MethodArgumentNotValidException ex) {
+        Map&lt;String, String&gt; errors = new HashMap&lt;&gt;();
+        ex.getBindingResult().getFieldErrors()
+          .forEach(err -&gt; errors.put(err.getField(), err.getDefaultMessage()));
+        return errors;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map&lt;String, String&gt; handleNotFound(ResourceNotFoundException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map&lt;String, String&gt; handleGeneric(Exception ex) {
+        return Map.of("error", "An unexpected error occurred");
+    }
+}</code></pre>
+
+      <h2>ResponseEntity for full control</h2>
+      <pre class="code" data-lang="java"><code>@PostMapping("/users")
+public ResponseEntity&lt;User&gt; createUser(@RequestBody @Valid CreateUserRequest req) {
+    User saved = service.create(req);
+    URI location = URI.create("/api/users/" + saved.getId());
+    return ResponseEntity
+            .created(location)          // 201 + Location header
+            .body(saved);
+}
+
+// Return different status codes based on logic
+@PutMapping("/{id}/activate")
+public ResponseEntity&lt;Void&gt; activate(@PathVariable Long id) {
+    boolean changed = service.activate(id);
+    return changed
+        ? ResponseEntity.noContent().build()          // 204
+        : ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409
+}</code></pre>
+
+      <div class="callout tip"><strong>Best practice:</strong> keep controllers thin — they read the request, call the service, and return the response. All business logic belongs in the service layer, which can be tested independently of the web layer.</div>
+
+      <h2>CORS configuration</h2>
+      <pre class="code" data-lang="java"><code>// Per-controller
+@CrossOrigin(origins = "https://myfrontend.com")
+@RestController
+public class ProductController { ... }
+
+// Global — in a @Configuration class
+@Bean
+public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/api/**")
+                    .allowedOrigins("https://myfrontend.com")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE");
+        }
+    };
+}</code></pre>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

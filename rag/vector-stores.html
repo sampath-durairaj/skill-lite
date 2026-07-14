@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vector Stores — RAG Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">RAG</a><span class="sep">/</span>Vector Stores</div>
+      <h1>Vector Stores</h1>
+      <p class="lead">A vector store persists embeddings and enables fast similarity search. It stores your document chunks alongside their vectors and lets you query with "find the K most similar chunks to this question." Choosing the right store depends on scale, persistence needs, and infrastructure.</p>
+
+      <h2>Vector store comparison</h2>
+      <table>
+        <tr><th>Store</th><th>Persistence</th><th>Scale</th><th>Best for</th></tr>
+        <tr><td>Chroma</td><td>Local file / in-memory</td><td>Millions</td><td>Dev, small-medium prod</td></tr>
+        <tr><td>FAISS</td><td>In-memory (save to file)</td><td>Billions</td><td>High-performance offline search</td></tr>
+        <tr><td>Pinecone</td><td>Managed cloud</td><td>Billions</td><td>Zero-ops production at scale</td></tr>
+        <tr><td>pgvector</td><td>PostgreSQL extension</td><td>Millions</td><td>Existing Postgres infrastructure</td></tr>
+        <tr><td>Qdrant</td><td>Self-hosted / cloud</td><td>Billions</td><td>Filtering, payload search</td></tr>
+        <tr><td>Weaviate</td><td>Self-hosted / cloud</td><td>Billions</td><td>GraphQL API, multi-modal</td></tr>
+      </table>
+
+      <h2>Chroma — development to production</h2>
+      <pre class="code" data-lang="bash"><code>pip install langchain-chroma</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+# ── Build from documents ──
+docs   = PyPDFLoader("docs.pdf").load()
+chunks = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200).split_documents(docs)
+
+db = Chroma.from_documents(
+    documents=chunks,
+    embedding=embeddings,
+    persist_directory="./chroma_db",   # omit for in-memory
+    collection_name="my_docs",
+)
+
+# ── Load existing store ──
+db = Chroma(
+    persist_directory="./chroma_db",
+    embedding_function=embeddings,
+    collection_name="my_docs",
+)
+
+# ── Search ──
+results = db.similarity_search("How does Docker networking work?", k=4)
+for doc in results:
+    print(doc.page_content[:200])
+    print(doc.metadata)
+
+# With relevance scores (0–1, higher = more similar)
+results_scored = db.similarity_search_with_relevance_scores("Docker networking", k=4)
+for doc, score in results_scored:
+    print(f"Score: {score:.3f} | {doc.page_content[:80]}")
+
+# ── Add / delete documents ──
+db.add_documents(new_chunks)
+db.delete(ids=["doc_id_1", "doc_id_2"])</code></pre>
+
+      <h2>FAISS — high-performance local search</h2>
+      <pre class="code" data-lang="bash"><code>pip install faiss-cpu   # or faiss-gpu for NVIDIA GPUs</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_community.vectorstores import FAISS
+
+# Build FAISS index
+db = FAISS.from_documents(chunks, embeddings)
+
+# Save and reload
+db.save_local("faiss_index")
+db = FAISS.load_local(
+    "faiss_index", embeddings,
+    allow_dangerous_deserialization=True,
+)
+
+# Merge two FAISS indices
+db1 = FAISS.from_documents(docs_a, embeddings)
+db2 = FAISS.from_documents(docs_b, embeddings)
+db1.merge_from(db2)   # db1 now contains everything</code></pre>
+
+      <h2>Pinecone — managed cloud vector store</h2>
+      <pre class="code" data-lang="bash"><code>pip install pinecone-client langchain-pinecone</code></pre>
+      <pre class="code" data-lang="python"><code>from pinecone import Pinecone, ServerlessSpec
+from langchain_pinecone import PineconeVectorStore
+
+pc = Pinecone(api_key="your-api-key")
+
+# Create index (once)
+pc.create_index(
+    name="my-rag-index",
+    dimension=1536,   # match your embedding model
+    metric="cosine",
+    spec=ServerlessSpec(cloud="aws", region="us-east-1"),
+)
+
+# Index documents
+db = PineconeVectorStore.from_documents(
+    chunks,
+    embeddings,
+    index_name="my-rag-index",
+)
+
+# Query
+results = db.similarity_search("What is Kubernetes?", k=4)</code></pre>
+
+      <h2>pgvector — vectors in PostgreSQL</h2>
+      <pre class="code" data-lang="bash"><code>pip install pgvector psycopg2-binary langchain-postgres</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_postgres import PGVector
+
+CONNECTION = "postgresql+psycopg://user:password@localhost:5432/vectordb"
+
+db = PGVector.from_documents(
+    documents=chunks,
+    embedding=embeddings,
+    connection=CONNECTION,
+    collection_name="my_documents",
+    pre_delete_collection=False,   # True to wipe and rebuild
+)
+
+# Re-open existing collection
+db = PGVector(
+    embeddings=embeddings,
+    collection_name="my_documents",
+    connection=CONNECTION,
+)
+
+results = db.similarity_search("Docker volumes", k=3)</code></pre>
+
+      <h2>Metadata filtering</h2>
+      <pre class="code" data-lang="python"><code># All major vector stores support metadata filtering
+# Chroma example
+results = db.similarity_search(
+    "vacation policy",
+    k=4,
+    filter={"department": "HR", "year": 2025},
+)
+
+# Pinecone filter syntax
+results = db.similarity_search(
+    "security requirements",
+    k=4,
+    filter={"source": {"$in": ["policy.pdf", "handbook.pdf"]}},
+)
+
+# This lets you scope retrieval to a user's documents, a date range, etc.</code></pre>
+
+      <div class="callout tip"><strong>Production choice guide:</strong> Use <strong>Chroma</strong> for prototypes and small deployments (&lt;1M vectors). Use <strong>FAISS</strong> when you need maximum query speed on a single server. Use <strong>pgvector</strong> if you already run PostgreSQL — zero extra infrastructure. Use <strong>Pinecone</strong> or <strong>Qdrant</strong> for large-scale multi-tenant production where you want managed hosting and advanced filtering.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

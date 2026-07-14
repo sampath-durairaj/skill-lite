@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LangChain Cheat Sheet — LangChain Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangChain</a><span class="sep">/</span>Cheat Sheet</div>
+      <h1>LangChain Cheat Sheet</h1>
+      <p class="lead">Quick reference for the most important LangChain patterns, classes, and APIs — all in one page.</p>
+
+      <h2>Installation</h2>
+      <pre class="code" data-lang="bash"><code>pip install langchain langchain-openai langchain-anthropic langchain-community
+pip install langchain-chroma faiss-cpu python-dotenv tiktoken</code></pre>
+
+      <h2>Models</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_anthropic import ChatAnthropic
+from langchain_community.chat_models import ChatOllama
+
+# Chat models
+openai_llm    = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+anthropic_llm = ChatAnthropic(model="claude-haiku-4-5", temperature=0)
+local_llm     = ChatOllama(model="llama3.2", temperature=0)
+
+# Embeddings
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+# Invoke
+resp = openai_llm.invoke("Hello!")        # → AIMessage
+resp = openai_llm.invoke([                 # or with messages
+    ("system", "You are helpful."),
+    ("human", "Hello!")
+])
+print(resp.content)
+
+# Stream
+for chunk in openai_llm.stream("Tell me a joke"):
+    print(chunk.content, end="")
+
+# Batch
+results = openai_llm.batch(["Q1", "Q2", "Q3"])</code></pre>
+
+      <h2>Prompts</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.prompts import (
+    PromptTemplate, ChatPromptTemplate,
+    MessagesPlaceholder, FewShotChatMessagePromptTemplate
+)
+
+# String prompt
+p = PromptTemplate.from_template("Explain {topic} simply.")
+p.invoke({"topic": "Docker"})
+
+# Chat prompt
+cp = ChatPromptTemplate.from_messages([
+    ("system", "You are a {role}."),
+    MessagesPlaceholder("history"),
+    ("human", "{input}"),
+])
+cp.invoke({"role": "tutor", "history": [], "input": "What is LCEL?"})
+
+# Partial prompt
+dated = p.partial(topic="Kubernetes")
+dated.invoke({})   # uses pre-filled topic</code></pre>
+
+      <h2>Output Parsers</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
+from pydantic import BaseModel, Field
+
+# String
+chain = prompt | llm | StrOutputParser()     # returns str
+
+# JSON
+chain = prompt | llm | JsonOutputParser()    # returns dict
+
+# Structured output (Pydantic)
+class Answer(BaseModel):
+    answer: str = Field(description="The answer")
+    confidence: float = Field(description="0.0 to 1.0")
+
+structured = llm.with_structured_output(Answer)
+result = structured.invoke("What is Docker?")
+print(result.answer, result.confidence)</code></pre>
+
+      <h2>LCEL Chains</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.runnables import (
+    RunnableParallel, RunnablePassthrough, RunnableLambda, RunnableBranch
+)
+
+# Sequential
+chain = prompt | llm | StrOutputParser()
+chain.invoke({"input": "..."})
+
+# Parallel — runs simultaneously
+parallel = RunnableParallel(
+    a=chain_a,
+    b=chain_b,
+)
+result = parallel.invoke({"input": "..."})
+# {"a": ..., "b": ...}
+
+# Passthrough — forward inputs unchanged
+chain = RunnableParallel(
+    original=RunnablePassthrough(),
+    processed=some_chain,
+)
+
+# Lambda — wrap any function
+f = RunnableLambda(lambda x: x["text"].upper())
+
+# Branch — conditional routing
+branch = RunnableBranch(
+    (lambda x: len(x["text"]) > 100, long_chain),
+    short_chain,   # default
+)
+
+# Fallback
+resilient = primary_chain.with_fallbacks([fallback_chain])
+
+# Retry
+retry_chain = chain.with_retry(stop_after_attempt=3)</code></pre>
+
+      <h2>Memory &amp; Chat History</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+# Session store
+store = {}
+def get_history(session_id):
+    if session_id not in store:
+        store[session_id] = InMemoryChatMessageHistory()
+    return store[session_id]
+
+# Wrap chain
+chat_chain = RunnableWithMessageHistory(
+    prompt | llm | StrOutputParser(),
+    get_history,
+    input_messages_key="input",
+    history_messages_key="history",
+)
+
+chat_chain.invoke(
+    {"input": "Hello!"},
+    config={"configurable": {"session_id": "user_1"}},
+)</code></pre>
+
+      <h2>RAG</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.document_loaders import PyPDFLoader, WebBaseLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain_chroma import Chroma
+from langchain_core.runnables import RunnablePassthrough
+
+# 1. Load
+docs = PyPDFLoader("file.pdf").load()
+
+# 2. Split
+chunks = RecursiveCharacterTextSplitter(
+    chunk_size=1000, chunk_overlap=200
+).split_documents(docs)
+
+# 3. Store
+vectorstore = Chroma.from_documents(
+    chunks, OpenAIEmbeddings(), persist_directory="./db"
+)
+
+# 4. Retrieve
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+
+# 5. Generate
+rag_chain = (
+    {"context": retriever | (lambda docs: "\n\n".join(d.page_content for d in docs)),
+     "question": RunnablePassthrough()}
+    | ChatPromptTemplate.from_messages([
+        ("system", "Answer using this context:\n{context}"),
+        ("human", "{question}"),
+    ])
+    | llm | StrOutputParser()
+)
+
+answer = rag_chain.invoke("What does the document say about X?")</code></pre>
+
+      <h2>Agents &amp; Tools</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.tools import tool
+from langchain.agents import create_tool_calling_agent, AgentExecutor
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+# 1. Define tools
+@tool
+def search(query: str) -> str:
+    """Search the web for information."""
+    return f"Result for: {query}"
+
+@tool
+def calculate(expr: str) -> str:
+    """Evaluate a math expression."""
+    return str(eval(expr, {"__builtins__": {}}, {}))
+
+# 2. Agent prompt (must have agent_scratchpad)
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant."),
+    ("human", "{input}"),
+    MessagesPlaceholder("agent_scratchpad"),
+])
+
+# 3. Create and run
+tools = [search, calculate]
+agent = create_tool_calling_agent(llm, tools, prompt)
+executor = AgentExecutor(agent=agent, tools=tools, verbose=True, max_iterations=10)
+result = executor.invoke({"input": "What is 15 * 7?"})</code></pre>
+
+      <h2>Key imports quick-reference</h2>
+      <table>
+        <tr><th>What</th><th>Import</th></tr>
+        <tr><td>ChatOpenAI</td><td><code>from langchain_openai import ChatOpenAI</code></td></tr>
+        <tr><td>ChatAnthropic</td><td><code>from langchain_anthropic import ChatAnthropic</code></td></tr>
+        <tr><td>ChatPromptTemplate</td><td><code>from langchain_core.prompts import ChatPromptTemplate</code></td></tr>
+        <tr><td>StrOutputParser</td><td><code>from langchain_core.output_parsers import StrOutputParser</code></td></tr>
+        <tr><td>RunnablePassthrough</td><td><code>from langchain_core.runnables import RunnablePassthrough</code></td></tr>
+        <tr><td>@tool decorator</td><td><code>from langchain_core.tools import tool</code></td></tr>
+        <tr><td>InMemoryChatMessageHistory</td><td><code>from langchain_core.chat_history import InMemoryChatMessageHistory</code></td></tr>
+        <tr><td>RunnableWithMessageHistory</td><td><code>from langchain_core.runnables.history import RunnableWithMessageHistory</code></td></tr>
+        <tr><td>Chroma</td><td><code>from langchain_chroma import Chroma</code></td></tr>
+        <tr><td>RecursiveCharacterTextSplitter</td><td><code>from langchain_text_splitters import RecursiveCharacterTextSplitter</code></td></tr>
+        <tr><td>AgentExecutor</td><td><code>from langchain.agents import AgentExecutor</code></td></tr>
+      </table>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

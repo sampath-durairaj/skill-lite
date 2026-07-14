@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Formatter</title>
+  <script src="../js/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sql-formatter@15.4.2/dist/sql-formatter.min.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <style>
+    :root { --textarea-bg: #13151f; --line-num: #3a3d52; }
+
+    .toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    select, .btn {
+      font-size: 13px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    select:hover, select:focus { border-color: var(--accent); outline: none; }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .btn:hover { background: var(--surface); border-color: var(--accent); }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      padding: 6px 18px;
+    }
+
+    .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+    .btn.danger { color: var(--danger); }
+    .btn.danger:hover { border-color: var(--danger); }
+
+    .sep { flex: 1; }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr;
+      flex: 1;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .panel:last-child { border-right: none; }
+
+    .panel-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .panel-header .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .dot-in { background: #f5a623; }
+    .dot-out { background: var(--success); }
+
+    .panel-header span {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .panel-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .icon-btn:hover { color: var(--text); background: var(--surface2); }
+
+    .textarea-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      background: var(--textarea-bg);
+      color: var(--text);
+      border: none;
+      resize: none;
+      padding: 16px 18px;
+      font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+      font-size: 13.5px;
+      line-height: 1.7;
+      tab-size: 2;
+      outline: none;
+      letter-spacing: 0.2px;
+    }
+
+    textarea::placeholder { color: var(--line-num); }
+
+    textarea:focus { background: #0d0f1a; }
+
+    #output { color: #a8d8b0; }
+
+    .status-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 6px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-item { display: flex; align-items: center; gap: 5px; }
+
+    #statusMsg {
+      margin-left: auto;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    #statusMsg.ok { color: var(--success); }
+    #statusMsg.err { color: var(--danger); }
+
+    .toast {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--success);
+      color: #000;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .panel { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#128196;</div>
+    <div class="app-title">
+      <h1>SQL Formatter</h1>
+      <p>Beautify and format raw SQL queries instantly</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../index.html"              class="nav-dropdown-item">&#127968; Home</a>
+        <div class="nav-dropdown-divider"></div>
+        <a href="sql-formatter.html"      class="nav-dropdown-item active">&#128196; SQL Formatter</a>
+        <a href="date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="cron-generator.html"         class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="k8s-yaml-validator.html"    class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <label for="dialect">Dialect:</label>
+  <select id="dialect">
+    <option value="sql">SQL (Standard)</option>
+    <option value="mysql">MySQL</option>
+    <option value="postgresql">PostgreSQL</option>
+    <option value="sqlite">SQLite</option>
+    <option value="tsql">T-SQL (SQL Server)</option>
+    <option value="plsql">PL/SQL (Oracle)</option>
+    <option value="bigquery">BigQuery</option>
+    <option value="db2">DB2</option>
+    <option value="hive">Hive</option>
+    <option value="spark">Spark SQL</option>
+    <option value="trino">Trino</option>
+    <option value="redshift">Redshift</option>
+    <option value="mariadb">MariaDB</option>
+    <option value="singlestoredb">SingleStoreDB</option>
+  </select>
+
+  <label for="indentSize">Indent:</label>
+  <select id="indentSize">
+    <option value="2">2 spaces</option>
+    <option value="4" selected>4 spaces</option>
+    <option value="tab">Tab</option>
+  </select>
+
+  <label for="keywordCase">Keywords:</label>
+  <select id="keywordCase">
+    <option value="upper">UPPERCASE</option>
+    <option value="lower">lowercase</option>
+    <option value="preserve">Preserve</option>
+  </select>
+
+  <div class="sep"></div>
+
+  <button class="btn danger" onclick="clearAll()">&#128465; Clear</button>
+  <button class="btn primary" onclick="formatSQL()">&#10227; Format SQL</button>
+</div>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-in"></span>
+      <span>Input &mdash; Raw SQL</span>
+      <div class="panel-actions">
+        <button class="icon-btn" title="Paste from clipboard" onclick="pasteInput()">&#128203; Paste</button>
+        <button class="icon-btn" title="Clear input" onclick="document.getElementById('input').value=''; updateStatus()">&#10005; Clear</button>
+      </div>
+    </div>
+    <div class="textarea-wrap">
+      <textarea id="input" spellcheck="false"
+        placeholder="Paste your raw SQL query here...
+
+Example:
+SELECT u.id,u.name,u.email,o.total FROM users u INNER JOIN orders o ON u.id=o.user_id WHERE u.active=1 AND o.total>100 ORDER BY o.total DESC LIMIT 10;"
+        oninput="updateStatus()"
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-out"></span>
+      <span>Output &mdash; Formatted SQL</span>
+      <div class="panel-actions">
+        <button class="icon-btn" title="Copy to clipboard" onclick="copyOutput()">&#128203; Copy</button>
+        <button class="icon-btn" title="Clear output" onclick="document.getElementById('output').value=''">&#10005; Clear</button>
+      </div>
+    </div>
+    <div class="textarea-wrap">
+      <textarea id="output" spellcheck="false" readonly
+        placeholder="Formatted SQL will appear here after clicking Format SQL..."></textarea>
+    </div>
+  </div>
+</main>
+
+<div class="status-bar">
+  <div class="status-item">&#128221; <span id="inputChars">0</span> chars</div>
+  <div class="status-item">&#9632; <span id="inputLines">0</span> lines</div>
+  <div class="status-item" id="outputStats" style="display:none">
+    &rarr; <span id="outputChars">0</span> chars
+  </div>
+  <span id="statusMsg"></span>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+  const sqlFormatter = window.sqlFormatter;
+
+  function getOptions() {
+    const dialect    = document.getElementById('dialect').value;
+    const indentRaw  = document.getElementById('indentSize').value;
+    const kwCase     = document.getElementById('keywordCase').value;
+    const indent     = indentRaw === 'tab' ? '\t' : ' '.repeat(Number(indentRaw));
+    return { language: dialect, tabWidth: indentRaw === 'tab' ? 1 : Number(indentRaw), useTabs: indentRaw === 'tab', keywordCase: kwCase, indentStyle: 'standard' };
+  }
+
+  function formatSQL() {
+    const input = document.getElementById('input').value.trim();
+    const output = document.getElementById('output');
+    const statusMsg = document.getElementById('statusMsg');
+
+    if (!input) {
+      statusMsg.textContent = 'No input — paste a SQL query first.';
+      statusMsg.className = 'err';
+      return;
+    }
+
+    try {
+      const opts = getOptions();
+      const formatted = sqlFormatter.format(input, opts);
+      output.value = formatted;
+
+      document.getElementById('outputStats').style.display = '';
+      document.getElementById('outputChars').textContent = formatted.length;
+
+      statusMsg.textContent = 'Formatted successfully!';
+      statusMsg.className = 'ok';
+
+      setTimeout(() => { statusMsg.textContent = ''; statusMsg.className = ''; }, 3000);
+    } catch (e) {
+      statusMsg.textContent = 'Error: ' + e.message;
+      statusMsg.className = 'err';
+    }
+  }
+
+  function clearAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('output').value = '';
+    document.getElementById('outputStats').style.display = 'none';
+    document.getElementById('statusMsg').textContent = '';
+    updateStatus();
+  }
+
+  function updateStatus() {
+    const val = document.getElementById('input').value;
+    document.getElementById('inputChars').textContent = val.length;
+    document.getElementById('inputLines').textContent = val ? val.split('\n').length : 0;
+  }
+
+  async function pasteInput() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('input').value = text;
+      updateStatus();
+    } catch {
+      document.getElementById('input').focus();
+    }
+  }
+
+  async function copyOutput() {
+    const val = document.getElementById('output').value;
+    if (!val) return;
+    try {
+      await navigator.clipboard.writeText(val);
+      showToast();
+    } catch {
+      document.getElementById('output').select();
+      document.execCommand('copy');
+      showToast();
+    }
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      formatSQL();
+    }
+  });
+</script>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

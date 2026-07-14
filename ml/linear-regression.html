@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linear Regression — ML Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Machine Learning</a><span class="sep">/</span>Linear Regression</div>
+      <h1>Linear Regression</h1>
+      <p class="lead">Linear regression is the foundation of supervised learning — it learns a straight-line (or hyperplane) relationship between features and a continuous output. Understanding it deeply demystifies gradient descent, loss functions, and regularisation that appear in every model thereafter.</p>
+
+      <h2>Simple linear regression from scratch</h2>
+      <pre class="code" data-lang="python"><code>import numpy as np
+
+# y = w*x + b   ←  the model we learn
+# Loss = MSE = mean((y_pred - y_true)²)
+
+class LinearRegression:
+    def __init__(self, lr=0.01, n_iter=1000):
+        self.lr, self.n_iter = lr, n_iter
+        self.w = self.b = 0.0
+
+    def fit(self, X, y):
+        n = len(y)
+        for _ in range(self.n_iter):
+            y_pred = self.w * X + self.b
+
+            # Gradients of MSE
+            dw = (-2/n) * np.sum(X * (y - y_pred))
+            db = (-2/n) * np.sum(y - y_pred)
+
+            # Gradient descent update
+            self.w -= self.lr * dw
+            self.b -= self.lr * db
+        return self
+
+    def predict(self, X):
+        return self.w * X + self.b
+
+# Synthetic data
+rng = np.random.default_rng(42)
+X = rng.uniform(0, 10, 100)
+y = 2.5 * X + 1.0 + rng.normal(0, 1, 100)
+
+model = LinearRegression(lr=0.005, n_iter=2000)
+model.fit(X, y)
+print(f"Learned: w={model.w:.3f}, b={model.b:.3f}")  # ≈ 2.5, 1.0</code></pre>
+
+      <h2>scikit-learn LinearRegression</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.datasets import fetch_california_housing
+import numpy as np
+
+housing = fetch_california_housing()
+X, y = housing.data, housing.target
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Plain OLS
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+mse  = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2   = r2_score(y_test, y_pred)
+
+print(f"RMSE: {rmse:.4f}")
+print(f"R²:   {r2:.4f}")
+print(f"Coefficients: {dict(zip(housing.feature_names, model.coef_.round(3)))}")</code></pre>
+
+      <h2>Regularisation — Ridge, Lasso, ElasticNet</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import cross_val_score
+
+# Always scale before regularised regression
+models = {
+    "Ridge (L2)":      Ridge(alpha=1.0),
+    "Lasso (L1)":      Lasso(alpha=0.1),
+    "ElasticNet":      ElasticNet(alpha=0.1, l1_ratio=0.5),
+}
+
+for name, reg in models.items():
+    pipe = Pipeline([("scaler", StandardScaler()), ("model", reg)])
+    scores = cross_val_score(pipe, X, y, cv=5, scoring="r2")
+    print(f"{name:20s}  R² = {scores.mean():.4f} ± {scores.std():.4f}")</code></pre>
+
+      <h2>Polynomial regression</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import Ridge
+import numpy as np
+
+# Create polynomial features: [x] → [1, x, x², x³]
+pipe = Pipeline([
+    ("poly",  PolynomialFeatures(degree=3, include_bias=False)),
+    ("ridge", Ridge(alpha=1.0)),
+])
+
+# Synthetic curve
+rng = np.random.default_rng(0)
+X_1d = rng.uniform(-3, 3, 80).reshape(-1, 1)
+y_1d = 0.5 * X_1d.ravel()**2 - X_1d.ravel() + rng.normal(0, 0.5, 80)
+
+pipe.fit(X_1d, y_1d)
+print(f"Train R²: {pipe.score(X_1d, y_1d):.3f}")</code></pre>
+
+      <h2>Assumptions & diagnostics</h2>
+      <table>
+        <tr><th>Assumption</th><th>How to check</th><th>Fix</th></tr>
+        <tr><td>Linearity</td><td>Residual vs fitted plot — random scatter</td><td>Add polynomial features or use tree model</td></tr>
+        <tr><td>Homoscedasticity</td><td>Residuals have constant variance</td><td>Log-transform target; use WLS</td></tr>
+        <tr><td>Independence</td><td>Durbin-Watson statistic near 2</td><td>Add lagged features for time series</td></tr>
+        <tr><td>Normality of residuals</td><td>Q-Q plot; Shapiro-Wilk test</td><td>Transform features / target</td></tr>
+        <tr><td>No multicollinearity</td><td>VIF &gt; 10 is problematic</td><td>Drop correlated features; use Ridge</td></tr>
+      </table>
+
+      <h2>Hyperparameter tuning with GridSearchCV</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Ridge
+
+param_grid = {"model__alpha": [0.001, 0.01, 0.1, 1, 10, 100]}
+
+pipe = Pipeline([("scaler", StandardScaler()), ("model", Ridge())])
+gs = GridSearchCV(pipe, param_grid, cv=5, scoring="r2", n_jobs=-1)
+gs.fit(X_train, y_train)
+
+print(f"Best alpha: {gs.best_params_}")
+print(f"Best CV R²: {gs.best_score_:.4f}")
+print(f"Test R²:    {gs.score(X_test, y_test):.4f}")</code></pre>
+
+      <div class="callout tip"><strong>When to use Ridge vs Lasso:</strong> Use <strong>Ridge</strong> when you believe most features contribute and want to shrink coefficients smoothly. Use <strong>Lasso</strong> when you want automatic feature selection (it drives irrelevant coefficients to exactly zero). Use <strong>ElasticNet</strong> when you have many correlated features.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

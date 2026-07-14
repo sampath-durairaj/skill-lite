@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>State Management — LangGraph Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangGraph</a><span class="sep">/</span>State Management</div>
+      <h1>State Management</h1>
+      <p class="lead">State is the shared data structure that flows through every node in a LangGraph graph. Nodes read from it and return partial updates; LangGraph merges those updates into the running state automatically. Getting state design right is the most important part of building a reliable graph.</p>
+
+      <h2>Defining state with TypedDict</h2>
+      <pre class="code" data-lang="python"><code>from typing import TypedDict, List, Optional
+
+class AgentState(TypedDict):
+    # Input
+    user_input: str
+
+    # Working memory
+    messages: List[dict]         # conversation history
+    tool_calls: List[str]        # tools invoked so far
+    iteration: int               # loop counter
+
+    # Output
+    final_answer: Optional[str]
+    error: Optional[str]</code></pre>
+
+      <h2>Annotated reducers — controlling how state is merged</h2>
+      <p>By default, each key in state is <em>overwritten</em> by a node's return value. Use <code>Annotated</code> with a reducer function to change how updates are merged — for example, appending to a list instead of replacing it.</p>
+      <pre class="code" data-lang="python"><code>from typing import Annotated
+from langgraph.graph.message import add_messages
+from langchain_core.messages import BaseMessage
+import operator
+
+class ChatState(TypedDict):
+    # add_messages reducer: APPENDS new messages, never replaces
+    messages: Annotated[List[BaseMessage], add_messages]
+
+    # operator.add reducer: APPENDS list items
+    tool_results: Annotated[List[str], operator.add]
+
+    # Default (no Annotated): OVERWRITES on each update
+    current_step: str
+    is_done: bool</code></pre>
+
+      <h2>The add_messages reducer (most common)</h2>
+      <pre class="code" data-lang="python"><code>from typing import Annotated, List
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
+from langchain_openai import ChatOpenAI
+
+class State(TypedDict):
+    messages: Annotated[List[BaseMessage], add_messages]
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+def chat_node(state: State) -> dict:
+    response = llm.invoke(state["messages"])
+    return {"messages": [response]}   # add_messages APPENDS this
+
+graph = StateGraph(State)
+graph.add_node("chat", chat_node)
+graph.add_edge(START, "chat")
+graph.add_edge("chat", END)
+app = graph.compile()
+
+# First turn
+result = app.invoke({"messages": [HumanMessage(content="What is LangGraph?")]})
+# messages now = [HumanMessage(...), AIMessage(...)]
+
+# Second turn — append to existing messages
+result2 = app.invoke({
+    "messages": result["messages"] + [HumanMessage(content="Give me an example.")]
+})</code></pre>
+
+      <h2>MessagesState — built-in shortcut</h2>
+      <pre class="code" data-lang="python"><code>from langgraph.graph import MessagesState   # ready-made state with add_messages
+
+# Equivalent to:
+# class MessagesState(TypedDict):
+#     messages: Annotated[List[BaseMessage], add_messages]
+
+class MyState(MessagesState):
+    # Extend with extra fields
+    user_id: str
+    session_count: int</code></pre>
+
+      <h2>Custom reducer functions</h2>
+      <pre class="code" data-lang="python"><code>def keep_last_5(existing: List[str], new: List[str]) -> List[str]:
+    """Keep only the 5 most recent items."""
+    combined = existing + new
+    return combined[-5:]
+
+class State(TypedDict):
+    # Custom reducer: sliding window of last 5 items
+    recent_thoughts: Annotated[List[str], keep_last_5]
+
+    # Reducer that sums integers
+    total_tokens: Annotated[int, operator.add]
+
+    # Reducer that keeps the maximum value
+    best_score: Annotated[float, max]</code></pre>
+
+      <h2>Reading and updating state in nodes</h2>
+      <pre class="code" data-lang="python"><code>def process_node(state: State) -> dict:
+    # Read any field directly
+    user_msg = state["user_input"]
+    count = state["iteration"]
+    history = state["messages"]
+
+    # Only return the fields you want to change
+    # (omitted fields stay unchanged)
+    return {
+        "iteration": count + 1,
+        "messages": [AIMessage(content="Processing...")],
+        # "user_input" is NOT returned — stays the same
+    }
+
+# Nodes can also return None to make no state change
+def check_node(state: State) -> dict | None:
+    if state["is_done"]:
+        return None   # no-op
+    return {"current_step": "running"}</code></pre>
+
+      <h2>Accessing the full state snapshot</h2>
+      <pre class="code" data-lang="python"><code>from langgraph.checkpoint.memory import MemorySaver
+
+checkpointer = MemorySaver()
+app = graph.compile(checkpointer=checkpointer)
+
+config = {"configurable": {"thread_id": "session_1"}}
+
+# Run the graph
+app.invoke({"user_input": "Hello", "messages": [], "iteration": 0}, config=config)
+
+# Get a snapshot of the current state
+snapshot = app.get_state(config)
+print(snapshot.values)         # full state dict
+print(snapshot.next)           # which node runs next (empty if done)
+print(snapshot.metadata)       # step count, run id, etc.
+
+# Update state manually (useful for testing or HITL)
+app.update_state(config, {"iteration": 0, "error": None})</code></pre>
+
+      <div class="callout tip"><strong>State design rule:</strong> Start minimal — only add fields a node actually needs to pass to another node. Don't use state as a general scratchpad. Use the <code>add_messages</code> reducer for any message list so concurrent nodes can both add messages without one overwriting the other.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

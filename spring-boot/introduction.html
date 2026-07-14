@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>Introduction</div>
+      <h1>Introduction to Spring Boot</h1>
+      <p class="lead">Spring Boot makes it easy to create stand-alone, production-ready Spring applications with minimal configuration. It embraces convention over configuration — you write business logic, not boilerplate.</p>
+
+      <h2>The problem Spring Boot solves</h2>
+      <p>Classic Spring required extensive XML configuration or Java-based <code>@Configuration</code> classes just to get a web app running. Spring Boot flips this: it auto-configures sensible defaults so you can go from zero to a running HTTP server in minutes. You override only what you need to change.</p>
+
+      <h2>Spring Boot vs Spring Framework</h2>
+      <table>
+        <tr><th></th><th>Spring Framework</th><th>Spring Boot</th></tr>
+        <tr><td>Configuration</td><td>Manual — XML or @Configuration</td><td>Auto-configuration, starter POMs</td></tr>
+        <tr><td>Embedded server</td><td>Deploy WAR to external Tomcat/Jetty</td><td>Tomcat/Netty embedded — runs as a JAR</td></tr>
+        <tr><td>Startup</td><td>Heavy setup required</td><td>One main class, one annotation</td></tr>
+        <tr><td>Dependencies</td><td>Choose &amp; version each individually</td><td>Starter bundles handle compatible sets</td></tr>
+        <tr><td>Production-ready</td><td>Manual setup for health/metrics</td><td>Actuator endpoints built-in</td></tr>
+      </table>
+
+      <h2>Key features</h2>
+      <ul>
+        <li><strong>Auto-configuration:</strong> Spring Boot detects JARs on the classpath and configures beans automatically.</li>
+        <li><strong>Starter dependencies:</strong> <code>spring-boot-starter-web</code> pulls in MVC, Jackson, and an embedded Tomcat with one entry.</li>
+        <li><strong>Embedded server:</strong> no WAR, no external app server — just <code>java -jar app.jar</code>.</li>
+        <li><strong>Actuator:</strong> health checks, metrics, environment info via HTTP endpoints out of the box.</li>
+        <li><strong>Spring Initializr:</strong> generate a project skeleton at <em>start.spring.io</em>.</li>
+      </ul>
+
+      <h2>Project structure</h2>
+      <pre class="code" data-lang="text"><code>my-app/
+├── src/
+│   ├── main/
+│   │   ├── java/com/example/myapp/
+│   │   │   ├── MyAppApplication.java    ← entry point (@SpringBootApplication)
+│   │   │   ├── controller/              ← REST controllers
+│   │   │   ├── service/                 ← business logic
+│   │   │   ├── repository/              ← data access (Spring Data)
+│   │   │   └── model/                   ← entity / DTO classes
+│   │   └── resources/
+│   │       ├── application.properties   ← configuration
+│   │       └── static/                  ← served as-is (HTML, CSS, JS)
+│   └── test/
+│       └── java/com/example/myapp/      ← test classes
+├── pom.xml                              ← Maven build descriptor
+└── mvnw                                 ← Maven wrapper (no local Maven needed)</code></pre>
+
+      <h2>The entry point</h2>
+      <pre class="code" data-lang="java"><code>package com.example.myapp;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication   // = @Configuration + @EnableAutoConfiguration + @ComponentScan
+public class MyAppApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyAppApplication.class, args);
+    }
+}</code></pre>
+      <p>That's it. <code>@SpringBootApplication</code> triggers component scanning of the package and all sub-packages, and enables auto-configuration for any starter jars on the classpath.</p>
+
+      <h2>Maven starter</h2>
+      <pre class="code" data-lang="xml"><code>&lt;parent&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+  &lt;version&gt;3.3.0&lt;/version&gt;
+&lt;/parent&gt;
+
+&lt;dependencies&gt;
+  &lt;!-- Web: REST, MVC, embedded Tomcat --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- Tests: JUnit 5, Mockito, MockMvc --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+    &lt;scope&gt;test&lt;/scope&gt;
+  &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+
+      <h2>Common starters</h2>
+      <table>
+        <tr><th>Starter</th><th>What it includes</th></tr>
+        <tr><td><code>spring-boot-starter-web</code></td><td>Spring MVC, Jackson, embedded Tomcat, validation</td></tr>
+        <tr><td><code>spring-boot-starter-data-jpa</code></td><td>Hibernate, Spring Data JPA, JDBC</td></tr>
+        <tr><td><code>spring-boot-starter-security</code></td><td>Spring Security, authentication &amp; authorization</td></tr>
+        <tr><td><code>spring-boot-starter-test</code></td><td>JUnit 5, Mockito, MockMvc, AssertJ</td></tr>
+        <tr><td><code>spring-boot-starter-actuator</code></td><td>Health, metrics, env, info endpoints</td></tr>
+        <tr><td><code>spring-boot-starter-validation</code></td><td>Bean Validation (Hibernate Validator)</td></tr>
+        <tr><td><code>spring-boot-starter-cache</code></td><td>Spring Cache abstraction (plug in Redis, etc.)</td></tr>
+        <tr><td><code>spring-boot-starter-mail</code></td><td>JavaMail + Spring's MailSender</td></tr>
+        <tr><td><code>spring-boot-starter-webflux</code></td><td>Reactive web with Project Reactor / Netty</td></tr>
+      </table>
+
+      <h2>Running the application</h2>
+      <pre class="code" data-lang="bash"><code># Maven Wrapper (no local Maven needed)
+./mvnw spring-boot:run
+
+# Or build a fat JAR and run it directly
+./mvnw clean package
+java -jar target/my-app-0.0.1-SNAPSHOT.jar
+
+# The embedded Tomcat listens on port 8080 by default
+curl http://localhost:8080/</code></pre>
+      <div class="callout tip"><strong>Spring Initializr</strong> at <em>start.spring.io</em> generates a ready-to-run project. Pick your language (Java/Kotlin/Groovy), build tool (Maven/Gradle), Spring Boot version, and dependencies — then download and unzip.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

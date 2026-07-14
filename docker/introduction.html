@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction — Docker Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Docker</a><span class="sep">/</span>Introduction</div>
+      <h1>Introduction to Docker</h1>
+      <p class="lead">Docker is an open platform for developing, shipping, and running applications inside lightweight, portable containers. It eliminates the classic "works on my machine" problem by packaging your app and everything it needs into a single, reproducible unit.</p>
+
+      <h2>The problem Docker solves</h2>
+      <p>Before containers, deploying software meant wrestling with environment differences — the developer's laptop ran a different OS version than staging, which differed from production. Library versions drifted, configurations clashed, and deployments were risky.</p>
+      <p>Docker packages an application together with its runtime, libraries, environment variables, and configuration into a <strong>container image</strong>. That image runs identically everywhere Docker is installed: a laptop, a CI server, or a cloud VM.</p>
+
+      <h2>Containers vs. Virtual Machines</h2>
+      <table>
+        <tr><th></th><th>Virtual Machine</th><th>Docker Container</th></tr>
+        <tr><td>Isolation</td><td>Full OS per VM</td><td>Shared host kernel</td></tr>
+        <tr><td>Size</td><td>Gigabytes</td><td>Megabytes</td></tr>
+        <tr><td>Startup</td><td>Minutes</td><td>Milliseconds</td></tr>
+        <tr><td>Overhead</td><td>High (hypervisor)</td><td>Near zero</td></tr>
+        <tr><td>Portability</td><td>VM image is large &amp; format-specific</td><td>Same image anywhere Docker runs</td></tr>
+      </table>
+      <p>Containers are not VMs — they share the host OS kernel and are isolated using Linux <strong>namespaces</strong> and <strong>cgroups</strong>. This makes them dramatically lighter and faster to start.</p>
+
+      <h2>Docker Engine components</h2>
+      <div class="diagram">
+        <div class="diagram-box hl">
+          <h4>Docker CLI</h4>
+          <ul><li><b>docker build</b> — build an image</li><li><b>docker run</b> — start a container</li><li><b>docker push/pull</b> — share images</li></ul>
+        </div>
+        <div class="diagram-box">
+          <h4>Docker Daemon (dockerd)</h4>
+          <ul><li>Manages images, containers, networks, volumes</li><li>Listens on a UNIX socket</li><li>Calls the container runtime</li></ul>
+        </div>
+        <div class="diagram-box">
+          <h4>Container Runtime</h4>
+          <ul><li><b>containerd</b> manages container lifecycle</li><li><b>runc</b> creates &amp; runs containers</li><li>OCI-compliant</li></ul>
+        </div>
+      </div>
+
+      <h2>Core vocabulary</h2>
+      <table>
+        <tr><th>Term</th><th>Definition</th></tr>
+        <tr><td>Image</td><td>A read-only, layered template. Every container starts from an image.</td></tr>
+        <tr><td>Container</td><td>A running (or stopped) instance of an image. Writable layer on top.</td></tr>
+        <tr><td>Dockerfile</td><td>A text file with instructions to build an image step by step.</td></tr>
+        <tr><td>Layer</td><td>Each Dockerfile instruction creates a cached, immutable filesystem layer.</td></tr>
+        <tr><td>Registry</td><td>A server that stores and distributes images (e.g. Docker Hub).</td></tr>
+        <tr><td>Tag</td><td>A human-readable label for a specific image version (e.g. <code>nginx:1.27</code>).</td></tr>
+        <tr><td>Volume</td><td>A managed storage mount that persists data beyond the container's life.</td></tr>
+        <tr><td>Network</td><td>A virtual network that connects containers to each other and the outside world.</td></tr>
+      </table>
+
+      <h2>Installing Docker</h2>
+      <p>The recommended way to install Docker on any platform is <strong>Docker Desktop</strong> (Mac, Windows) or the <strong>Docker Engine</strong> package on Linux.</p>
+      <pre class="code" data-lang="bash"><code># Linux — add the official Docker repo, then install
+curl -fsSL https://get.docker.com | sh
+
+# Verify installation
+docker version
+docker info</code></pre>
+      <div class="callout tip"><strong>Docker Desktop</strong> bundles the daemon, CLI, Docker Compose, and a local Kubernetes cluster in one installer. On Mac and Windows it runs a lightweight Linux VM transparently.</div>
+
+      <h2>Your first container</h2>
+      <pre class="code" data-lang="bash"><code># Pull and run the official hello-world image
+docker run hello-world
+
+# Run an interactive Ubuntu shell — exit to stop
+docker run -it ubuntu bash
+
+# Run nginx and publish port 80 to localhost:8080
+docker run -d -p 8080:80 --name my-nginx nginx
+
+# See what's running
+docker ps
+
+# Stop and remove
+docker stop my-nginx
+docker rm my-nginx</code></pre>
+
+      <div class="callout"><strong>How <code>docker run nginx</code> works:</strong> Docker checks for the image locally → not found → pulls <code>nginx:latest</code> from Docker Hub → creates a container layer → starts the container process.</div>
+
+      <h2>How this tutorial is organised</h2>
+      <ol>
+        <li><strong>Getting Started</strong> — this page, then Images &amp; Dockerfiles.</li>
+        <li><strong>Core Concepts</strong> — Containers, Volumes, and Networking.</li>
+        <li><strong>Tooling</strong> — Docker Compose for multi-container apps, and Registries for sharing images.</li>
+        <li><strong>Reference</strong> — a full Docker CLI cheat sheet.</li>
+      </ol>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

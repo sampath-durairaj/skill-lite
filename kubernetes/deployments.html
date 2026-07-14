@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deployments &amp; ReplicaSets — Kubernetes Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kubernetes</a><span class="sep">/</span>Deployments &amp; ReplicaSets</div>
+      <h1>Deployments &amp; ReplicaSets</h1>
+      <p class="lead">A Deployment is the workhorse of Kubernetes: it keeps N identical pod replicas running, replaces them when they die, and rolls out new versions gradually with one command to undo it all. If you deploy a stateless app to Kubernetes, you almost always do it with a Deployment.</p>
+
+      <h2>The three-layer stack</h2>
+      <p>Deployments don't manage pods directly — there's a layer in between:</p>
+      <ul>
+        <li><strong>Deployment</strong> — owns the rollout strategy and revision history.</li>
+        <li><strong>ReplicaSet</strong> — owns the replica count; creates or deletes pods to keep exactly N matching its selector.</li>
+        <li><strong>Pods</strong> — the actual workload.</li>
+      </ul>
+      <p>Each new version of your pod template gets its <em>own</em> ReplicaSet. A rolling update is just the Deployment scaling the new ReplicaSet up while scaling the old one down — and a rollback is the same dance in reverse. You practically never create ReplicaSets by hand.</p>
+
+      <h2>A complete Deployment</h2>
+      <pre class="code" data-lang="yaml"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web            # must match the pod template labels below
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi</code></pre>
+      <pre class="code" data-lang="bash"><code>kubectl apply -f deployment.yaml
+kubectl get deploy,rs,pods -l app=web    # see all three layers at once</code></pre>
+      <pre class="code" data-lang="text"><code>NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/web   3/3     3            3           30s
+
+NAME                            DESIRED   CURRENT   READY   AGE
+replicaset.apps/web-7c9d8f6b5   3         3         3       30s
+
+NAME                      READY   STATUS    RESTARTS   AGE
+pod/web-7c9d8f6b5-2xkq9   1/1     Running   0          30s
+pod/web-7c9d8f6b5-8jl4m   1/1     Running   0          30s
+pod/web-7c9d8f6b5-tw6zr   1/1     Running   0          30s</code></pre>
+      <p>Try the self-healing: <code>kubectl delete pod web-7c9d8f6b5-2xkq9</code> and watch a replacement appear within seconds. The ReplicaSet controller saw 2 pods where 3 were desired and closed the gap.</p>
+
+      <h2>Rolling updates</h2>
+      <p>Change the pod template — most often the image — and Kubernetes rolls it out gradually:</p>
+      <pre class="code" data-lang="bash"><code># Either edit the YAML and re-apply (preferred, keeps Git as truth)...
+kubectl apply -f deployment.yaml
+
+# ...or set the image directly
+kubectl set image deployment/web nginx=nginx:1.28
+
+kubectl rollout status deployment/web    # watch it progress</code></pre>
+      <p>The pace is controlled by the update strategy:</p>
+      <pre class="code" data-lang="yaml"><code>spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1          # at most 1 extra pod during the rollout
+      maxUnavailable: 0    # never drop below the desired replica count</code></pre>
+      <ul>
+        <li><strong>RollingUpdate</strong> (default) — replace pods a few at a time; zero downtime if you have readiness probes.</li>
+        <li><strong>Recreate</strong> — kill everything, then start the new version. Simple, has downtime; needed when two versions can't run side by side (e.g. an exclusive database lock).</li>
+      </ul>
+      <div class="callout tip"><strong>Readiness probes make rollouts safe:</strong> a new pod only starts receiving traffic — and the rollout only proceeds — once its readiness probe passes. Without one, Kubernetes considers a pod "ready" the moment its process starts.</div>
+
+      <h2>Rollbacks and history</h2>
+      <pre class="code" data-lang="bash"><code>kubectl rollout history deployment/web             # list revisions
+kubectl rollout history deployment/web --revision=2
+kubectl rollout undo deployment/web                # back to previous revision
+kubectl rollout undo deployment/web --to-revision=1
+kubectl rollout restart deployment/web             # recreate all pods (picks up new secrets/config)
+kubectl rollout pause deployment/web               # stage several changes, then resume
+kubectl rollout resume deployment/web</code></pre>
+      <div class="callout warn"><strong>Tip:</strong> annotate your deploys with a reason (<code>kubectl annotate deployment/web kubernetes.io/change-cause="upgrade nginx to 1.28"</code>) so <code>rollout history</code> shows something more useful than <code>&lt;none&gt;</code>.</div>
+
+      <h2>Scaling</h2>
+      <pre class="code" data-lang="bash"><code>kubectl scale deployment/web --replicas=5</code></pre>
+      <p>Or change <code>replicas:</code> in the YAML and re-apply. For automatic scaling based on load, see <a href="scaling.html">Scaling &amp; Autoscaling</a>.</p>
+
+      <h2>The other workload controllers</h2>
+      <p>Deployments are for stateless, interchangeable replicas. Kubernetes has siblings for other shapes of workload:</p>
+      <table>
+        <tr><th>Controller</th><th>Use it for</th><th>Key property</th></tr>
+        <tr><td>Deployment</td><td>Stateless apps: APIs, web servers, workers</td><td>Replicas are identical and interchangeable.</td></tr>
+        <tr><td>StatefulSet</td><td>Databases, Kafka, anything with identity</td><td>Stable names (<code>db-0</code>, <code>db-1</code>), stable per-pod storage, ordered startup.</td></tr>
+        <tr><td>DaemonSet</td><td>Node agents: log collectors, monitoring, CNI</td><td>Exactly one pod on every (matching) node.</td></tr>
+        <tr><td>Job</td><td>Run-to-completion tasks: migrations, batch</td><td>Retries until N successful completions.</td></tr>
+        <tr><td>CronJob</td><td>Scheduled tasks: backups, reports</td><td>Creates a Job on a cron schedule.</td></tr>
+      </table>
+      <pre class="code" data-lang="yaml"><code># A minimal CronJob: nightly backup at 02:00
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nightly-backup
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: myorg/backup:1.4</code></pre>
+
+      <h2>Command recap</h2>
+      <pre class="code" data-lang="bash"><code>kubectl get deployments
+kubectl describe deployment web        # conditions + events when things go wrong
+kubectl rollout status deployment/web
+kubectl rollout undo deployment/web
+kubectl scale deployment/web --replicas=5
+kubectl delete deployment web          # deletes its ReplicaSets and pods too</code></pre>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

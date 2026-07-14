@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced RAG — RAG Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">RAG</a><span class="sep">/</span>Advanced RAG</div>
+      <h1>Advanced RAG</h1>
+      <p class="lead">When basic RAG isn't accurate enough, advanced techniques improve retrieval precision, handle complex queries, and reduce hallucination. These include hypothetical document embeddings, re-ranking, parent document retrieval, CRAG, and Agentic RAG with LangGraph.</p>
+
+      <h2>HyDE — Hypothetical Document Embeddings</h2>
+      <p>Instead of embedding the user's short question, use the LLM to generate a hypothetical answer first, then embed that. A hypothetical answer is semantically closer to real document chunks than a short question.</p>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_chroma import Chroma
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+db  = Chroma(persist_directory="./db", embedding_function=OpenAIEmbeddings())
+
+# Step 1: generate a hypothetical document that would answer the query
+hyde_prompt = ChatPromptTemplate.from_template(
+    "Write a short passage that directly answers this question. Be specific:\n\n{question}"
+)
+hyde_chain = hyde_prompt | llm | StrOutputParser()
+
+# Step 2: use the hypothetical answer as the retrieval query
+def hyde_retrieve(question: str):
+    hypothetical = hyde_chain.invoke({"question": question})
+    return db.similarity_search(hypothetical, k=4)
+
+# In a full RAG chain:
+rag_prompt = ChatPromptTemplate.from_messages([
+    ("system", "Answer using ONLY this context:\n{context}"),
+    ("human", "{question}"),
+])
+
+rag_chain = (
+    {"context": lambda x: "\n\n".join(d.page_content for d in hyde_retrieve(x)),
+     "question": RunnablePassthrough()}
+    | rag_prompt | llm | StrOutputParser()
+)
+
+print(rag_chain.invoke("What are the Docker networking modes?"))</code></pre>
+
+      <h2>Re-ranking with cross-encoders</h2>
+      <p>A bi-encoder (embedding) retrieves fast but approximates relevance. A cross-encoder re-scores each (query, document) pair precisely — much slower but more accurate. Use cross-encoders on a small candidate set after initial retrieval.</p>
+      <pre class="code" data-lang="bash"><code>pip install sentence-transformers</code></pre>
+      <pre class="code" data-lang="python"><code>from sentence_transformers import CrossEncoder
+from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+cross_encoder = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+db = Chroma(persist_directory="./db", embedding_function=OpenAIEmbeddings())
+
+def rerank_retrieve(query: str, k_initial: int = 20, k_final: int = 4):
+    # Step 1: fast bi-encoder retrieval — get 20 candidates
+    candidates = db.similarity_search(query, k=k_initial)
+
+    # Step 2: score each (query, document) pair with cross-encoder
+    pairs  = [(query, doc.page_content) for doc in candidates]
+    scores = cross_encoder.predict(pairs)
+
+    # Step 3: sort by cross-encoder score, keep top k_final
+    ranked = sorted(zip(scores, candidates), key=lambda x: x[0], reverse=True)
+    return [doc for _, doc in ranked[:k_final]]
+
+docs = rerank_retrieve("How do Docker bridge networks work?")</code></pre>
+
+      <h2>Parent Document Retriever</h2>
+      <p>Index small chunks for precise retrieval, but return the larger parent document for richer context.</p>
+      <pre class="code" data-lang="python"><code>from langchain.retrievers import ParentDocumentRetriever
+from langchain.storage import InMemoryStore
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+# Small chunks for precise retrieval
+child_splitter  = RecursiveCharacterTextSplitter(chunk_size=200)
+# Larger chunks returned to the LLM
+parent_splitter = RecursiveCharacterTextSplitter(chunk_size=2000)
+
+vectorstore   = Chroma(embedding_function=OpenAIEmbeddings(), collection_name="child_docs")
+docstore      = InMemoryStore()   # stores parent docs
+
+retriever = ParentDocumentRetriever(
+    vectorstore=vectorstore,
+    docstore=docstore,
+    child_splitter=child_splitter,
+    parent_splitter=parent_splitter,
+)
+
+# Index documents
+from langchain_community.document_loaders import PyPDFLoader
+docs = PyPDFLoader("manual.pdf").load()
+retriever.add_documents(docs)
+
+# Retrieves small chunks → returns their larger parents
+results = retriever.invoke("Docker networking bridge mode")</code></pre>
+
+      <h2>CRAG — Corrective RAG</h2>
+      <p>CRAG grades retrieved documents and falls back to web search if they're irrelevant.</p>
+      <pre class="code" data-lang="python"><code>from langgraph.graph import StateGraph, START, END
+from typing import TypedDict, List, Annotated
+from langgraph.graph.message import add_messages
+from langchain_core.documents import Document
+
+class CRAGState(TypedDict):
+    question: str
+    documents: List[Document]
+    grade: str        # "relevant" | "irrelevant"
+    answer: str
+
+def retrieve(state: CRAGState) -> dict:
+    docs = db.similarity_search(state["question"], k=4)
+    return {"documents": docs}
+
+def grade_documents(state: CRAGState) -> dict:
+    grade_prompt = ChatPromptTemplate.from_template(
+        """Are these documents relevant to answer: "{question}"?
+        Documents: {docs}
+        Reply with ONLY "relevant" or "irrelevant"."""
+    )
+    chain  = grade_prompt | llm | StrOutputParser()
+    result = chain.invoke({
+        "question": state["question"],
+        "docs": "\n".join(d.page_content[:200] for d in state["documents"]),
+    })
+    return {"grade": result.strip().lower()}
+
+def web_search(state: CRAGState) -> dict:
+    from langchain_community.tools import DuckDuckGoSearchRun
+    results = DuckDuckGoSearchRun().run(state["question"])
+    return {"documents": [Document(page_content=results)]}
+
+def generate(state: CRAGState) -> dict:
+    context = "\n\n".join(d.page_content for d in state["documents"])
+    answer  = llm.invoke(f"Answer using this context:\n{context}\n\nQuestion: {state['question']}")
+    return {"answer": answer.content}
+
+g = StateGraph(CRAGState)
+g.add_node("retrieve",   retrieve)
+g.add_node("grade",      grade_documents)
+g.add_node("web_search", web_search)
+g.add_node("generate",   generate)
+g.add_edge(START, "retrieve")
+g.add_edge("retrieve", "grade")
+g.add_conditional_edges("grade",
+    lambda s: s["grade"],
+    {"relevant": "generate", "irrelevant": "web_search"},
+)
+g.add_edge("web_search", "generate")
+g.add_edge("generate", END)
+crag_app = g.compile()
+result = crag_app.invoke({"question": "What is Docker Swarm?", "documents": [], "grade": "", "answer": ""})</code></pre>
+
+      <div class="callout tip"><strong>When to use advanced techniques:</strong> Measure your baseline first with RAGAS or LangSmith. If precision is low → add re-ranking. If short queries miss long answers → try HyDE. If retrieved chunks are too small → use Parent Document Retriever. If your knowledge base is incomplete → CRAG with web search fallback. Don't add complexity until you can measure the improvement.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

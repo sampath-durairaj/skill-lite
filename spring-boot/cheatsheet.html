@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cheat Sheet — Spring Boot Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Spring Boot</a><span class="sep">/</span>Cheat Sheet</div>
+      <h1>Spring Boot Cheat Sheet</h1>
+      <p class="lead">A complete reference of Spring Boot annotations, properties, and patterns — organised by category.</p>
+
+      <h2>Core annotations</h2>
+      <table>
+        <tr><th>Annotation</th><th>Purpose</th></tr>
+        <tr><td><code>@SpringBootApplication</code></td><td>Main class: enables auto-config, component scan, @Configuration</td></tr>
+        <tr><td><code>@Component</code></td><td>Generic Spring-managed bean</td></tr>
+        <tr><td><code>@Service</code></td><td>Service layer bean</td></tr>
+        <tr><td><code>@Repository</code></td><td>DAO/repository — also translates DB exceptions</td></tr>
+        <tr><td><code>@Controller</code></td><td>MVC controller (returns views)</td></tr>
+        <tr><td><code>@RestController</code></td><td>@Controller + @ResponseBody (returns JSON/XML)</td></tr>
+        <tr><td><code>@Configuration</code></td><td>Contains @Bean factory methods</td></tr>
+        <tr><td><code>@Bean</code></td><td>Declares a method as a bean factory</td></tr>
+        <tr><td><code>@Autowired</code></td><td>Injects a dependency (prefer constructor injection)</td></tr>
+        <tr><td><code>@Qualifier("name")</code></td><td>Disambiguates when multiple beans of same type exist</td></tr>
+        <tr><td><code>@Primary</code></td><td>Marks default bean when multiple candidates</td></tr>
+        <tr><td><code>@Scope("prototype")</code></td><td>New instance per injection (default is singleton)</td></tr>
+        <tr><td><code>@Profile("dev")</code></td><td>Bean or config active only on specified profiles</td></tr>
+        <tr><td><code>@Lazy</code></td><td>Defers bean initialization until first use</td></tr>
+        <tr><td><code>@PostConstruct</code></td><td>Called after injection, before use</td></tr>
+        <tr><td><code>@PreDestroy</code></td><td>Called before context shutdown</td></tr>
+        <tr><td><code>@EventListener</code></td><td>Method handles an application event</td></tr>
+        <tr><td><code>@Async</code></td><td>Run method in a background thread pool</td></tr>
+        <tr><td><code>@Scheduled(cron=...)</code></td><td>Schedule a method to run periodically</td></tr>
+        <tr><td><code>@Transactional</code></td><td>Wrap method in a DB transaction</td></tr>
+        <tr><td><code>@EnableAsync</code></td><td>Activates @Async support (put on @Configuration)</td></tr>
+        <tr><td><code>@EnableScheduling</code></td><td>Activates @Scheduled support</td></tr>
+      </table>
+
+      <h2>Web / REST annotations</h2>
+      <table>
+        <tr><th>Annotation</th><th>Purpose</th></tr>
+        <tr><td><code>@RequestMapping("/path")</code></td><td>Map URL path to class or method</td></tr>
+        <tr><td><code>@GetMapping / @PostMapping / ...</code></td><td>HTTP-method-specific shortcuts</td></tr>
+        <tr><td><code>@PathVariable</code></td><td>Extract value from URL segment</td></tr>
+        <tr><td><code>@RequestParam</code></td><td>Extract query parameter</td></tr>
+        <tr><td><code>@RequestBody</code></td><td>Deserialize request body from JSON</td></tr>
+        <tr><td><code>@ResponseBody</code></td><td>Serialize return value to JSON</td></tr>
+        <tr><td><code>@ResponseStatus(HttpStatus.CREATED)</code></td><td>Set HTTP status code for method</td></tr>
+        <tr><td><code>@RequestHeader</code></td><td>Inject a request header</td></tr>
+        <tr><td><code>@CrossOrigin</code></td><td>Enable CORS for a controller or method</td></tr>
+        <tr><td><code>@RestControllerAdvice</code></td><td>Global exception handler for REST controllers</td></tr>
+        <tr><td><code>@ExceptionHandler</code></td><td>Handle a specific exception type</td></tr>
+        <tr><td><code>@Valid / @Validated</code></td><td>Trigger Bean Validation on method argument</td></tr>
+      </table>
+
+      <h2>Spring Data JPA annotations</h2>
+      <table>
+        <tr><th>Annotation</th><th>Purpose</th></tr>
+        <tr><td><code>@Entity</code></td><td>Marks class as JPA entity (DB table)</td></tr>
+        <tr><td><code>@Table(name="...")</code></td><td>Override default table name</td></tr>
+        <tr><td><code>@Id</code></td><td>Primary key field</td></tr>
+        <tr><td><code>@GeneratedValue</code></td><td>Auto-generate PK (IDENTITY, SEQUENCE, AUTO)</td></tr>
+        <tr><td><code>@Column</code></td><td>Column mapping (name, nullable, length, unique)</td></tr>
+        <tr><td><code>@OneToMany / @ManyToOne</code></td><td>Relationship mapping</td></tr>
+        <tr><td><code>@JoinColumn</code></td><td>Specifies FK column for a relationship</td></tr>
+        <tr><td><code>@Query("JPQL")</code></td><td>Custom JPQL or native SQL on repository method</td></tr>
+        <tr><td><code>@Modifying</code></td><td>Marks @Query as an UPDATE/DELETE (must be @Transactional)</td></tr>
+        <tr><td><code>@Transactional(readOnly=true)</code></td><td>Read-only transaction (performance hint)</td></tr>
+        <tr><td><code>@CreationTimestamp</code></td><td>Auto-set on insert (Hibernate)</td></tr>
+        <tr><td><code>@UpdateTimestamp</code></td><td>Auto-update on every save (Hibernate)</td></tr>
+      </table>
+
+      <h2>Validation annotations (jakarta.validation)</h2>
+      <table>
+        <tr><th>Annotation</th><th>Constraint</th></tr>
+        <tr><td><code>@NotNull</code></td><td>Must not be null</td></tr>
+        <tr><td><code>@NotBlank</code></td><td>String must not be null, empty, or whitespace</td></tr>
+        <tr><td><code>@NotEmpty</code></td><td>Collection/String must not be null or empty</td></tr>
+        <tr><td><code>@Size(min, max)</code></td><td>String / collection size range</td></tr>
+        <tr><td><code>@Min / @Max</code></td><td>Numeric minimum / maximum value</td></tr>
+        <tr><td><code>@Positive / @PositiveOrZero</code></td><td>Number must be positive (or zero)</td></tr>
+        <tr><td><code>@Email</code></td><td>Must be a well-formed email address</td></tr>
+        <tr><td><code>@Pattern(regexp)</code></td><td>Must match regular expression</td></tr>
+        <tr><td><code>@Past / @Future</code></td><td>Date must be in the past / future</td></tr>
+      </table>
+
+      <h2>Testing annotations</h2>
+      <table>
+        <tr><th>Annotation</th><th>Purpose</th></tr>
+        <tr><td><code>@SpringBootTest</code></td><td>Full integration test with Spring context</td></tr>
+        <tr><td><code>@WebMvcTest(Ctrl.class)</code></td><td>MVC slice — controller + MockMvc only</td></tr>
+        <tr><td><code>@DataJpaTest</code></td><td>JPA slice — repos + H2 by default</td></tr>
+        <tr><td><code>@MockBean</code></td><td>Add Mockito mock into Spring context</td></tr>
+        <tr><td><code>@SpyBean</code></td><td>Add Mockito spy wrapping real bean</td></tr>
+        <tr><td><code>@Mock / @InjectMocks</code></td><td>Mockito unit test (no Spring context)</td></tr>
+        <tr><td><code>@Test</code></td><td>JUnit 5 test method</td></tr>
+        <tr><td><code>@BeforeEach / @AfterEach</code></td><td>Run before/after each test method</td></tr>
+        <tr><td><code>@Testcontainers + @Container</code></td><td>Manage Docker containers in tests</td></tr>
+        <tr><td><code>@DynamicPropertySource</code></td><td>Override properties at test time</td></tr>
+      </table>
+
+      <h2>Useful application.properties / yml keys</h2>
+      <pre class="code" data-lang="properties"><code>server.port=8080
+server.servlet.context-path=/api
+spring.application.name=my-service
+spring.profiles.active=dev
+
+# DataSource
+spring.datasource.url=jdbc:postgresql://localhost:5432/mydb
+spring.datasource.username=admin
+spring.datasource.password=secret
+
+# JPA / Hibernate
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=false
+spring.jpa.open-in-view=false
+
+# Connection pool (HikariCP)
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=30000
+
+# Actuator
+management.endpoints.web.exposure.include=health,info,metrics,prometheus
+management.endpoint.health.show-details=when-authorized
+
+# Logging
+logging.level.com.example.myapp=DEBUG
+logging.level.org.hibernate.SQL=DEBUG</code></pre>
+
+      <h2>Maven Wrapper quick commands</h2>
+      <pre class="code" data-lang="bash"><code>./mvnw spring-boot:run                     # run with dev classpath
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+./mvnw clean package                       # build fat JAR
+./mvnw clean package -DskipTests          # skip tests during build
+./mvnw test                               # run tests only
+./mvnw dependency:tree                    # show dependency tree
+./mvnw versions:display-dependency-updates  # check for updates
+
+java -jar target/app.jar
+java -jar target/app.jar --spring.profiles.active=prod
+java -jar target/app.jar --server.port=9090</code></pre>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

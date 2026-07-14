@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model Evaluation — ML Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Machine Learning</a><span class="sep">/</span>Model Evaluation</div>
+      <h1>Model Evaluation</h1>
+      <p class="lead">A model is only as good as how you measure it. Choosing the wrong metric can hide serious problems — a 99% accurate fraud detector that predicts "not fraud" every time tells you nothing useful. This page covers the metrics, validation techniques, and diagnostic tools that give you an honest picture of performance.</p>
+
+      <h2>Classification metrics at a glance</h2>
+      <table>
+        <tr><th>Metric</th><th>Formula</th><th>Use when</th></tr>
+        <tr><td>Accuracy</td><td>correct / total</td><td>Balanced classes only</td></tr>
+        <tr><td>Precision</td><td>TP / (TP + FP)</td><td>False positives are costly (spam filter)</td></tr>
+        <tr><td>Recall (Sensitivity)</td><td>TP / (TP + FN)</td><td>False negatives are costly (disease detection)</td></tr>
+        <tr><td>F1 Score</td><td>2 × P×R / (P+R)</td><td>Imbalanced classes, need balance of P and R</td></tr>
+        <tr><td>ROC-AUC</td><td>Area under TPR vs FPR curve</td><td>Ranking / probability quality</td></tr>
+        <tr><td>PR-AUC</td><td>Area under precision-recall curve</td><td>Highly imbalanced datasets</td></tr>
+        <tr><td>Matthews CC</td><td>Balanced metric for all 4 cells</td><td>Binary, imbalanced, when all errors matter</td></tr>
+      </table>
+
+      <h2>Regression metrics</h2>
+      <table>
+        <tr><th>Metric</th><th>Notes</th></tr>
+        <tr><td>MAE</td><td>Mean Absolute Error — robust to outliers, interpretable units</td></tr>
+        <tr><td>MSE / RMSE</td><td>Penalises large errors heavily; RMSE in same units as target</td></tr>
+        <tr><td>R² (coefficient of determination)</td><td>Proportion of variance explained; 1.0 = perfect, 0 = predict mean</td></tr>
+        <tr><td>MAPE</td><td>Mean Absolute Percentage Error — scale-independent; undefined when y=0</td></tr>
+        <tr><td>Huber loss</td><td>MSE for small errors, MAE for large — best of both</td></tr>
+      </table>
+
+      <h2>Comprehensive metrics with scikit-learn</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    roc_auc_score, average_precision_score, matthews_corrcoef,
+    classification_report, confusion_matrix
+)
+from sklearn.datasets import load_breast_cancer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+clf = RandomForestClassifier(n_estimators=100, random_state=42)
+clf.fit(X_train, y_train)
+y_pred  = clf.predict(X_test)
+y_proba = clf.predict_proba(X_test)[:, 1]
+
+print(f"Accuracy:        {accuracy_score(y_test, y_pred):.4f}")
+print(f"Precision:       {precision_score(y_test, y_pred):.4f}")
+print(f"Recall:          {recall_score(y_test, y_pred):.4f}")
+print(f"F1:              {f1_score(y_test, y_pred):.4f}")
+print(f"ROC-AUC:         {roc_auc_score(y_test, y_proba):.4f}")
+print(f"PR-AUC:          {average_precision_score(y_test, y_proba):.4f}")
+print(f"Matthews CC:     {matthews_corrcoef(y_test, y_pred):.4f}")
+print()
+print(classification_report(y_test, y_pred, target_names=["malignant", "benign"]))
+print("Confusion matrix:\n", confusion_matrix(y_test, y_pred))</code></pre>
+
+      <h2>Cross-validation</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.model_selection import (
+    cross_val_score, StratifiedKFold, KFold,
+    cross_validate, learning_curve
+)
+from sklearn.ensemble import GradientBoostingClassifier
+import numpy as np
+
+clf = GradientBoostingClassifier(n_estimators=100, random_state=42)
+
+# Simple 5-fold CV
+scores = cross_val_score(clf, X, y, cv=5, scoring="roc_auc", n_jobs=-1)
+print(f"ROC-AUC: {scores.mean():.4f} ± {scores.std():.4f}")
+
+# Stratified K-Fold (preserves class proportions in each fold)
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(clf, X, y, cv=skf, scoring="f1")
+print(f"F1:      {scores.mean():.4f} ± {scores.std():.4f}")
+
+# Multiple metrics in one pass
+results = cross_validate(
+    clf, X, y, cv=5,
+    scoring=["roc_auc", "f1", "precision", "recall"],
+    return_train_score=True,
+)
+for metric in ["roc_auc", "f1"]:
+    print(f"Test {metric}: {results['test_' + metric].mean():.4f}")</code></pre>
+
+      <h2>Learning curves — diagnosing overfitting</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.model_selection import learning_curve
+import numpy as np
+
+train_sizes, train_scores, val_scores = learning_curve(
+    clf, X, y,
+    train_sizes=np.linspace(0.1, 1.0, 10),
+    cv=5, scoring="roc_auc", n_jobs=-1
+)
+
+# Large gap (train >> val) → overfitting → add more data or regularise
+# Both scores low → underfitting → use a more complex model
+for i, size in enumerate(train_sizes):
+    print(f"n={size:4.0f}  train={train_scores[i].mean():.3f}  val={val_scores[i].mean():.3f}")</code></pre>
+
+      <h2>Hyperparameter search</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from scipy.stats import randint, uniform
+
+# Grid search — exhaustive
+param_grid = {
+    "n_estimators": [50, 100, 200],
+    "max_depth":    [3, 5, None],
+    "learning_rate": [0.01, 0.05, 0.1],
+}
+gs = GridSearchCV(GradientBoostingClassifier(), param_grid, cv=5,
+                  scoring="roc_auc", n_jobs=-1)
+gs.fit(X_train, y_train)
+print(f"Best params: {gs.best_params_}")
+print(f"Best CV AUC: {gs.best_score_:.4f}")
+
+# Random search — more efficient for many params
+param_dist = {
+    "n_estimators":  randint(50, 400),
+    "max_depth":     randint(2, 10),
+    "learning_rate": uniform(0.005, 0.2),
+    "subsample":     uniform(0.5, 0.5),
+}
+rs = RandomizedSearchCV(GradientBoostingClassifier(), param_dist,
+                        n_iter=50, cv=5, scoring="roc_auc", n_jobs=-1, random_state=42)
+rs.fit(X_train, y_train)
+print(f"Best random: {rs.best_params_}")</code></pre>
+
+      <div class="callout tip"><strong>Evaluation pitfalls:</strong> (1) Never tune on the test set — use cross-validation during development, reserve the test set for one final evaluation. (2) High accuracy on imbalanced data is meaningless — always check recall and precision separately. (3) Use <code>StratifiedKFold</code> for classification to ensure each fold has the same class proportions as the full dataset.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

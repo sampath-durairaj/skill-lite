@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Human-in-the-Loop — LangGraph Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangGraph</a><span class="sep">/</span>Human-in-the-Loop</div>
+      <h1>Human-in-the-Loop</h1>
+      <p class="lead">Human-in-the-loop (HITL) lets you pause graph execution at a defined breakpoint, show the current state to a human, optionally modify it, and then resume — or abort. This is essential for high-stakes actions like sending emails, writing to databases, or making purchases.</p>
+
+      <h2>How it works</h2>
+      <div class="diagram">
+        <div class="diagram-box hl"><h4>1. Run graph</h4><ul><li>Execution starts normally</li><li>Graph runs until breakpoint</li></ul></div>
+        <div class="diagram-box"><h4>2. Pause</h4><ul><li>State saved to checkpointer</li><li>Returns to caller with <code>__interrupt__</code></li></ul></div>
+        <div class="diagram-box"><h4>3. Human review</h4><ul><li>Inspect / modify state</li><li>Approve or reject</li></ul></div>
+        <div class="diagram-box"><h4>4. Resume</h4><ul><li>Call <code>invoke(None, config)</code></li><li>Continues from breakpoint</li></ul></div>
+      </div>
+
+      <h2>interrupt_before — pause before a node runs</h2>
+      <pre class="code" data-lang="python"><code>from langgraph.graph import StateGraph, START, END, MessagesState
+from langgraph.checkpoint.memory import MemorySaver
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, AIMessage
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+def draft_email(state: MessagesState) -> dict:
+    prompt = "Draft a professional email based on: " + state["messages"][-1].content
+    draft = llm.invoke(prompt)
+    return {"messages": [AIMessage(content=f"DRAFT:\n{draft.content}")]}
+
+def send_email(state: MessagesState) -> dict:
+    # In production: actually send the email
+    print("Email sent!")
+    return {"messages": [AIMessage(content="Email sent successfully.")]}
+
+graph = StateGraph(MessagesState)
+graph.add_node("draft", draft_email)
+graph.add_node("send",  send_email)
+graph.add_edge(START, "draft")
+graph.add_edge("draft", "send")
+graph.add_edge("send", END)
+
+checkpointer = MemorySaver()
+# interrupt_before="send" means: pause BEFORE the "send" node runs
+app = graph.compile(checkpointer=checkpointer, interrupt_before=["send"])
+
+config = {"configurable": {"thread_id": "email_task_1"}}
+
+# Step 1: Run — graph will pause before "send"
+result = app.invoke(
+    {"messages": [HumanMessage("Write an email to the team about the new deployment.")]},
+    config=config,
+)
+print("PAUSED. Current state:")
+print(result["messages"][-1].content)   # shows the drafted email
+
+# Step 2: Human reviews and (optionally) edits the draft
+# Modify state if needed
+app.update_state(config, {
+    "messages": [AIMessage(content="DRAFT:\nHi team, the deployment is complete. Regards, Alice.")]
+})
+
+# Step 3: Resume — pass None as input to continue from breakpoint
+final = app.invoke(None, config=config)
+print(final["messages"][-1].content)   # "Email sent successfully."</code></pre>
+
+      <h2>interrupt_after — pause after a node completes</h2>
+      <pre class="code" data-lang="python"><code># Pause AFTER "draft" runs (so you can see what it produced before proceeding)
+app = graph.compile(checkpointer=checkpointer, interrupt_after=["draft"])</code></pre>
+
+      <h2>Dynamic interrupts with interrupt()</h2>
+      <pre class="code" data-lang="python"><code">from langgraph.types import interrupt, Command
+
+def risky_action(state: MessagesState) -> dict:
+    action_details = "Delete 500 rows from production database"
+
+    # Pause and ask the human for approval
+    decision = interrupt({
+        "action": action_details,
+        "prompt": "Do you approve this action? Reply 'yes' or 'no'.",
+    })
+
+    if decision.lower() == "yes":
+        # proceed
+        return {"messages": [AIMessage(content="Action completed.")]}
+    else:
+        return {"messages": [AIMessage(content="Action cancelled by user.")]}
+
+# Resume by passing the human's response
+final = app.invoke(
+    Command(resume="yes"),   # human approved
+    config=config,
+)</code></pre>
+
+      <h2>Checking if execution was interrupted</h2>
+      <pre class="code" data-lang="python"><code>snapshot = app.get_state(config)
+
+# If the graph is paused, snapshot.next is non-empty
+if snapshot.next:
+    print(f"Graph paused. Next node(s) to run: {snapshot.next}")
+    print("Current state:")
+    for msg in snapshot.values["messages"]:
+        print(f"  [{msg.type}] {msg.content[:80]}")
+else:
+    print("Graph completed.")</code></pre>
+
+      <h2>Real-world HITL example — content moderation</h2>
+      <pre class="code" data-lang="python"><code">from typing import TypedDict
+
+class ContentState(TypedDict):
+    content: str
+    flagged: bool
+    approved: bool
+    reason: str
+
+def generate_content(state: ContentState) -> dict:
+    resp = llm.invoke(f"Write a blog post about: {state['content']}")
+    return {"content": resp.content, "flagged": False}
+
+def auto_check(state: ContentState) -> dict:
+    # Simple keyword check
+    flagged = any(word in state["content"].lower() for word in ["spam", "scam"])
+    return {"flagged": flagged}
+
+def route_content(state: ContentState) -> str:
+    return "human_review" if state["flagged"] else "publish"
+
+def publish(state: ContentState) -> dict:
+    return {"approved": True, "reason": "Auto-approved"}
+
+g = StateGraph(ContentState)
+g.add_node("generate",     generate_content)
+g.add_node("auto_check",   auto_check)
+g.add_node("publish",      publish)
+g.add_edge(START, "generate")
+g.add_edge("generate", "auto_check")
+g.add_conditional_edges("auto_check", route_content, {
+    "human_review": END,   # stop here — human reviews externally
+    "publish": "publish",
+})
+g.add_edge("publish", END)
+
+app = g.compile(checkpointer=MemorySaver())</code></pre>
+
+      <div class="callout warn"><strong>Checkpointer required:</strong> HITL only works when a checkpointer is attached to the graph. Without it, the graph has no way to save state between the pause and the resume. Always use at least <code>MemorySaver</code> during development.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

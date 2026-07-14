@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Docker Compose — Docker Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Docker</a><span class="sep">/</span>Docker Compose</div>
+      <h1>Docker Compose</h1>
+      <p class="lead">Docker Compose lets you define and run multi-container applications with a single YAML file. Instead of running long <code>docker run</code> commands manually, you describe your entire stack — services, networks, volumes — and bring it all up with <code>docker compose up</code>.</p>
+
+      <h2>docker-compose.yml structure</h2>
+      <pre class="code" data-lang="yaml"><code>version: "3.9"   # Compose file format version
+
+services:        # One entry per container
+  web:
+    ...
+  db:
+    ...
+
+networks:        # Optional custom networks
+  appnet:
+
+volumes:         # Optional named volumes
+  pgdata:</code></pre>
+
+      <h2>A complete example</h2>
+      <pre class="code" data-lang="yaml"><code>version: "3.9"
+
+services:
+  web:
+    build: .                      # Build from Dockerfile in current dir
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://admin:secret@db:5432/mydb
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy  # Wait for db healthcheck
+    networks:
+      - appnet
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: mydb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - appnet
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - appnet
+
+networks:
+  appnet:
+
+volumes:
+  pgdata:</code></pre>
+
+      <h2>Service configuration reference</h2>
+      <table>
+        <tr><th>Key</th><th>Purpose</th><th>Example</th></tr>
+        <tr><td><code>image</code></td><td>Use a pre-built image</td><td><code>image: nginx:1.27</code></td></tr>
+        <tr><td><code>build</code></td><td>Build from Dockerfile</td><td><code>build: ./api</code></td></tr>
+        <tr><td><code>ports</code></td><td>Publish host:container ports</td><td><code>- "8080:80"</code></td></tr>
+        <tr><td><code>environment</code></td><td>Set env vars</td><td><code>KEY: value</code></td></tr>
+        <tr><td><code>env_file</code></td><td>Load env from file</td><td><code>- .env</code></td></tr>
+        <tr><td><code>volumes</code></td><td>Mount volumes or bind mounts</td><td><code>- pgdata:/data</code></td></tr>
+        <tr><td><code>networks</code></td><td>Attach to networks</td><td><code>- appnet</code></td></tr>
+        <tr><td><code>depends_on</code></td><td>Start order / health dependency</td><td><code>depends_on: [db]</code></td></tr>
+        <tr><td><code>restart</code></td><td>Restart policy</td><td><code>unless-stopped</code></td></tr>
+        <tr><td><code>healthcheck</code></td><td>Container health probe</td><td>see above</td></tr>
+        <tr><td><code>command</code></td><td>Override CMD</td><td><code>command: npm run dev</code></td></tr>
+        <tr><td><code>entrypoint</code></td><td>Override ENTRYPOINT</td><td><code>entrypoint: /init.sh</code></td></tr>
+        <tr><td><code>deploy.replicas</code></td><td>Number of replicas (Swarm)</td><td><code>replicas: 3</code></td></tr>
+        <tr><td><code>profiles</code></td><td>Opt-in service groups</td><td><code>- debug</code></td></tr>
+      </table>
+
+      <h2>Compose CLI commands</h2>
+      <pre class="code" data-lang="bash"><code># Start all services (build if needed), detached
+docker compose up -d
+
+# Build/rebuild images before starting
+docker compose up -d --build
+
+# Stop and remove containers (preserves volumes)
+docker compose down
+
+# Stop and remove containers AND volumes
+docker compose down -v
+
+# View logs for all services
+docker compose logs -f
+
+# View logs for one service
+docker compose logs -f web
+
+# List running services
+docker compose ps
+
+# Execute a command in a running service container
+docker compose exec web bash
+docker compose exec db psql -U admin mydb
+
+# Run a one-off command in a new container (then remove it)
+docker compose run --rm web npm run migrate
+
+# Scale a service (Compose v2 syntax)
+docker compose up -d --scale web=3
+
+# Pull the latest images defined in compose file
+docker compose pull
+
+# Validate compose file syntax
+docker compose config</code></pre>
+
+      <h2>Environment variable substitution</h2>
+      <p>Compose automatically reads a <code>.env</code> file in the project directory and substitutes <code>${VARIABLE}</code> references in the YAML.</p>
+      <pre class="code" data-lang="bash"><code># .env file
+POSTGRES_PASSWORD=supersecret
+APP_PORT=3000</code></pre>
+      <pre class="code" data-lang="yaml"><code>services:
+  web:
+    ports:
+      - "${APP_PORT}:3000"
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}</code></pre>
+      <div class="callout tip"><strong>Best practice:</strong> commit a <code>.env.example</code> with placeholder values and gitignore the real <code>.env</code>. This documents required variables without exposing secrets.</div>
+
+      <h2>Compose profiles</h2>
+      <p>Profiles let you selectively start services. Services without a <code>profiles</code> key always start; services with one only start when that profile is activated.</p>
+      <pre class="code" data-lang="yaml"><code>services:
+  web:
+    image: myapp        # always starts
+
+  debug-tools:
+    image: busybox
+    profiles: [debug]   # only with --profile debug</code></pre>
+      <pre class="code" data-lang="bash"><code># Start with the debug profile
+docker compose --profile debug up -d</code></pre>
+
+      <h2>Overriding with multiple files</h2>
+      <pre class="code" data-lang="bash"><code># Base file for all environments
+docker compose -f docker-compose.yml up
+
+# Override for development (merges on top of base)
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+# Override for CI
+docker compose -f docker-compose.yml -f docker-compose.ci.yml up</code></pre>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

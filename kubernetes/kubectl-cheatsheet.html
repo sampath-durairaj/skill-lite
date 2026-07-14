@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kubectl Cheat Sheet — Kubernetes Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kubernetes</a><span class="sep">/</span>kubectl Cheat Sheet</div>
+      <h1>kubectl Cheat Sheet</h1>
+      <p class="lead">The commands you'll actually use, grouped by task. Every code block has a copy button — bookmark this page.</p>
+
+      <h2>Contexts &amp; configuration</h2>
+      <pre class="code" data-lang="bash"><code>kubectl config get-contexts                  # clusters kubectl knows about
+kubectl config use-context my-cluster        # switch cluster
+kubectl config current-context
+kubectl config set-context --current --namespace=staging   # default namespace
+kubectl cluster-info
+kubectl version</code></pre>
+      <div class="callout tip"><strong>Quality of life:</strong> alias it (<code>alias k=kubectl</code>), enable shell completion (<code>kubectl completion bash|zsh|powershell</code>), and install <code>kubectx</code>/<code>kubens</code> for fast context and namespace switching.</div>
+
+      <h2>Viewing resources</h2>
+      <pre class="code" data-lang="bash"><code>kubectl get pods                             # in current namespace
+kubectl get pods -A                          # all namespaces
+kubectl get pods -o wide                     # + node, IP
+kubectl get pods -w                          # watch live updates
+kubectl get pods -l app=web                  # filter by label
+kubectl get pods --field-selector=status.phase=Running
+kubectl get all                              # pods, services, deployments...
+kubectl api-resources                        # every resource type + short names</code></pre>
+
+      <h2>Inspecting a resource</h2>
+      <pre class="code" data-lang="bash"><code>kubectl describe pod web-7c9d8f6b5-2xkq9     # events at the bottom = gold
+kubectl get pod web-7c9d8f6b5-2xkq9 -o yaml  # the full object
+kubectl get deploy web -o jsonpath='{.spec.replicas}'
+kubectl get pods -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName
+kubectl explain deployment.spec.strategy     # built-in field documentation</code></pre>
+
+      <h2>Creating &amp; updating</h2>
+      <pre class="code" data-lang="bash"><code>kubectl apply -f app.yaml                    # create or update (idempotent)
+kubectl apply -f manifests/                  # a whole directory
+kubectl diff -f app.yaml                     # preview what apply would change
+kubectl delete -f app.yaml
+kubectl edit deployment web                  # edit live in $EDITOR
+
+# Generate YAML instead of writing from scratch:
+kubectl create deployment web --image=nginx:1.27 --dry-run=client -o yaml &gt; deploy.yaml
+kubectl create service clusterip web --tcp=80:8080 --dry-run=client -o yaml</code></pre>
+      <div class="callout"><strong>Habit worth building:</strong> prefer declarative <code>apply</code> with YAML files in Git over imperative commands. The imperative forms are still perfect for generating boilerplate with <code>--dry-run=client -o yaml</code>.</div>
+
+      <h2>Logs &amp; debugging</h2>
+      <pre class="code" data-lang="bash"><code>kubectl logs web-7c9d8f6b5-2xkq9             # container logs
+kubectl logs -f deploy/web                   # follow a deployment's logs
+kubectl logs web-7c9d8f6b5-2xkq9 --previous  # the crashed instance's logs
+kubectl logs web-7c9d8f6b5-2xkq9 -c sidecar  # specific container
+
+kubectl exec -it web-7c9d8f6b5-2xkq9 -- sh   # shell into a container
+kubectl debug -it web-7c9d8f6b5-2xkq9 --image=busybox --target=nginx   # ephemeral debug container
+kubectl run tmp --image=busybox --rm -it --restart=Never -- sh         # throwaway pod
+
+kubectl get events --sort-by=.metadata.creationTimestamp
+kubectl top pods                             # CPU/memory (needs metrics-server)
+kubectl top nodes</code></pre>
+
+      <h2>Networking</h2>
+      <pre class="code" data-lang="bash"><code>kubectl port-forward svc/web 8080:80         # service → localhost:8080
+kubectl port-forward pod/web-abc123 8080:80
+kubectl get endpoints web                    # is anything behind the service?
+kubectl expose deployment web --port=80 --target-port=8080</code></pre>
+
+      <h2>Rollouts &amp; scaling</h2>
+      <pre class="code" data-lang="bash"><code>kubectl rollout status deployment/web
+kubectl rollout history deployment/web
+kubectl rollout undo deployment/web
+kubectl rollout restart deployment/web       # bounce all pods
+kubectl scale deployment/web --replicas=5
+kubectl set image deployment/web nginx=nginx:1.28</code></pre>
+
+      <h2>Nodes &amp; maintenance</h2>
+      <pre class="code" data-lang="bash"><code>kubectl get nodes -o wide
+kubectl describe node &lt;node&gt;                 # capacity, conditions, pods on it
+kubectl cordon &lt;node&gt;                        # no new pods
+kubectl drain &lt;node&gt; --ignore-daemonsets --delete-emptydir-data   # evict for maintenance
+kubectl uncordon &lt;node&gt;                      # back in service
+kubectl taint nodes &lt;node&gt; dedicated=gpu:NoSchedule</code></pre>
+
+      <h2>The debugging decision tree</h2>
+      <p>When "it doesn't work", walk this order:</p>
+      <ol>
+        <li><code>kubectl get pods</code> — is the pod <code>Running</code> and <code>READY x/x</code>?</li>
+        <li><strong>Pending?</strong> → <code>kubectl describe pod</code>: unschedulable (resources, taints) or volume problems.</li>
+        <li><strong>ImagePullBackOff?</strong> → image name, tag, or registry credentials (<code>imagePullSecrets</code>).</li>
+        <li><strong>CrashLoopBackOff?</strong> → <code>kubectl logs --previous</code>: the app is exiting; fix the app or its config.</li>
+        <li><strong>Running but unreachable?</strong> → <code>kubectl get endpoints</code>: empty means the Service selector doesn't match or readiness probes fail.</li>
+        <li><strong>Reachable in-cluster but not outside?</strong> → Ingress rules, IngressClass, controller logs.</li>
+      </ol>
+
+      <h2>Where to go from here</h2>
+      <ul>
+        <li><strong>Helm</strong> — package manager for Kubernetes; templated, versioned releases of whole app stacks.</li>
+        <li><strong>Kustomize</strong> — built into kubectl (<code>kubectl apply -k</code>); patch base YAML per environment without templates.</li>
+        <li><strong>GitOps</strong> — Argo CD / Flux keep the cluster synced to a Git repo automatically.</li>
+        <li><strong>Observability</strong> — Prometheus + Grafana for metrics, Loki for logs.</li>
+        <li><strong>Official docs</strong> — <a href="https://kubernetes.io/docs/home/" target="_blank" rel="noopener">kubernetes.io/docs</a> and the interactive <a href="https://kubernetes.io/docs/tutorials/" target="_blank" rel="noopener">tutorials</a>.</li>
+      </ul>
+      <p>You've covered the full core of Kubernetes — architecture, workloads, networking, configuration, storage, and operations. The best next step: take a small real app and deploy it end-to-end with everything you've learned.</p>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

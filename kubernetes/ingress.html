@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingress — Kubernetes Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kubernetes</a><span class="sep">/</span>Ingress</div>
+      <h1>Ingress</h1>
+      <p class="lead">Ingress is the standard way to route HTTP and HTTPS traffic from outside the cluster to Services inside it. One entry point handles many services, routed by hostname and path, with TLS termination — instead of one cloud load balancer per service.</p>
+
+      <h2>Ingress = rules + a controller</h2>
+      <p>This trips up everyone once: an Ingress object is <strong>just routing rules</strong>. Nothing happens unless an <strong>Ingress controller</strong> — an actual reverse proxy running in the cluster — reads those rules and implements them. Popular controllers:</p>
+      <ul>
+        <li><strong>ingress-nginx</strong> — the most widely used, runs anywhere.</li>
+        <li><strong>Traefik</strong> — default in k3s, great dev experience.</li>
+        <li><strong>Cloud-native controllers</strong> — AWS ALB, GKE Ingress, Azure AGIC: rules become cloud load balancer config.</li>
+      </ul>
+      <pre class="code" data-lang="bash"><code># minikube: one command
+minikube addons enable ingress
+
+# anywhere else: install ingress-nginx (via Helm)
+helm upgrade --install ingress-nginx ingress-nginx \
+  --repo https://kubernetes.github.io/ingress-nginx \
+  --namespace ingress-nginx --create-namespace</code></pre>
+
+      <h2>A complete Ingress</h2>
+      <p>Route two hostnames and an API path prefix to three different services:</p>
+      <pre class="code" data-lang="yaml"><code>apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main
+spec:
+  ingressClassName: nginx        # which controller should implement this
+  rules:
+    - host: shop.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shop-frontend
+                port:
+                  number: 80
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: shop-api
+                port:
+                  number: 8080
+    - host: blog.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: blog
+                port:
+                  number: 80</code></pre>
+      <p>Traffic flow: client → DNS → Ingress controller's load balancer → controller pod matches host/path → forwards to the Service's pods.</p>
+
+      <h3>pathType matters</h3>
+      <table>
+        <tr><th>pathType</th><th>Behavior</th></tr>
+        <tr><td>Prefix</td><td>Matches by URL path segments: <code>/api</code> matches <code>/api</code> and <code>/api/users</code>, but not <code>/apiv2</code>.</td></tr>
+        <tr><td>Exact</td><td>Matches the exact path only.</td></tr>
+        <tr><td>ImplementationSpecific</td><td>Whatever the controller decides — avoid unless you need controller-specific matching.</td></tr>
+      </table>
+
+      <h2>TLS / HTTPS</h2>
+      <p>Ingress terminates TLS using a certificate stored in a Secret:</p>
+      <pre class="code" data-lang="yaml"><code>spec:
+  tls:
+    - hosts:
+        - shop.example.com
+      secretName: shop-tls      # kubernetes.io/tls Secret in the same namespace
+  rules:
+    ...</code></pre>
+      <pre class="code" data-lang="bash"><code># From existing cert files:
+kubectl create secret tls shop-tls --cert=tls.crt --key=tls.key</code></pre>
+      <div class="callout tip"><strong>In practice nobody manages certs by hand:</strong> install <strong>cert-manager</strong> and it will obtain and renew Let's Encrypt certificates automatically — you just add an annotation like <code>cert-manager.io/cluster-issuer: letsencrypt-prod</code> to the Ingress.</div>
+
+      <h2>Controller-specific behavior via annotations</h2>
+      <p>Features beyond basic routing (redirects, rewrites, rate limits, body size) are configured with controller-specific annotations. For ingress-nginx:</p>
+      <pre class="code" data-lang="yaml"><code>metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"        # force HTTPS
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m"      # allow uploads
+    nginx.ingress.kubernetes.io/rewrite-target: /$2         # strip prefixes
+    nginx.ingress.kubernetes.io/limit-rps: "10"             # rate limit</code></pre>
+      <div class="callout warn"><strong>Annotations are not portable.</strong> They only work with the controller they're written for — switching controllers means rewriting them. This limitation is a big part of why the <strong>Gateway API</strong> (the typed, role-oriented successor to Ingress) is gradually replacing it. New greenfield projects should evaluate Gateway API; existing Ingress isn't going anywhere soon.</div>
+
+      <h2>Trying it locally</h2>
+      <pre class="code" data-lang="bash"><code># 1. Enable the controller (minikube shown)
+minikube addons enable ingress
+
+# 2. Deploy an app + service + ingress with host demo.local
+kubectl create deployment demo --image=nginx:1.27
+kubectl expose deployment demo --port=80
+kubectl create ingress demo --class=nginx --rule="demo.local/*=demo:80"
+
+# 3. Point the hostname at the cluster
+echo "$(minikube ip) demo.local" | sudo tee -a /etc/hosts
+# Windows: add the line to C:\Windows\System32\drivers\etc\hosts
+
+curl http://demo.local</code></pre>
+
+      <h2>Command recap</h2>
+      <pre class="code" data-lang="bash"><code>kubectl get ingress
+kubectl describe ingress main            # rules, backends, and controller events
+kubectl get ingressclass                 # which controllers are installed
+kubectl logs -n ingress-nginx deploy/ingress-nginx-controller   # access logs / routing errors</code></pre>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

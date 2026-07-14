@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kafka Streams — Apache Kafka Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kafka</a><span class="sep">/</span>Kafka Streams</div>
+      <h1>Kafka Streams</h1>
+      <p class="lead">Kafka Streams is a lightweight Java library for building stateful, fault-tolerant stream processing applications. Unlike Apache Flink or Spark Streaming, it runs inside your application process — no separate cluster required — and reads/writes exclusively from Kafka topics.</p>
+
+      <h2>KStream vs KTable</h2>
+      <p>The two primary abstractions in the Kafka Streams DSL:</p>
+
+      <table>
+        <tr><th></th><th>KStream</th><th>KTable</th></tr>
+        <tr><td><strong>Represents</strong></td><td>An unbounded stream of events (append log)</td><td>A changelog — the latest value per key (like a database table)</td></tr>
+        <tr><td><strong>New event with key K</strong></td><td>Appended — doesn't affect prior events</td><td>Upserts — replaces old value for key K</td></tr>
+        <tr><td><strong>Backed by</strong></td><td>A Kafka topic</td><td>A compacted Kafka topic + local RocksDB state store</td></tr>
+        <tr><td><strong>Use for</strong></td><td>Event logs, clickstream, transactions</td><td>User profiles, product catalog, running totals</td></tr>
+      </table>
+
+      <h2>Building a streaming topology</h2>
+      <pre class="code" data-lang="java"><code>import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
+import java.util.Properties;
+
+Properties props = new Properties();
+props.put(StreamsConfig.APPLICATION_ID_CONFIG,     "word-count-app");
+props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,  "localhost:9092");
+props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
+          Serdes.String().getClass());
+props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
+          Serdes.String().getClass());
+
+StreamsBuilder builder = new StreamsBuilder();
+
+KStream&lt;String, String&gt; textLines = builder.stream("text-input");
+
+KTable&lt;String, Long&gt; wordCounts = textLines
+    .flatMapValues(value -&gt; Arrays.asList(value.toLowerCase().split("\\W+")))
+    .groupBy((key, word) -&gt; word)
+    .count(Materialized.as("word-count-store"));
+
+wordCounts.toStream().to("word-count-output",
+    Produced.with(Serdes.String(), Serdes.Long()));
+
+KafkaStreams streams = new KafkaStreams(builder.build(), props);
+streams.start();
+Runtime.getRuntime().addShutdownHook(new Thread(streams::close));</code></pre>
+
+      <h2>Common stream transformations</h2>
+      <table>
+        <tr><th>Operation</th><th>Method</th><th>Description</th></tr>
+        <tr><td>Filter</td><td><code>filter(predicate)</code></td><td>Keep records matching a predicate</td></tr>
+        <tr><td>Transform value</td><td><code>mapValues(mapper)</code></td><td>Apply function to value, keep key</td></tr>
+        <tr><td>Transform key+value</td><td><code>map(mapper)</code></td><td>Returns new key-value pair (triggers re-partitioning)</td></tr>
+        <tr><td>Flat-map</td><td><code>flatMapValues(mapper)</code></td><td>One record → zero or more records</td></tr>
+        <tr><td>Branch</td><td><code>split().branch()</code></td><td>Route records to different streams based on predicate</td></tr>
+        <tr><td>Merge</td><td><code>merge(other)</code></td><td>Combine two streams into one</td></tr>
+        <tr><td>Peek</td><td><code>peek(action)</code></td><td>Side-effect on each record (e.g., logging) without modifying stream</td></tr>
+        <tr><td>Write to topic</td><td><code>to("topic")</code></td><td>Sink records to an output topic</td></tr>
+      </table>
+
+      <h2>Aggregations and grouping</h2>
+      <pre class="code" data-lang="java"><code>KStream&lt;String, Order&gt; orders = builder.stream("orders",
+    Consumed.with(Serdes.String(), orderSerde));
+
+// Group by customer ID and compute total spend per customer
+KTable&lt;String, Double&gt; spendPerCustomer = orders
+    .groupByKey()
+    .aggregate(
+        () -&gt; 0.0,                                       // initializer
+        (customerId, order, total) -&gt; total + order.getTotal(), // aggregator
+        Materialized.&lt;String, Double, KeyValueStore&lt;Bytes, byte[]&gt;&gt;
+            as("customer-spend")
+            .withValueSerde(Serdes.Double())
+    );
+
+spendPerCustomer.toStream().to("customer-spend-output",
+    Produced.with(Serdes.String(), Serdes.Double()));</code></pre>
+
+      <h2>Windowing</h2>
+      <p>Windows let you aggregate events over a time boundary. Kafka Streams supports four window types:</p>
+
+      <table>
+        <tr><th>Window type</th><th>Class</th><th>Description</th></tr>
+        <tr><td>Tumbling</td><td><code>TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5))</code></td><td>Fixed, non-overlapping intervals</td></tr>
+        <tr><td>Hopping</td><td><code>TimeWindows.ofSizeAndGrace(size, grace).advanceBy(advance)</code></td><td>Fixed size, overlapping — each event can be in multiple windows</td></tr>
+        <tr><td>Sliding</td><td><code>SlidingWindows.ofTimeDifferenceWithNoGrace(timeDiff)</code></td><td>Windows defined by the time difference between records</td></tr>
+        <tr><td>Session</td><td><code>SessionWindows.ofInactivityGapWithNoGrace(Duration.ofMinutes(30))</code></td><td>Activity-based — gaps of inactivity close a window</td></tr>
+      </table>
+
+      <pre class="code" data-lang="java"><code>// Count orders per 5-minute tumbling window
+KTable&lt;Windowed&lt;String&gt;, Long&gt; orderCountPerWindow = orders
+    .groupByKey()
+    .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))
+    .count(Materialized.as("order-count-window"));
+
+orderCountPerWindow.toStream()
+    .map((windowedKey, count) -&gt; KeyValue.pair(
+        windowedKey.key() + "@" + windowedKey.window().start(),
+        count))
+    .to("order-count-5min");</code></pre>
+
+      <h2>Stream-table join</h2>
+      <pre class="code" data-lang="java"><code>KStream&lt;String, Order&gt; orders    = builder.stream("orders");
+KTable&lt;String, Customer&gt; customers = builder.table("customers");
+
+// Enrich each order with customer info (join on customerId key)
+KStream&lt;String, EnrichedOrder&gt; enriched = orders.join(
+    customers,
+    (order, customer) -&gt; new EnrichedOrder(order, customer)
+);
+
+enriched.to("enriched-orders");</code></pre>
+
+      <h2>Interactive queries — querying state stores</h2>
+      <p>Kafka Streams persists aggregation results in local <strong>state stores</strong> (backed by RocksDB). You can query them directly without producing to another topic:</p>
+
+      <pre class="code" data-lang="java"><code>// After streams.start()
+ReadOnlyKeyValueStore&lt;String, Double&gt; store = streams.store(
+    StoreQueryParameters.fromNameAndType(
+        "customer-spend",
+        QueryableStoreTypes.keyValueStore()
+    )
+);
+
+Double total = store.get("customer-42");
+System.out.println("Customer 42 total spend: " + total);
+
+// Iterate all entries
+try (KeyValueIterator&lt;String, Double&gt; all = store.all()) {
+    while (all.hasNext()) {
+        KeyValue&lt;String, Double&gt; entry = all.next();
+        System.out.println(entry.key + ": " + entry.value);
+    }
+}</code></pre>
+
+      <div class="callout tip"><strong>Deployment:</strong> Kafka Streams applications scale by running multiple instances with the same <code>application.id</code>. Kafka automatically distributes partitions (and thus state store shards) across instances. Use a REST endpoint on each instance to proxy interactive queries to the correct shard.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

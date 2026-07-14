@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ML Cheat Sheet — ML Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Machine Learning</a><span class="sep">/</span>Cheat Sheet</div>
+      <h1>Machine Learning Cheat Sheet</h1>
+      <p class="lead">Quick reference for algorithms, imports, training patterns, and decision guides.</p>
+
+      <h2>Algorithm selection guide</h2>
+      <table>
+        <tr><th>Problem</th><th>First choice</th><th>If more accuracy needed</th></tr>
+        <tr><td>Binary classification (tabular)</td><td>LogisticRegression</td><td>XGBoost / LightGBM</td></tr>
+        <tr><td>Multi-class (tabular)</td><td>RandomForestClassifier</td><td>XGBoost / LightGBM</td></tr>
+        <tr><td>Regression (tabular)</td><td>Ridge</td><td>XGBoost / LightGBM</td></tr>
+        <tr><td>Image classification</td><td>CNN (ResNet transfer learning)</td><td>EfficientNet / ViT</td></tr>
+        <tr><td>Text classification</td><td>TF-IDF + LogReg</td><td>Fine-tuned BERT</td></tr>
+        <tr><td>Clustering</td><td>KMeans</td><td>DBSCAN, HDBSCAN</td></tr>
+        <tr><td>Dimensionality reduction</td><td>PCA</td><td>UMAP, t-SNE</td></tr>
+        <tr><td>Anomaly detection</td><td>IsolationForest</td><td>AutoEncoder</td></tr>
+        <tr><td>Time series</td><td>Prophet</td><td>LSTM / Temporal Fusion Transformer</td></tr>
+      </table>
+
+      <h2>Essential imports</h2>
+      <pre class="code" data-lang="python"><code># Data
+import numpy as np
+import pandas as pd
+
+# Scikit-learn — core
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, OneHotEncoder, LabelEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer, KNNImputer
+
+# Scikit-learn — models
+from sklearn.linear_model import LogisticRegression, Ridge, Lasso, ElasticNet
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.svm import SVC, SVR
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+
+# Scikit-learn — metrics
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    roc_auc_score, mean_squared_error, r2_score,
+    confusion_matrix, classification_report
+)
+
+# Gradient boosting
+import xgboost as xgb
+import lightgbm as lgb
+
+# PyTorch
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader, TensorDataset, Dataset</code></pre>
+
+      <h2>Standard training pattern (scikit-learn)</h2>
+      <pre class="code" data-lang="python"><code>from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+pipe = Pipeline([
+    ("scaler", StandardScaler()),
+    ("model",  RandomForestClassifier(n_estimators=100, random_state=42)),
+])
+
+# CV during development
+scores = cross_val_score(pipe, X_train, y_train, cv=5, scoring="roc_auc")
+print(f"CV ROC-AUC: {scores.mean():.4f} ± {scores.std():.4f}")
+
+# Final fit + evaluation
+pipe.fit(X_train, y_train)
+print(classification_report(y_test, pipe.predict(X_test)))</code></pre>
+
+      <h2>Standard training loop (PyTorch)</h2>
+      <pre class="code" data-lang="python"><code>device = "cuda" if torch.cuda.is_available() else "cpu"
+model  = MyModel().to(device)
+opt    = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
+sched  = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
+loss_fn = nn.CrossEntropyLoss()
+
+for epoch in range(epochs):
+    # ── Train ──
+    model.train()
+    for xb, yb in train_loader:
+        xb, yb = xb.to(device), yb.to(device)
+        opt.zero_grad()
+        loss = loss_fn(model(xb), yb)
+        loss.backward()
+        opt.step()
+    sched.step()
+
+    # ── Eval ──
+    model.eval()
+    with torch.no_grad():
+        correct = 0
+        for xb, yb in val_loader:
+            correct += (model(xb.to(device)).argmax(1) == yb.to(device)).sum()
+        print(f"Epoch {epoch+1} | acc={correct/len(val_ds):.3f}")</code></pre>
+
+      <h2>Metric quick reference</h2>
+      <pre class="code" data-lang="python"><code># Classification
+from sklearn.metrics import *
+
+accuracy_score(y_true, y_pred)
+precision_score(y_true, y_pred, average="macro")   # average: binary|macro|micro|weighted
+recall_score(y_true, y_pred, average="macro")
+f1_score(y_true, y_pred, average="macro")
+roc_auc_score(y_true, y_score)                     # y_score = proba of positive class
+average_precision_score(y_true, y_score)           # PR-AUC
+
+# Regression
+mean_absolute_error(y_true, y_pred)                # MAE
+mean_squared_error(y_true, y_pred, squared=False)  # RMSE (squared=False)
+r2_score(y_true, y_pred)                           # R²</code></pre>
+
+      <h2>Preprocessing decision tree</h2>
+      <pre class="code" data-lang="python"><code># Numerical features
+#   → outliers present?  → RobustScaler
+#   → normal/linear?     → StandardScaler
+#   → known bounds?      → MinMaxScaler
+#   → tree-based model?  → no scaling needed
+
+# Categorical features (low cardinality < 15 unique values)
+#   → nominal (no order) → OneHotEncoder(drop="first")
+#   → ordinal (has order)→ OrdinalEncoder(categories=[[...]])
+#   → high cardinality   → TargetEncoder or embeddings
+
+# Missing values
+#   → numerical          → SimpleImputer(strategy="median")
+#   → categorical        → SimpleImputer(strategy="most_frequent")
+#   → MAR / complex      → KNNImputer(n_neighbors=5)
+#   → always add          → MissingIndicator() for important features</code></pre>
+
+      <h2>Regularisation cheatsheet</h2>
+      <table>
+        <tr><th>Technique</th><th>Where</th><th>Effect</th></tr>
+        <tr><td>L2 / Ridge (<code>weight_decay</code>)</td><td>Linear models, neural nets</td><td>Shrinks weights, none go to zero</td></tr>
+        <tr><td>L1 / Lasso</td><td>Linear models</td><td>Sparse weights — feature selection</td></tr>
+        <tr><td>Dropout</td><td>Neural networks</td><td>Randomly zeros activations during training</td></tr>
+        <tr><td>BatchNorm</td><td>Neural networks</td><td>Normalises layer activations — regularises + accelerates</td></tr>
+        <tr><td>Early stopping</td><td>Neural nets, XGBoost</td><td>Stop when validation loss stops improving</td></tr>
+        <tr><td>Data augmentation</td><td>Images, text</td><td>Creates synthetic training examples</td></tr>
+        <tr><td>max_depth / min_samples_leaf</td><td>Tree models</td><td>Limits tree complexity</td></tr>
+      </table>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memory — LangChain Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangChain</a><span class="sep">/</span>Memory</div>
+      <h1>Memory</h1>
+      <p class="lead">LLMs are stateless — each call forgets the previous one. Memory lets your chatbot or agent remember what was said, either by appending raw messages to the context window or by summarising them to fit within token limits.</p>
+
+      <h2>The modern approach: ChatMessageHistory + LCEL</h2>
+      <p>The recommended pattern is to manage chat history yourself using <code>ChatMessageHistory</code> and inject it via <code>MessagesPlaceholder</code>.</p>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant."),
+    MessagesPlaceholder("history"),
+    ("human", "{input}"),
+])
+
+chain = prompt | llm
+
+# Store for each session
+store = {}
+def get_session_history(session_id: str) -> InMemoryChatMessageHistory:
+    if session_id not in store:
+        store[session_id] = InMemoryChatMessageHistory()
+    return store[session_id]
+
+# Wrap the chain with history management
+chat = RunnableWithMessageHistory(
+    chain,
+    get_session_history,
+    input_messages_key="input",
+    history_messages_key="history",
+)
+
+# Session "alice" — remembers across turns
+config = {"configurable": {"session_id": "alice"}}
+
+r1 = chat.invoke({"input": "My name is Alice."}, config=config)
+print(r1.content)    # "Nice to meet you, Alice!"
+
+r2 = chat.invoke({"input": "What is my name?"}, config=config)
+print(r2.content)    # "Your name is Alice."</code></pre>
+
+      <h2>Memory types comparison</h2>
+      <table>
+        <tr><th>Type</th><th>How it works</th><th>Best for</th><th>Token cost</th></tr>
+        <tr><td>Buffer</td><td>Appends all messages verbatim</td><td>Short chats</td><td>Grows linearly</td></tr>
+        <tr><td>Buffer Window</td><td>Keeps last N messages only</td><td>Ongoing chat, bounded</td><td>Fixed</td></tr>
+        <tr><td>Summary</td><td>Summarises old messages with LLM</td><td>Long conversations</td><td>Low but slow</td></tr>
+        <tr><td>Summary Buffer</td><td>Summary + recent raw messages</td><td>Best of both</td><td>Moderate</td></tr>
+        <tr><td>Entity</td><td>Tracks facts about named entities</td><td>Knowledge tracking</td><td>Low</td></tr>
+      </table>
+
+      <h2>Buffer Window Memory — keep last N turns</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.chat_history import InMemoryChatMessageHistory
+
+class WindowedChatHistory(InMemoryChatMessageHistory):
+    """Keeps only the last k messages to control token usage."""
+    def __init__(self, k: int = 10):
+        super().__init__()
+        self.k = k
+
+    def add_message(self, message):
+        super().add_message(message)
+        # Trim to last k messages
+        if len(self.messages) > self.k:
+            self.messages = self.messages[-self.k:]
+
+store = {}
+def get_windowed_history(session_id: str):
+    if session_id not in store:
+        store[session_id] = WindowedChatHistory(k=6)  # last 3 turns
+    return store[session_id]</code></pre>
+
+      <h2>Persistent memory — Redis or database</h2>
+      <pre class="code" data-lang="python"><code>from langchain_community.chat_message_histories import RedisChatMessageHistory
+
+def get_redis_history(session_id: str):
+    return RedisChatMessageHistory(
+        session_id=session_id,
+        url="redis://localhost:6379",
+        ttl=3600,   # expire after 1 hour
+    )
+
+chat = RunnableWithMessageHistory(
+    chain,
+    get_redis_history,
+    input_messages_key="input",
+    history_messages_key="history",
+)</code></pre>
+
+      <h2>Summarisation memory</h2>
+      <pre class="code" data-lang="python"><code>from langchain.memory import ConversationSummaryBufferMemory
+
+# Keeps raw messages until token limit, then summarises old ones
+memory = ConversationSummaryBufferMemory(
+    llm=llm,
+    max_token_limit=500,
+    return_messages=True,
+    memory_key="history",
+)
+
+# Manually save and load messages
+memory.save_context(
+    {"input": "I'm building a RAG system with LangChain."},
+    {"output": "Great! RAG combines retrieval with generation for accurate answers."},
+)
+
+saved = memory.load_memory_variables({})
+print(saved["history"])   # list of messages (some may be a summary)</code></pre>
+
+      <h2>Multi-session chatbot (complete example)</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.output_parsers import StrOutputParser
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5)
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a concise DevOps assistant. Keep answers to 2-3 sentences."),
+    MessagesPlaceholder("history"),
+    ("human", "{input}"),
+])
+
+store = {}
+def get_history(sid):
+    if sid not in store: store[sid] = InMemoryChatMessageHistory()
+    return store[sid]
+
+bot = RunnableWithMessageHistory(
+    prompt | llm | StrOutputParser(),
+    get_history, input_messages_key="input", history_messages_key="history",
+)
+
+def chat(session_id: str, user_input: str) -> str:
+    return bot.invoke(
+        {"input": user_input},
+        config={"configurable": {"session_id": session_id}},
+    )
+
+# Two independent sessions
+print(chat("user_1", "What is a Kubernetes Pod?"))
+print(chat("user_2", "How does Docker networking work?"))
+print(chat("user_1", "Can a Pod have multiple containers?"))   # remembers context</code></pre>
+
+      <div class="callout tip"><strong>Token budget:</strong> Every message in history uses tokens. For GPT-4o at ~$5/1M tokens, a 100-turn conversation can cost 50 000+ tokens. Use windowed history or summarisation for long-running chat applications.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

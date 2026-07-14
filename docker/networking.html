@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Networking — Docker Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root=""></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Docker</a><span class="sep">/</span>Networking</div>
+      <h1>Networking</h1>
+      <p class="lead">Docker networking controls how containers communicate with each other, the host, and the outside world. Docker ships with several built-in network drivers, each suited to different use cases.</p>
+
+      <h2>Network drivers</h2>
+      <table>
+        <tr><th>Driver</th><th>Use case</th><th>Container-to-container</th></tr>
+        <tr><td><code>bridge</code></td><td>Default for standalone containers on a single host</td><td>Yes (via IP or name on user-defined bridge)</td></tr>
+        <tr><td><code>host</code></td><td>Remove network isolation — container uses host's network stack</td><td>N/A — same stack as host</td></tr>
+        <tr><td><code>none</code></td><td>Completely isolated, no networking</td><td>No</td></tr>
+        <tr><td><code>overlay</code></td><td>Multi-host networking (Docker Swarm)</td><td>Yes, across hosts</td></tr>
+        <tr><td><code>macvlan</code></td><td>Assign a MAC address directly to a container</td><td>Via physical network</td></tr>
+      </table>
+
+      <h2>The default bridge network</h2>
+      <p>When you run a container without specifying a network, it joins the default <code>bridge</code> network (<code>docker0</code> interface on the host). Containers on this network can communicate by IP, but <strong>not by name</strong> — DNS is not available on the default bridge.</p>
+      <pre class="code" data-lang="bash"><code># Containers on the default bridge can ping each other by IP
+docker run -d --name c1 alpine sleep 3600
+docker run -d --name c2 alpine sleep 3600
+
+# Find c1's IP
+docker inspect c1 --format '{{.NetworkSettings.IPAddress}}'
+# 172.17.0.2
+
+# c2 can reach c1 by IP but NOT by name "c1"
+docker exec c2 ping 172.17.0.2      # works
+docker exec c2 ping c1              # fails on default bridge</code></pre>
+
+      <h2>User-defined bridge networks (recommended)</h2>
+      <p>Create a custom bridge network to get automatic DNS — containers can reach each other by <strong>container name</strong>. This is the recommended approach for all multi-container applications.</p>
+      <pre class="code" data-lang="bash"><code># Create a user-defined bridge network
+docker network create mynet
+
+# Run containers on the custom network
+docker run -d --name app --network mynet myimage
+docker run -d --name db  --network mynet postgres:16
+
+# Now 'app' can reach 'db' by name
+docker exec app ping db       # works!
+docker exec app curl db:5432  # works!</code></pre>
+
+      <h2>Port publishing</h2>
+      <p>By default, container ports are not reachable from the host or outside. Use <code>-p</code> to publish a port from the container to the host.</p>
+      <pre class="code" data-lang="bash"><code># Map container port 80 to host port 8080
+docker run -d -p 8080:80 nginx
+
+# Map to a specific host interface only (loopback = local only)
+docker run -d -p 127.0.0.1:8080:80 nginx
+
+# Publish all EXPOSE'd ports to random high ports
+docker run -d -P nginx
+docker port nginx   # see the assigned ports
+
+# Multiple ports
+docker run -d -p 80:80 -p 443:443 nginx</code></pre>
+
+      <h2>Container DNS</h2>
+      <p>On user-defined networks, Docker's embedded DNS server resolves container names and network aliases automatically. Each container gets a DNS entry for its <code>--name</code>.</p>
+      <pre class="code" data-lang="bash"><code># Add a network alias (a container can have multiple DNS names)
+docker run -d \
+  --network mynet \
+  --network-alias database \
+  --name postgres-primary \
+  postgres:16
+
+# Other containers can reach it as either "postgres-primary" or "database"
+docker exec app psql -h database -U postgres</code></pre>
+
+      <h2>Network management</h2>
+      <pre class="code" data-lang="bash"><code># List networks
+docker network ls
+
+# Inspect a network (shows connected containers and IP ranges)
+docker network inspect mynet
+
+# Connect a running container to an additional network
+docker network connect mynet existing-container
+
+# Disconnect
+docker network disconnect mynet existing-container
+
+# Remove a network (all containers must be disconnected first)
+docker network rm mynet
+
+# Remove all unused networks
+docker network prune</code></pre>
+
+      <div class="callout tip"><strong>Best practice:</strong> create a dedicated user-defined bridge network for each application stack. This provides container name DNS resolution and isolates app traffic from other stacks running on the same host.</div>
+
+      <h2>Host and none networks</h2>
+      <pre class="code" data-lang="bash"><code># Host network: container shares the host's network namespace
+# No port publishing needed; binds directly to host interfaces
+docker run -d --network host nginx
+# nginx now listens on the host's port 80 directly
+
+# None: completely isolated (no network interface except loopback)
+docker run --rm --network none alpine ip addr</code></pre>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

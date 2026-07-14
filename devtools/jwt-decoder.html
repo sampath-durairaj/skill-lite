@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JWT Decoder</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <style>
+    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-size: 13px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text);
+      padding: 6px 14px; cursor: pointer; font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+      transition: background .15s, border-color .15s;
+    }
+    .btn:hover { background: var(--surface); border-color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; padding: 6px 20px; }
+    .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn.danger { color: var(--danger); }
+    .btn.danger:hover { border-color: var(--danger); }
+
+    .sep { flex: 1; }
+
+    main {
+      display: grid;
+      grid-template-columns: 5fr 6fr;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex; flex-direction: column;
+      border-right: 1px solid var(--border); overflow: hidden;
+    }
+    .panel:last-child { border-right: none; }
+
+    .panel-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .panel-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-in  { background: #f5a623; }
+    .dot-out { background: var(--success); }
+    .panel-header span {
+      font-size: 12px; font-weight: 600; letter-spacing: .5px;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .panel-actions { margin-left: auto; display: flex; gap: 6px; }
+    .icon-btn {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      padding: 3px 6px; border-radius: 4px; font-size: 13px;
+      transition: color .15s, background .15s;
+    }
+    .icon-btn:hover { color: var(--text); background: var(--surface2); }
+
+    /* Token input area */
+    .token-input-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    textarea {
+      flex: 1; background: #13151f; color: var(--text); border: none; resize: none;
+      padding: 16px 18px;
+      font-family: 'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;
+      font-size: 12.5px; line-height: 1.75; outline: none; word-break: break-all;
+    }
+    textarea:focus { background: #0d0f1a; }
+    textarea::placeholder { color: #3a3d52; }
+
+    /* Color-coded token display */
+    .token-parts {
+      padding: 12px 18px;
+      font-family: 'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;
+      font-size: 11.5px; line-height: 1.8;
+      word-break: break-all;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      flex-shrink: 0;
+      max-height: 120px;
+      overflow-y: auto;
+      display: none;
+    }
+    .token-parts.visible { display: block; }
+    .tp-h { color: #fb7185; }
+    .tp-dot { color: var(--text-muted); font-weight: 700; }
+    .tp-p { color: #a78bfa; }
+    .tp-s { color: #34d399; }
+
+    /* Results panel */
+    .results-scroll {
+      flex: 1; overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 10px; font-size: 14px;
+      padding: 40px; text-align: center;
+    }
+    .empty-state .icon { font-size: 48px; opacity: .3; }
+
+    /* Section cards */
+    .section-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+
+    .section-header {
+      padding: 8px 14px; display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-badge {
+      font-size: 10px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase;
+      padding: 2px 9px; border-radius: 20px;
+    }
+    .badge-h  { background: rgba(251,113,133,.15); color: #fb7185; }
+    .badge-p  { background: rgba(167,139,250,.15); color: #a78bfa; }
+    .badge-s  { background: rgba(52,211,153,.15);  color: #34d399; }
+    .badge-c  { background: rgba(251,191,36,.15);  color: #fbbf24; }
+
+    .section-algo {
+      font-size: 11px; color: var(--text-muted); margin-left: auto;
+      font-family: 'Cascadia Code','Fira Code',monospace;
+    }
+
+    .section-body { padding: 12px 14px; }
+
+    /* JSON pre */
+    .json-out {
+      font-family: 'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;
+      font-size: 12px; line-height: 1.7; margin: 0;
+      white-space: pre; overflow-x: auto; background: none;
+    }
+    .jk { color: #93c5fd; }
+    .js { color: #86efac; }
+    .ji { color: #fbbf24; }
+    .jb { color: #f472b6; }
+    .jn { color: #94a3b8; }
+
+    /* Claims grid */
+    .claims-grid { display: flex; flex-direction: column; gap: 6px; }
+    .claim-row {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--border);
+    }
+    .claim-row:last-child { border-bottom: none; }
+    .claim-name {
+      font-family: 'Cascadia Code','Fira Code',monospace;
+      font-size: 11.5px; color: #93c5fd; flex-shrink: 0; width: 48px;
+      padding-top: 1px;
+    }
+    .claim-val { color: var(--text); flex: 1; word-break: break-word; }
+    .claim-sub { font-size: 11px; color: var(--text-muted); display: block; margin-top: 2px; }
+    .exp-ok   { color: #22c55e; font-weight: 600; }
+    .exp-warn { color: #f59e0b; font-weight: 600; }
+    .exp-bad  { color: #ef4444; font-weight: 600; }
+
+    /* Signature */
+    .sig-note {
+      font-size: 12px; color: var(--text-muted); margin-top: 8px;
+      padding: 8px 10px; border-radius: 6px; background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+
+    /* Status bar */
+    .status-bar {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 6px 20px; display: flex; align-items: center; gap: 16px;
+      font-size: 12px; color: var(--text-muted); flex-shrink: 0;
+    }
+    #statusMsg { margin-left: auto; font-weight: 500; transition: color .3s; }
+    #statusMsg.ok  { color: var(--success); }
+    #statusMsg.err { color: var(--danger); }
+
+    .legend { display: flex; gap: 14px; font-size: 11.5px; }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .leg-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .panel { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="sql-formatter.html"         class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="date-formatter.html"        class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="timezone-converter.html"    class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="api-tester.html"            class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="cron-generator.html"        class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="k8s-yaml-validator.html"    class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="jwt-decoder.html"           class="nav-dropdown-item active">&#128272; JWT Decoder</a>
+        <a href="json-formatter.html"        class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <div class="legend">
+    <span><span class="leg-dot" style="background:#fb7185"></span>Header</span>
+    <span><span class="leg-dot" style="background:#a78bfa"></span>Payload</span>
+    <span><span class="leg-dot" style="background:#34d399"></span>Signature</span>
+  </div>
+  <div class="sep"></div>
+  <button class="btn danger" onclick="clearAll()">&#128465; Clear</button>
+  <button class="btn primary" onclick="runDecode()">&#128272; Decode</button>
+</div>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-in"></span>
+      <span>Encoded Token</span>
+      <div class="panel-actions">
+        <button class="icon-btn" onclick="pasteInput()" title="Paste">&#128203; Paste</button>
+        <button class="icon-btn" onclick="clearAll()" title="Clear">&#10005;</button>
+      </div>
+    </div>
+    <div class="token-input-wrap">
+      <textarea id="tokenInput" spellcheck="false"
+        placeholder="Paste your JWT token here...
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        oninput="onTokenInput()"
+      ></textarea>
+      <div class="token-parts" id="tokenParts"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-out"></span>
+      <span>Decoded</span>
+      <div class="panel-actions">
+        <span id="algoTag" style="font-size:11px;color:var(--text-muted);font-family:monospace;"></span>
+      </div>
+    </div>
+    <div class="results-scroll" id="results">
+      <div class="empty-state">
+        <div class="icon">&#128272;</div>
+        <div>Paste a JWT and click <strong>Decode</strong></div>
+        <div style="font-size:12px;opacity:.6">Header, payload, and standard claims decoded instantly</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="status-bar">
+  <div>&#128204; <span id="charCount">0</span> chars</div>
+  <span id="statusMsg"></span>
+</div>
+
+<script>
+function b64urlDecode(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) str += '=';
+  try { return atob(str); } catch (e) { throw new Error('Invalid base64url encoding'); }
+}
+
+function parseJSON(str) {
+  try { return JSON.parse(str); }
+  catch (e) { throw new Error('Invalid JSON: ' + e.message); }
+}
+
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function highlight(json) {
+  return escH(json).replace(
+    /("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    function(m) {
+      var cls = /^"/.test(m) ? (/:$/.test(m) ? 'jk' : 'js') : /true|false/.test(m) ? 'jb' : /null/.test(m) ? 'jn' : 'ji';
+      return '<span class="' + cls + '">' + m + '</span>';
+    }
+  );
+}
+
+function formatClaim(key, val) {
+  var now = Math.floor(Date.now() / 1000);
+  var label = { exp:'Expires', iat:'Issued At', nbf:'Not Before', sub:'Subject', iss:'Issuer', aud:'Audience', jti:'JWT ID' }[key] || key;
+  var sub = '';
+
+  if (key === 'exp' || key === 'iat' || key === 'nbf') {
+    var d = new Date(val * 1000);
+    var dateStr = d.toUTCString();
+    if (key === 'exp') {
+      var diff = val - now;
+      if (diff < 0) {
+        sub = '<span class="exp-bad">&#10007; Expired ' + formatDiff(-diff) + ' ago</span>';
+      } else if (diff < 300) {
+        sub = '<span class="exp-warn">&#9888; Expires in ' + formatDiff(diff) + '</span>';
+      } else {
+        sub = '<span class="exp-ok">&#10003; Valid for ' + formatDiff(diff) + '</span>';
+      }
+    } else {
+      sub = '<span class="claim-sub">' + escH(dateStr) + '</span>';
+    }
+    return '<div class="claim-row"><span class="claim-name">' + escH(key) + '</span><span class="claim-val">' + escH(dateStr) + (sub ? '<br>' + sub : '') + '</span></div>';
+  }
+
+  var display = typeof val === 'object' ? escH(JSON.stringify(val)) : escH(String(val));
+  return '<div class="claim-row"><span class="claim-name">' + escH(key) + '</span><span class="claim-val">' + display + '</span></div>';
+}
+
+function formatDiff(secs) {
+  if (secs < 60) return secs + 's';
+  if (secs < 3600) return Math.floor(secs / 60) + 'm ' + (secs % 60) + 's';
+  if (secs < 86400) return Math.floor(secs / 3600) + 'h ' + Math.floor((secs % 3600) / 60) + 'm';
+  return Math.floor(secs / 86400) + 'd ' + Math.floor((secs % 86400) / 3600) + 'h';
+}
+
+var STANDARD_CLAIMS = ['iss','sub','aud','exp','nbf','iat','jti'];
+
+function runDecode() {
+  var token = document.getElementById('tokenInput').value.trim();
+  var out = document.getElementById('results');
+  var msg = document.getElementById('statusMsg');
+  var algoTag = document.getElementById('algoTag');
+
+  if (!token) {
+    out.innerHTML = '<div class="empty-state"><div class="icon">&#128272;</div><div>No token — paste a JWT first.</div></div>';
+    return;
+  }
+
+  var parts = token.split('.');
+  if (parts.length !== 3) {
+    out.innerHTML = '<div class="empty-state" style="color:var(--danger)"><div class="icon">&#10005;</div><div>Invalid JWT — must have exactly 3 parts separated by dots.</div></div>';
+    msg.textContent = 'Invalid structure'; msg.className = 'err';
+    return;
+  }
+
+  try {
+    var headerRaw  = b64urlDecode(parts[0]);
+    var payloadRaw = b64urlDecode(parts[1]);
+    var header  = parseJSON(headerRaw);
+    var payload = parseJSON(payloadRaw);
+
+    // Show algorithm tag
+    algoTag.textContent = (header.alg || '') + (header.typ ? ' · ' + header.typ : '');
+
+    // Colorize token parts display
+    var pEl = document.getElementById('tokenParts');
+    pEl.innerHTML = '<span class="tp-h">' + escH(parts[0]) + '</span>' +
+                    '<span class="tp-dot">.</span>' +
+                    '<span class="tp-p">' + escH(parts[1]) + '</span>' +
+                    '<span class="tp-dot">.</span>' +
+                    '<span class="tp-s">' + escH(parts[2]) + '</span>';
+    pEl.classList.add('visible');
+
+    // Header section
+    var headerJson = JSON.stringify(header, null, 2);
+    var alg = header.alg || 'unknown';
+    var algWarn = alg.toLowerCase() === 'none' ? '<div style="color:#ef4444;font-size:12px;margin-top:8px;">&#9888; Algorithm "none" is dangerous — token is unsigned!</div>' : '';
+
+    // Payload: standard claims + all claims
+    var stdHtml = '', customHtml = '', hasStd = false, hasCustom = false;
+    Object.keys(payload).forEach(function(k) {
+      if (STANDARD_CLAIMS.includes(k)) { stdHtml += formatClaim(k, payload[k]); hasStd = true; }
+      else { customHtml += formatClaim(k, payload[k]); hasCustom = true; }
+    });
+    var payloadJson = JSON.stringify(payload, null, 2);
+
+    // Signature section
+    var sigSectionNote = (alg === 'none')
+      ? '<div class="sig-note" style="color:#ef4444;">&#9888; No signature — this token is unsigned and should not be trusted.</div>'
+      : '<div class="sig-note">&#128274; Signature present. To verify, provide the secret/public key in your application. This tool decodes only — it does not verify signatures.</div>';
+
+    out.innerHTML =
+      /* Header */
+      '<div class="section-card">' +
+        '<div class="section-header"><span class="section-badge badge-h">Header</span>' +
+        '<span class="section-algo">' + escH(alg) + ' · ' + escH(header.typ || 'JWT') + '</span></div>' +
+        '<div class="section-body"><pre class="json-out">' + highlight(headerJson) + '</pre>' + algWarn + '</div>' +
+      '</div>' +
+
+      /* Payload */
+      '<div class="section-card">' +
+        '<div class="section-header"><span class="section-badge badge-p">Payload</span></div>' +
+        '<div class="section-body">' +
+        (hasStd ? '<div class="claims-grid" style="margin-bottom:12px;">' + stdHtml + '</div>' : '') +
+        (hasCustom ? '<div class="claims-grid" style="margin-bottom:12px;">' + customHtml + '</div>' : '') +
+        '<pre class="json-out" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">' + highlight(payloadJson) + '</pre>' +
+        '</div>' +
+      '</div>' +
+
+      /* Signature */
+      '<div class="section-card">' +
+        '<div class="section-header"><span class="section-badge badge-s">Signature</span></div>' +
+        '<div class="section-body">' +
+        '<pre class="json-out" style="color:#34d399;word-break:break-all;white-space:pre-wrap">' + escH(parts[2]) + '</pre>' +
+        sigSectionNote +
+        '</div>' +
+      '</div>';
+
+    msg.textContent = 'Decoded ✓'; msg.className = 'ok';
+    setTimeout(function() { msg.textContent = ''; msg.className = ''; }, 3000);
+
+  } catch(e) {
+    out.innerHTML = '<div class="empty-state" style="color:var(--danger)"><div class="icon">&#10005;</div><div>' + escH(e.message) + '</div></div>';
+    msg.textContent = 'Decode error'; msg.className = 'err';
+  }
+}
+
+function onTokenInput() {
+  var v = document.getElementById('tokenInput').value;
+  document.getElementById('charCount').textContent = v.length;
+  // Auto-decode when a full token is pasted (3 parts)
+  if (v.trim().split('.').length === 3) runDecode();
+  else {
+    document.getElementById('tokenParts').classList.remove('visible');
+    document.getElementById('algoTag').textContent = '';
+  }
+}
+
+function clearAll() {
+  document.getElementById('tokenInput').value = '';
+  document.getElementById('results').innerHTML = '<div class="empty-state"><div class="icon">&#128272;</div><div>Paste a JWT and click <strong>Decode</strong></div><div style="font-size:12px;opacity:.6">Header, payload, and standard claims decoded instantly</div></div>';
+  document.getElementById('tokenParts').classList.remove('visible');
+  document.getElementById('charCount').textContent = '0';
+  document.getElementById('algoTag').textContent = '';
+  document.getElementById('statusMsg').textContent = '';
+  document.getElementById('statusMsg').className = '';
+}
+
+async function pasteInput() {
+  try {
+    var t = await navigator.clipboard.readText();
+    document.getElementById('tokenInput').value = t;
+    onTokenInput();
+  } catch { document.getElementById('tokenInput').focus(); }
+}
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runDecode(); }
+});
+</script>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

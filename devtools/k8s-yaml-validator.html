@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kubernetes YAML Validator</title>
+  <script src="../js/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <style>
+    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .toolbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .toolbar label { font-size: 13px; color: var(--text-muted); }
+
+    select, .btn {
+      font-size: 13px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+
+    select:hover, select:focus { border-color: var(--accent); outline: none; }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .btn:hover { background: var(--surface); border-color: var(--accent); }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      padding: 6px 18px;
+    }
+
+    .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+    .btn.danger { color: var(--danger); }
+    .btn.danger:hover { border-color: var(--danger); }
+
+    .sep { flex: 1; }
+
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .panel:last-child { border-right: none; }
+
+    .panel-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .panel-header .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    .dot-in  { background: #f5a623; }
+    .dot-out { background: var(--success); }
+
+    .panel-header span {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .panel-actions { margin-left: auto; display: flex; gap: 6px; }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      transition: color .15s, background .15s;
+    }
+
+    .icon-btn:hover { color: var(--text); background: var(--surface2); }
+
+    .textarea-wrap { flex: 1; position: relative; overflow: hidden; }
+
+    textarea {
+      width: 100%;
+      height: 100%;
+      background: #e1e4f5;
+      color: #a7b4d4;
+      border: none;
+      resize: none;
+      padding: 16px 18px;
+      font-family: 'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;
+      font-size: 13px;
+      line-height: 1.75;
+      tab-size: 2;
+      outline: none;
+    }
+
+    textarea::placeholder { color: #3a3d52; }
+    textarea:focus { background: #0d0f1a; }
+
+    /* Results panel */
+    .results-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      gap: 10px;
+      font-size: 14px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .empty-state .icon { font-size: 48px; opacity: .4; }
+
+    /* Doc result card */
+    .doc-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .doc-card-header {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .doc-status {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+
+    .doc-status.ok   { background: rgba(34,197,94,.15); color: #22c55e; }
+    .doc-status.warn { background: rgba(234,179,8,.15);  color: #eab308; }
+    .doc-status.err  { background: rgba(239,68,68,.15);  color: #ef4444; }
+
+    .doc-resource {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .doc-resource span {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-left: 6px;
+    }
+
+    .doc-card-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+
+    /* Field summary row */
+    .field-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .field-chip {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .field-chip strong { color: var(--text); }
+
+    /* Issue items */
+    .issue {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.4;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .issue:last-child { border-bottom: none; }
+
+    .issue-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .issue-msg  { color: var(--text); }
+    .issue-field {
+      margin-left: auto;
+      font-size: 11px;
+      font-family: 'Cascadia Code','Fira Code',monospace;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .issue.err  .issue-icon { color: #ef4444; }
+    .issue.warn .issue-icon { color: #eab308; }
+    .issue.info .issue-icon { color: #60a5fa; }
+    .issue.ok   .issue-icon { color: #22c55e; }
+
+    /* Parse error card */
+    .parse-err {
+      border: 1px solid rgba(239,68,68,.4);
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: rgba(239,68,68,.06);
+    }
+
+    .parse-err h4 { margin: 0 0 6px; color: #ef4444; font-size: 14px; }
+    .parse-err pre { margin: 0; font-size: 12px; color: var(--text-muted); white-space: pre-wrap; font-family: monospace; }
+
+    /* Status bar */
+    .status-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    #statusMsg { margin-left: auto; font-weight: 500; transition: color .3s; }
+    #statusMsg.ok  { color: var(--success); }
+    #statusMsg.err { color: var(--danger); }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .panel { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../index.html"              class="nav-dropdown-item">&#127968; Home</a>
+        <div class="nav-dropdown-divider"></div>
+        <a href="sql-formatter.html"         class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="date-formatter.html"        class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="timezone-converter.html"    class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="api-tester.html"            class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="cron-generator.html"        class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="k8s-yaml-validator.html"    class="nav-dropdown-item active">&#9784; K8s YAML Validator</a>
+        <a href="jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <label for="examples">Examples:</label>
+  <select id="examples" onchange="loadExample(this.value)">
+    <option value="">— Load example —</option>
+    <option value="deployment">Deployment</option>
+    <option value="pod">Pod</option>
+    <option value="service">Service</option>
+    <option value="configmap">ConfigMap</option>
+    <option value="secret">Secret</option>
+    <option value="ingress">Ingress</option>
+    <option value="cronjob">CronJob</option>
+    <option value="pvc">PersistentVolumeClaim</option>
+    <option value="hpa">HorizontalPodAutoscaler</option>
+    <option value="rbac">Role + RoleBinding</option>
+    <option value="multidoc">Multi-doc (Deploy + Service)</option>
+    <option value="broken">Broken manifest (errors)</option>
+  </select>
+  <div class="sep"></div>
+  <button class="btn danger" onclick="clearAll()">&#128465; Clear</button>
+  <button class="btn primary" onclick="runValidate()">&#10003; Validate</button>
+</div>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-in"></span>
+      <span>Input &mdash; Kubernetes YAML</span>
+      <div class="panel-actions">
+        <button class="icon-btn" onclick="pasteInput()" title="Paste from clipboard">&#128203; Paste</button>
+        <button class="icon-btn" onclick="document.getElementById('input').value=''; updateStatus()" title="Clear">&#10005;</button>
+      </div>
+    </div>
+    <div class="textarea-wrap">
+      <textarea id="input" spellcheck="false"
+        placeholder="Paste your Kubernetes YAML manifest here...
+Supports multi-document files separated by ---
+
+Example:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app
+        image: nginx:1.25"
+        oninput="updateStatus()"
+      ></textarea>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-out"></span>
+      <span>Validation Results</span>
+      <div class="panel-actions">
+        <span id="docCount" style="font-size:12px;color:var(--text-muted);"></span>
+      </div>
+    </div>
+    <div class="results-scroll" id="results">
+      <div class="empty-state">
+        <div class="icon">&#9784;</div>
+        <div>Paste a Kubernetes manifest and click <strong>Validate</strong></div>
+        <div style="font-size:12px;opacity:.6">Supports multi-document files separated by <code>---</code></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="status-bar">
+  <div>&#128221; <span id="inputLines">0</span> lines</div>
+  <div>&#128204; <span id="inputChars">0</span> chars</div>
+  <span id="statusMsg"></span>
+</div>
+
+<script>
+// ── Validation rules ────────────────────────────────────────────────────────
+
+const KNOWN_KINDS = {
+  'Pod':                     { api: ['v1'],                              fn: validatePod },
+  'Service':                 { api: ['v1'],                              fn: validateService },
+  'ConfigMap':               { api: ['v1'] },
+  'Secret':                  { api: ['v1'],                              fn: validateSecret },
+  'Namespace':               { api: ['v1'] },
+  'ServiceAccount':          { api: ['v1'] },
+  'PersistentVolume':        { api: ['v1'],                              fn: validatePV },
+  'PersistentVolumeClaim':   { api: ['v1'],                              fn: validatePVC },
+  'ResourceQuota':           { api: ['v1'] },
+  'LimitRange':              { api: ['v1'] },
+  'Endpoints':               { api: ['v1'] },
+  'Deployment':              { api: ['apps/v1'],                         fn: validateDeployment },
+  'ReplicaSet':              { api: ['apps/v1'] },
+  'StatefulSet':             { api: ['apps/v1'],                         fn: validateStatefulSet },
+  'DaemonSet':               { api: ['apps/v1'],                         fn: validateDaemonSet },
+  'Job':                     { api: ['batch/v1'],                        fn: validateJob },
+  'CronJob':                 { api: ['batch/v1'],                        fn: validateCronJob },
+  'Ingress':                 { api: ['networking.k8s.io/v1'],            fn: validateIngress },
+  'IngressClass':            { api: ['networking.k8s.io/v1'] },
+  'NetworkPolicy':           { api: ['networking.k8s.io/v1'] },
+  'Role':                    { api: ['rbac.authorization.k8s.io/v1'] },
+  'ClusterRole':             { api: ['rbac.authorization.k8s.io/v1'] },
+  'RoleBinding':             { api: ['rbac.authorization.k8s.io/v1'],    fn: validateBinding },
+  'ClusterRoleBinding':      { api: ['rbac.authorization.k8s.io/v1'],    fn: validateBinding },
+  'HorizontalPodAutoscaler': { api: ['autoscaling/v1','autoscaling/v2','autoscaling/v2beta2'], fn: validateHPA },
+  'StorageClass':            { api: ['storage.k8s.io/v1'] },
+  'PodDisruptionBudget':     { api: ['policy/v1'] },
+};
+
+function validateDoc(doc) {
+  const errors = [], warnings = [], infos = [];
+
+  // Top-level required fields
+  if (!doc.apiVersion) errors.push({ msg: 'Missing required field: apiVersion', field: 'apiVersion' });
+  if (!doc.kind)       errors.push({ msg: 'Missing required field: kind', field: 'kind' });
+
+  if (!doc.metadata) {
+    errors.push({ msg: 'Missing required field: metadata', field: 'metadata' });
+  } else {
+    if (!doc.metadata.name && !doc.metadata.generateName) {
+      errors.push({ msg: 'metadata.name is required (or metadata.generateName)', field: 'metadata.name' });
+    }
+    if (doc.metadata.name && !/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?$/.test(doc.metadata.name)) {
+      warnings.push({ msg: `metadata.name "${doc.metadata.name}" should be lowercase alphanumeric with hyphens`, field: 'metadata.name' });
+    }
+    if (doc.metadata.labels) validateLabels(doc.metadata.labels, 'metadata.labels', warnings);
+    if (doc.metadata.annotations) {
+      Object.entries(doc.metadata.annotations).forEach(([k, v]) => {
+        if (typeof v !== 'string') warnings.push({ msg: `Annotation value for "${k}" should be a string`, field: 'metadata.annotations' });
+      });
+    }
+  }
+
+  if (doc.kind && doc.apiVersion) {
+    const def = KNOWN_KINDS[doc.kind];
+    if (!def) {
+      warnings.push({ msg: `Unknown kind "${doc.kind}" — custom resource or typo?`, field: 'kind' });
+    } else {
+      if (!def.api.includes(doc.apiVersion)) {
+        warnings.push({ msg: `apiVersion "${doc.apiVersion}" is not standard for ${doc.kind}. Expected: ${def.api.join(' or ')}`, field: 'apiVersion' });
+      }
+      if (def.fn) def.fn(doc, errors, warnings, infos);
+    }
+  }
+
+  return { errors, warnings, infos };
+}
+
+function validateLabels(labels, path, warnings) {
+  Object.entries(labels).forEach(([k, v]) => {
+    if (typeof v !== 'string') warnings.push({ msg: `Label value for "${k}" should be a string`, field: path });
+    if (String(v).length > 63) warnings.push({ msg: `Label value for "${k}" exceeds 63 characters`, field: path });
+  });
+}
+
+// ── Kind-specific validators ─────────────────────────────────────────────────
+
+function validateContainerList(containers, path, errors, warnings) {
+  if (!Array.isArray(containers) || containers.length === 0) {
+    errors.push({ msg: `${path} must be a non-empty array`, field: path });
+    return;
+  }
+  containers.forEach((c, i) => {
+    const p = `${path}[${i}]`;
+    if (!c.name)  errors.push({ msg: `${p}.name is required`, field: p + '.name' });
+    if (!c.image) errors.push({ msg: `${p}.image is required`, field: p + '.image' });
+    if (c.image && c.image.endsWith(':latest')) {
+      warnings.push({ msg: `${p}.image uses ":latest" tag — pin a specific version for reproducibility`, field: p + '.image' });
+    }
+    if (!c.resources || (!c.resources.requests && !c.resources.limits)) {
+      warnings.push({ msg: `${p} has no resource requests/limits — set them to prevent runaway usage`, field: p + '.resources' });
+    }
+    if (c.securityContext && c.securityContext.privileged) {
+      warnings.push({ msg: `${p} runs as privileged — avoid unless strictly necessary`, field: p + '.securityContext.privileged' });
+    }
+  });
+}
+
+function validatePodSpec(spec, errors, warnings) {
+  if (!spec) { errors.push({ msg: 'spec is required', field: 'spec' }); return; }
+  validateContainerList(spec.containers, 'spec.containers', errors, warnings);
+  if (spec.initContainers) validateContainerList(spec.initContainers, 'spec.initContainers', errors, warnings);
+}
+
+function validatePod(doc, errors, warnings) {
+  validatePodSpec(doc.spec, errors, warnings);
+}
+
+function validateDeployment(doc, errors, warnings, infos) {
+  const spec = doc.spec || {};
+  if (!spec.selector) errors.push({ msg: 'spec.selector is required', field: 'spec.selector' });
+  if (!spec.template) {
+    errors.push({ msg: 'spec.template is required', field: 'spec.template' });
+  } else {
+    validatePodSpec(spec.template.spec, errors, warnings);
+    if (spec.selector && spec.selector.matchLabels && spec.template.metadata && spec.template.metadata.labels) {
+      const mLabels = spec.selector.matchLabels;
+      const tLabels = spec.template.metadata.labels;
+      Object.keys(mLabels).forEach(k => {
+        if (tLabels[k] !== mLabels[k]) {
+          errors.push({ msg: `spec.selector.matchLabels.${k}="${mLabels[k]}" not found in spec.template.metadata.labels`, field: 'spec.selector.matchLabels' });
+        }
+      });
+    }
+  }
+  if (spec.replicas !== undefined) {
+    if (!Number.isInteger(spec.replicas) || spec.replicas < 0) {
+      errors.push({ msg: 'spec.replicas must be a non-negative integer', field: 'spec.replicas' });
+    }
+  } else {
+    infos.push({ msg: 'spec.replicas not set — defaults to 1', field: 'spec.replicas' });
+  }
+}
+
+function validateStatefulSet(doc, errors, warnings) {
+  const spec = doc.spec || {};
+  if (!spec.selector)     errors.push({ msg: 'spec.selector is required', field: 'spec.selector' });
+  if (!spec.serviceName)  errors.push({ msg: 'spec.serviceName is required for StatefulSet', field: 'spec.serviceName' });
+  if (!spec.template)     errors.push({ msg: 'spec.template is required', field: 'spec.template' });
+  else validatePodSpec(spec.template.spec, errors, warnings);
+}
+
+function validateDaemonSet(doc, errors, warnings) {
+  const spec = doc.spec || {};
+  if (!spec.selector) errors.push({ msg: 'spec.selector is required', field: 'spec.selector' });
+  if (!spec.template) errors.push({ msg: 'spec.template is required', field: 'spec.template' });
+  else validatePodSpec(spec.template.spec, errors, warnings);
+}
+
+function validateService(doc, errors, warnings, infos) {
+  const spec = doc.spec || {};
+  if (!spec.ports || !Array.isArray(spec.ports) || spec.ports.length === 0) {
+    errors.push({ msg: 'spec.ports must be a non-empty array', field: 'spec.ports' });
+  } else {
+    spec.ports.forEach((p, i) => {
+      if (p.port === undefined) errors.push({ msg: `spec.ports[${i}].port is required`, field: `spec.ports[${i}].port` });
+      if (spec.ports.length > 1 && !p.name) {
+        warnings.push({ msg: `spec.ports[${i}].name is required when multiple ports are defined`, field: `spec.ports[${i}].name` });
+      }
+    });
+  }
+  const type = spec.type || 'ClusterIP';
+  if (!['ClusterIP','NodePort','LoadBalancer','ExternalName'].includes(type)) {
+    errors.push({ msg: `Invalid spec.type "${type}"`, field: 'spec.type' });
+  }
+  if (!spec.type) infos.push({ msg: 'spec.type not set — defaults to ClusterIP', field: 'spec.type' });
+}
+
+function validateSecret(doc, errors, warnings) {
+  if (!doc.data && !doc.stringData) {
+    warnings.push({ msg: 'Secret has no data or stringData — is this intentional?', field: 'data' });
+  }
+  const deprecatedTypes = ['kubernetes.io/service-account-token'];
+  if (deprecatedTypes.includes(doc.type)) {
+    warnings.push({ msg: `Secret type "${doc.type}" is deprecated in recent Kubernetes versions`, field: 'type' });
+  }
+}
+
+function validateJob(doc, errors, warnings) {
+  const spec = doc.spec || {};
+  if (!spec.template) errors.push({ msg: 'spec.template is required', field: 'spec.template' });
+  else validatePodSpec(spec.template.spec, errors, warnings);
+  const rp = spec.template && spec.template.spec && spec.template.spec.restartPolicy;
+  if (rp && !['Never','OnFailure'].includes(rp)) {
+    errors.push({ msg: `spec.template.spec.restartPolicy must be "Never" or "OnFailure" for Jobs, got "${rp}"`, field: 'restartPolicy' });
+  }
+}
+
+function validateCronJob(doc, errors, warnings) {
+  const spec = doc.spec || {};
+  if (!spec.schedule) {
+    errors.push({ msg: 'spec.schedule is required', field: 'spec.schedule' });
+  } else if (!isValidCron(spec.schedule)) {
+    errors.push({ msg: `spec.schedule "${spec.schedule}" is not a valid cron expression`, field: 'spec.schedule' });
+  }
+  if (!spec.jobTemplate) errors.push({ msg: 'spec.jobTemplate is required', field: 'spec.jobTemplate' });
+  else if (spec.jobTemplate.spec && spec.jobTemplate.spec.template) {
+    validatePodSpec(spec.jobTemplate.spec.template.spec, errors, warnings);
+  }
+  if (spec.concurrencyPolicy && !['Allow','Forbid','Replace'].includes(spec.concurrencyPolicy)) {
+    errors.push({ msg: `Invalid spec.concurrencyPolicy "${spec.concurrencyPolicy}"`, field: 'spec.concurrencyPolicy' });
+  }
+}
+
+function isValidCron(s) {
+  const parts = s.trim().split(/\s+/);
+  if (parts.length !== 5) return false;
+  return parts.every(p => /^(\*|[0-9]+(-[0-9]+)?(,[0-9]+(-[0-9]+)?)*|(\*|[0-9]+)\/[0-9]+)$/.test(p));
+}
+
+function validateIngress(doc, errors, warnings) {
+  const spec = doc.spec || {};
+  if (!spec.rules && !spec.defaultBackend) {
+    errors.push({ msg: 'Ingress must have spec.rules or spec.defaultBackend', field: 'spec.rules' });
+  }
+  if (!spec.ingressClassName && !(doc.metadata && doc.metadata.annotations && doc.metadata.annotations['kubernetes.io/ingress.class'])) {
+    warnings.push({ msg: 'No ingressClassName set — specify spec.ingressClassName to target a controller', field: 'spec.ingressClassName' });
+  }
+}
+
+function validatePV(doc, errors, warnings) {
+  const spec = doc.spec || {};
+  if (!spec.capacity || !spec.capacity.storage) errors.push({ msg: 'spec.capacity.storage is required', field: 'spec.capacity.storage' });
+  if (!spec.accessModes || spec.accessModes.length === 0) errors.push({ msg: 'spec.accessModes is required', field: 'spec.accessModes' });
+  const validAM = ['ReadWriteOnce','ReadOnlyMany','ReadWriteMany','ReadWriteOncePod'];
+  (spec.accessModes || []).forEach(m => {
+    if (!validAM.includes(m)) errors.push({ msg: `Invalid accessMode "${m}"`, field: 'spec.accessModes' });
+  });
+}
+
+function validatePVC(doc, errors, warnings) {
+  const spec = doc.spec || {};
+  if (!spec.accessModes || spec.accessModes.length === 0) errors.push({ msg: 'spec.accessModes is required', field: 'spec.accessModes' });
+  if (!spec.resources || !spec.resources.requests || !spec.resources.requests.storage) {
+    errors.push({ msg: 'spec.resources.requests.storage is required', field: 'spec.resources.requests.storage' });
+  }
+}
+
+function validateBinding(doc, errors, warnings) {
+  if (!doc.roleRef) {
+    errors.push({ msg: 'roleRef is required', field: 'roleRef' });
+  } else {
+    if (!doc.roleRef.name)    errors.push({ msg: 'roleRef.name is required', field: 'roleRef.name' });
+    if (!doc.roleRef.kind)    errors.push({ msg: 'roleRef.kind is required', field: 'roleRef.kind' });
+    if (!doc.roleRef.apiGroup && doc.roleRef.apiGroup !== '') errors.push({ msg: 'roleRef.apiGroup is required', field: 'roleRef.apiGroup' });
+  }
+  if (!doc.subjects || doc.subjects.length === 0) {
+    errors.push({ msg: 'subjects must be a non-empty array', field: 'subjects' });
+  } else {
+    doc.subjects.forEach((s, i) => {
+      if (!s.kind) errors.push({ msg: `subjects[${i}].kind is required`, field: `subjects[${i}].kind` });
+      if (!s.name) errors.push({ msg: `subjects[${i}].name is required`, field: `subjects[${i}].name` });
+    });
+  }
+}
+
+function validateHPA(doc, errors, warnings) {
+  const spec = doc.spec || {};
+  if (!spec.scaleTargetRef) errors.push({ msg: 'spec.scaleTargetRef is required', field: 'spec.scaleTargetRef' });
+  if (spec.maxReplicas === undefined) errors.push({ msg: 'spec.maxReplicas is required', field: 'spec.maxReplicas' });
+  if (spec.minReplicas !== undefined && spec.maxReplicas !== undefined && spec.minReplicas > spec.maxReplicas) {
+    errors.push({ msg: `spec.minReplicas (${spec.minReplicas}) must be ≤ spec.maxReplicas (${spec.maxReplicas})`, field: 'spec.minReplicas' });
+  }
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+
+function runValidate() {
+  const raw = document.getElementById('input').value.trim();
+  const out  = document.getElementById('results');
+  const dcEl = document.getElementById('docCount');
+  const msg  = document.getElementById('statusMsg');
+
+  if (!raw) {
+    out.innerHTML = '<div class="empty-state"><div class="icon">&#9784;</div><div>No input — paste a manifest first.</div></div>';
+    dcEl.textContent = '';
+    return;
+  }
+
+  let docs = [];
+  try {
+    const raw2 = raw.replace(/\r\n/g, '\n');
+    jsyaml.loadAll(raw2, d => { if (d !== null && d !== undefined) docs.push(d); });
+  } catch (e) {
+    out.innerHTML = `<div class="parse-err"><h4>&#10005; YAML Parse Error</h4><pre>${escHtml(e.message)}</pre></div>`;
+    msg.textContent = 'Parse error';
+    msg.className = 'err';
+    dcEl.textContent = '';
+    return;
+  }
+
+  if (docs.length === 0) {
+    out.innerHTML = '<div class="empty-state"><div class="icon">&#128203;</div><div>No YAML documents found.</div></div>';
+    dcEl.textContent = '';
+    return;
+  }
+
+  dcEl.textContent = `${docs.length} document${docs.length > 1 ? 's' : ''}`;
+
+  let totalErrors = 0, totalWarnings = 0;
+  const cards = docs.map((doc, idx) => {
+    const { errors, warnings, infos } = validateDoc(doc);
+    totalErrors   += errors.length;
+    totalWarnings += warnings.length;
+
+    const status  = errors.length ? 'err' : warnings.length ? 'warn' : 'ok';
+    const statusLabel = errors.length ? '✗ Invalid' : warnings.length ? '⚠ Warnings' : '✓ Valid';
+    const kind = doc.kind || '—';
+    const name = (doc.metadata && (doc.metadata.name || doc.metadata.generateName)) || '—';
+    const ns   = (doc.metadata && doc.metadata.namespace) || '';
+    const api  = doc.apiVersion || '—';
+
+    const chipNs = ns ? `<span class="field-chip"><strong>ns</strong> ${escHtml(ns)}</span>` : '';
+
+    const issueHtml = [
+      ...errors.map  (i => issueRow('err',  '✗', i)),
+      ...warnings.map(i => issueRow('warn', '⚠', i)),
+      ...infos.map   (i => issueRow('info', 'ℹ', i)),
+      ...(errors.length === 0 && warnings.length === 0 ? [issueRow('ok', '✓', { msg: 'All checks passed', field: '' })] : []),
+    ].join('');
+
+    return `
+<div class="doc-card">
+  <div class="doc-card-header">
+    <span class="doc-status ${status}">${statusLabel}</span>
+    <span class="doc-resource">${escHtml(kind)} <span>${escHtml(name)}</span></span>
+  </div>
+  <div class="doc-card-body">
+    <div class="field-row">
+      <span class="field-chip"><strong>apiVersion</strong> ${escHtml(api)}</span>
+      <span class="field-chip"><strong>kind</strong> ${escHtml(kind)}</span>
+      <span class="field-chip"><strong>name</strong> ${escHtml(name)}</span>
+      ${chipNs}
+      ${docs.length > 1 ? `<span class="field-chip"><strong>doc</strong> ${idx + 1}/${docs.length}</span>` : ''}
+    </div>
+    ${issueHtml}
+  </div>
+</div>`;
+  });
+
+  out.innerHTML = cards.join('');
+
+  if (totalErrors > 0) {
+    msg.textContent = `${totalErrors} error${totalErrors > 1 ? 's' : ''}, ${totalWarnings} warning${totalWarnings !== 1 ? 's' : ''}`;
+    msg.className = 'err';
+  } else if (totalWarnings > 0) {
+    msg.textContent = `Valid with ${totalWarnings} warning${totalWarnings !== 1 ? 's' : ''}`;
+    msg.className = 'ok';
+  } else {
+    msg.textContent = 'All documents valid ✓';
+    msg.className = 'ok';
+  }
+  setTimeout(() => { msg.textContent = ''; msg.className = ''; }, 5000);
+}
+
+function issueRow(cls, icon, item) {
+  const field = item.field ? `<span class="issue-field">${escHtml(item.field)}</span>` : '';
+  return `<div class="issue ${cls}"><span class="issue-icon">${icon}</span><span class="issue-msg">${escHtml(item.msg)}</span>${field}</div>`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('results').innerHTML = '<div class="empty-state"><div class="icon">&#9784;</div><div>Paste a Kubernetes manifest and click <strong>Validate</strong></div><div style="font-size:12px;opacity:.6">Supports multi-document files separated by <code>---</code></div></div>';
+  document.getElementById('docCount').textContent = '';
+  document.getElementById('statusMsg').textContent = '';
+  document.getElementById('statusMsg').className = '';
+  updateStatus();
+}
+
+function updateStatus() {
+  const v = document.getElementById('input').value;
+  document.getElementById('inputChars').textContent = v.length;
+  document.getElementById('inputLines').textContent = v ? v.split('\n').length : 0;
+}
+
+async function pasteInput() {
+  try {
+    const t = await navigator.clipboard.readText();
+    document.getElementById('input').value = t;
+    updateStatus();
+  } catch {
+    document.getElementById('input').focus();
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runValidate(); }
+});
+
+// ── Examples ─────────────────────────────────────────────────────────────────
+
+const EXAMPLES = {
+deployment: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-app
+  namespace: default
+  labels:
+    app: nginx-app
+    version: "1.25"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-app
+  template:
+    metadata:
+      labels:
+        app: nginx-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi`,
+
+pod: `apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  namespace: default
+  labels:
+    app: my-pod
+spec:
+  containers:
+  - name: app
+    image: busybox:1.36
+    command: ["sh", "-c", "echo Hello && sleep 3600"]
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi`,
+
+service: `apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: default
+spec:
+  selector:
+    app: nginx-app
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP`,
+
+configmap: `apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: default
+data:
+  DATABASE_HOST: "postgres.default.svc.cluster.local"
+  DATABASE_PORT: "5432"
+  LOG_LEVEL: "info"
+  config.yaml: |
+    server:
+      port: 8080
+      timeout: 30s`,
+
+secret: `apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+  namespace: default
+type: Opaque
+stringData:
+  username: admin
+  password: supersecret`,
+
+ingress: `apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-service
+            port:
+              number: 80`,
+
+cronjob: `apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cleanup-job
+  namespace: default
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: cleanup
+            image: alpine:3.18
+            command: ["/bin/sh", "-c", "echo Running cleanup..."]
+            resources:
+              requests:
+                cpu: 50m
+                memory: 32Mi`,
+
+pvc: `apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-pvc
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 10Gi`,
+
+hpa: `apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70`,
+
+rbac: `apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: my-service-account
+  namespace: default
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io`,
+
+multidoc: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  namespace: production
+  labels:
+    app: web-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+      - name: web
+        image: myapp:2.1.0
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1
+            memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-svc
+  namespace: production
+spec:
+  selector:
+    app: web-app
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000`,
+
+broken: `apiVersion: apps/v1
+kind: Deploymentt
+metadata:
+  name: Bad Name
+spec:
+  replicas: -1
+  template:
+    spec:
+      containers:
+      - image: nginx:latest`,
+};
+
+function loadExample(key) {
+  if (!key) return;
+  document.getElementById('input').value = EXAMPLES[key] || '';
+  updateStatus();
+  document.getElementById('examples').value = '';
+  runValidate();
+}
+</script>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

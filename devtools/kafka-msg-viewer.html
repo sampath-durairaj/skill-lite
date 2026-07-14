@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kafka Message Viewer</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <style>
+    body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    .toolbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 20px; display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0; flex-wrap: wrap;
+    }
+    .btn {
+      font-size: 13px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text);
+      padding: 6px 14px; cursor: pointer; font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+      transition: background .15s, border-color .15s;
+    }
+    .btn:hover { background: var(--surface); border-color: #e11d48; }
+    .btn.primary { background: #e11d48; border-color: #e11d48; color: #fff; padding: 6px 20px; }
+    .btn.primary:hover { background: #be1239; border-color: #be1239; }
+    .btn.danger { color: var(--danger); }
+    .btn.danger:hover { border-color: var(--danger); }
+    .sep { flex: 1; }
+    .v-sep { width: 1px; background: var(--border); height: 24px; margin: 0 4px; }
+
+    select, .filter-input {
+      font-size: 12px; background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 5px; padding: 5px 8px;
+      cursor: pointer; outline: none;
+    }
+    select:hover, .filter-input:hover { border-color: #e11d48; }
+    .filter-input { width: 180px; cursor: text; }
+    .filter-input:focus { border-color: #e11d48; background: var(--surface); }
+    .filter-input::placeholder { color: var(--text-muted); }
+
+    .option-label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+    /* Preset dropdown */
+    .preset-wrap { position: relative; }
+    .preset-menu {
+      position: absolute; top: calc(100% + 6px); left: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,.3);
+      min-width: 230px; z-index: 200; overflow: hidden; display: none;
+    }
+    .preset-menu.open { display: block; }
+    .preset-menu a {
+      display: block; padding: 8px 14px; font-size: 12.5px; color: var(--text);
+      text-decoration: none; cursor: pointer; transition: background .1s;
+    }
+    .preset-menu a .fmt-tag {
+      font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 6px;
+      background: rgba(225,29,72,.15); color: #e11d48; font-weight: 700; letter-spacing: .4px;
+    }
+    .preset-menu a:hover { background: var(--surface2); }
+
+    main { display: grid; grid-template-columns: 5fr 7fr; flex: 1; overflow: hidden; }
+
+    .panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; }
+    .panel:last-child { border-right: none; }
+
+    .panel-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .panel-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-in  { background: #f5a623; }
+    .dot-out { background: #e11d48; }
+    .panel-header span.label { font-size: 12px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--text-muted); }
+    .panel-actions { margin-left: auto; display: flex; gap: 6px; }
+    .icon-btn {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      padding: 3px 6px; border-radius: 4px; font-size: 13px;
+      transition: color .15s, background .15s;
+    }
+    .icon-btn:hover { color: var(--text); background: var(--surface2); }
+
+    textarea {
+      flex: 1; background: #13151f; color: var(--text); border: none; resize: none;
+      padding: 16px 18px;
+      font-family: 'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;
+      font-size: 12px; line-height: 1.75; outline: none;
+    }
+    textarea:focus { background: #0d0f1a; }
+    textarea::placeholder { color: #3a3d52; }
+
+    /* Output panel */
+    .output-scroll { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 10px; font-size: 14px; text-align: center; padding: 40px;
+    }
+    .empty-state .icon { font-size: 48px; opacity: .3; }
+
+    /* Message cards */
+    .msg-card {
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+      transition: border-color .15s;
+    }
+    .msg-card:hover { border-color: rgba(225,29,72,.4); }
+
+    .msg-head {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 7px 12px; display: flex; align-items: center; gap: 8px;
+      font-size: 12.5px;
+    }
+    .msg-badge {
+      background: rgba(225,29,72,.15); color: #e11d48;
+      font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 20px;
+      letter-spacing: .5px; flex-shrink: 0;
+    }
+    .msg-key {
+      font-family: 'Cascadia Code','Fira Code',monospace;
+      font-size: 11.5px; color: #fbbf24; font-weight: 600;
+      max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .msg-key-none { font-size: 11px; color: var(--text-muted); font-style: italic; }
+    .msg-meta { font-size: 11px; color: var(--text-muted); margin-left: auto; display: flex; gap: 10px; }
+    .msg-ts { color: #7dd3fc; }
+
+    .copy-msg-btn {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      padding: 2px 5px; border-radius: 4px; font-size: 12px; flex-shrink: 0;
+      transition: color .15s, background .15s;
+    }
+    .copy-msg-btn:hover { color: var(--text); background: var(--surface2); }
+
+    .msg-body { padding: 10px 14px; background: var(--bg); }
+
+    .msg-json {
+      font-family: 'Cascadia Code','Fira Code','JetBrains Mono','Consolas',monospace;
+      font-size: 12px; line-height: 1.65; margin: 0; white-space: pre; overflow-x: auto;
+      background: none;
+    }
+    .msg-raw {
+      font-family: 'Cascadia Code','Fira Code',monospace;
+      font-size: 12px; line-height: 1.65; margin: 0; white-space: pre-wrap;
+      word-break: break-all; color: #94a3b8; background: none;
+    }
+    .no-value { color: var(--text-muted); font-size: 12px; font-style: italic; }
+    .parse-err { color: var(--danger); font-size: 12px; }
+
+    .msg-headers {
+      padding: 6px 14px 8px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+      border-top: 1px solid var(--border); background: var(--surface);
+    }
+    .hdr-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-right: 4px; }
+    .hdr-chip {
+      font-size: 11px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1px 8px; color: var(--text-muted);
+    }
+    .hdr-chip em { color: #93c5fd; font-style: normal; }
+
+    /* JSON syntax colors */
+    .jk { color: #93c5fd; }
+    .js { color: #86efac; }
+    .ji { color: #fbbf24; }
+    .jb { color: #f472b6; }
+    .jn { color: #94a3b8; }
+
+    /* Status bar */
+    .status-bar {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 6px 20px; display: flex; align-items: center; gap: 20px;
+      font-size: 12px; color: var(--text-muted); flex-shrink: 0;
+    }
+    .stat-pill {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .stat-val { font-weight: 600; color: var(--text); }
+    #statusMsg { margin-left: auto; font-weight: 500; transition: color .3s; }
+    #statusMsg.ok  { color: var(--success); }
+    #statusMsg.err { color: var(--danger); }
+    #noMatchMsg { color: var(--text-muted); font-style: italic; }
+
+    @media (max-width: 700px) {
+      main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .panel { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="sql-formatter.html"         class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="date-formatter.html"        class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="timezone-converter.html"    class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="api-tester.html"            class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="cron-generator.html"        class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="k8s-yaml-validator.html"    class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="jwt-decoder.html"           class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="json-formatter.html"        class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="kafka-msg-viewer.html"      class="nav-dropdown-item active">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <span class="option-label">Format:</span>
+  <select id="fmtSel">
+    <option value="auto">&#128268; Auto-detect</option>
+    <option value="value-only">Value only (per line)</option>
+    <option value="key-value">Key &#9; Value (tab-separated)</option>
+    <option value="ts-key-value">Timestamp &#9; Key &#9; Value</option>
+    <option value="json-envelope">JSON envelope (with metadata)</option>
+    <option value="kcat">kcat / kafkacat output</option>
+  </select>
+  <div class="v-sep"></div>
+  <input class="filter-input" id="filterInput" type="text" placeholder="&#128269; Filter by key or value…" oninput="applyFilter()" />
+  <div class="v-sep"></div>
+  <div class="preset-wrap">
+    <button class="btn" onclick="togglePresets(this)">&#128218; Examples &#9662;</button>
+    <div class="preset-menu" id="presetMenu">
+      <a onclick="loadPreset('value-only')">Value-only JSON <span class="fmt-tag">VALUE</span></a>
+      <a onclick="loadPreset('key-value')">Key + Value (tab) <span class="fmt-tag">KEY&#9;VAL</span></a>
+      <a onclick="loadPreset('ts-key-value')">Timestamp + Key + Value <span class="fmt-tag">TS&#9;KEY&#9;VAL</span></a>
+      <a onclick="loadPreset('json-envelope')">JSON envelope array <span class="fmt-tag">JSON</span></a>
+      <a onclick="loadPreset('kcat')">kcat / kafkacat output <span class="fmt-tag">KCAT</span></a>
+    </div>
+  </div>
+  <div class="sep"></div>
+  <button class="btn danger" onclick="clearAll()">&#10005; Clear</button>
+  <button class="btn primary" onclick="runParse()">&#9654; Parse</button>
+</div>
+
+<main>
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-in"></span>
+      <span class="label">Raw Messages</span>
+      <div class="panel-actions">
+        <button class="icon-btn" onclick="pasteInput()" title="Paste">&#128203;</button>
+        <button class="icon-btn" onclick="clearAll()" title="Clear">&#10005;</button>
+      </div>
+    </div>
+    <textarea id="rawInput" spellcheck="false"
+      placeholder="Paste Kafka messages here. Supported formats:
+
+• Value only (one JSON per line):
+  {&quot;id&quot;:1,&quot;status&quot;:&quot;placed&quot;}
+  {&quot;id&quot;:2,&quot;status&quot;:&quot;paid&quot;}
+
+• Tab-separated key + value:
+  order-123[TAB]{&quot;id&quot;:1,&quot;total&quot;:99.99}
+
+• Console output with timestamp:
+  CreateTime:1720000000000[TAB]order-123[TAB]{&quot;id&quot;:1}
+
+• JSON envelope (with metadata):
+  [{&quot;key&quot;:&quot;k1&quot;,&quot;value&quot;:{...},&quot;partition&quot;:0}]
+
+• kcat / kafkacat output:
+  key1: {&quot;field&quot;:&quot;value&quot;}
+
+Press Ctrl+Enter to parse."
+    ></textarea>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="dot dot-out"></span>
+      <span class="label">Messages</span>
+      <div class="panel-actions">
+        <span id="countBadge" style="font-size:11px;color:var(--text-muted);"></span>
+        <button class="icon-btn" onclick="toggleAll()" id="toggleAllBtn" title="Expand / Collapse all" style="display:none">&#9660; All</button>
+      </div>
+    </div>
+    <div class="output-scroll" id="outputScroll">
+      <div class="empty-state">
+        <div class="icon">&#128202;</div>
+        <div>Paste messages and click <strong>Parse</strong></div>
+        <div style="font-size:12px;opacity:.6">Supports console consumer, kcat, JSON envelope and more</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="status-bar">
+  <div class="stat-pill">&#128204; <span class="stat-val" id="statTotal">0</span> messages</div>
+  <div class="stat-pill">&#128273; <span class="stat-val" id="statKeys">—</span> unique keys</div>
+  <div class="stat-pill">&#128337; <span class="stat-val" id="statTsRange">—</span></div>
+  <span id="noMatchMsg" style="display:none">No messages match filter</span>
+  <span id="statusMsg"></span>
+</div>
+
+<script>
+// ── Parsing ──────────────────────────────────────────────────────────────────
+
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function tryJSON(str) {
+  if (str === null || str === undefined) return { ok: false, raw: '' };
+  if (typeof str !== 'string') return { ok: true, val: str };
+  str = str.trim();
+  if (!str) return { ok: false, raw: '' };
+  try { return { ok: true, val: JSON.parse(str) }; }
+  catch(e) { return { ok: false, raw: str, err: e.message }; }
+}
+
+function detectFormat(text) {
+  var lines = text.trim().split('\n').filter(function(l) { return l.trim(); });
+  if (!lines.length) return 'value-only';
+
+  // kcat: has lines starting with '% '
+  if (lines.some(function(l) { return /^%\s/.test(l.trim()); })) return 'kcat';
+
+  var first = lines[0];
+  var tabs = (first.match(/\t/g) || []).length;
+
+  if (tabs >= 2) {
+    if (/^CreateTime:\d+\t/.test(first) || /^\d{13}\t/.test(first)) return 'ts-key-value';
+    return 'ts-key-value';
+  }
+  if (tabs === 1) return 'key-value';
+
+  // Try whole text as JSON
+  try {
+    var o = JSON.parse(text.trim());
+    if (Array.isArray(o)) {
+      if (o.length && typeof o[0] === 'object' && ('value' in o[0] || 'partition' in o[0] || 'offset' in o[0])) return 'json-envelope';
+      return 'json-envelope';
+    }
+    if (typeof o === 'object' && o !== null && ('value' in o || 'partition' in o || 'offset' in o)) return 'json-envelope';
+  } catch(e) {}
+
+  // All lines valid JSON?
+  var allJSON = lines.length > 0 && lines.every(function(l) {
+    try { JSON.parse(l); return true; } catch(e) { return false; }
+  });
+  if (allJSON) return 'value-only';
+
+  return 'value-only';
+}
+
+function splitJSONBlocks(text) {
+  text = text.trim();
+  var blocks = [];
+  var depth = 0;
+  var start = 0;
+  var inStr = false;
+  var esc = false;
+
+  for (var i = 0; i < text.length; i++) {
+    var c = text[i];
+    if (esc) { esc = false; continue; }
+    if (c === '\\' && inStr) { esc = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === '{' || c === '[') depth++;
+    if (c === '}' || c === ']') {
+      depth--;
+      if (depth === 0) {
+        blocks.push(text.slice(start, i + 1).trim());
+        start = i + 1;
+        while (start < text.length && /[\s,]/.test(text[start])) start++;
+        i = start - 1;
+      }
+    }
+  }
+
+  if (blocks.length === 0) return text.split('\n').filter(function(l) { return l.trim(); });
+  return blocks;
+}
+
+function normalizeEnvelope(obj, idx) {
+  var msg = { idx: idx };
+  if (obj.key !== undefined)        msg.key = obj.key;
+  if (obj.partition !== undefined)  msg.partition = obj.partition;
+  if (obj.offset !== undefined)     msg.offset = obj.offset;
+  var ts = obj.timestamp || obj.ts;
+  if (ts) msg.ts = parseInt(ts);
+  if (Array.isArray(obj.headers))   msg.headers = obj.headers;
+
+  if ('value' in obj) {
+    msg.value = tryJSON(typeof obj.value === 'string' ? obj.value : JSON.stringify(obj.value));
+  } else {
+    var rest = Object.assign({}, obj);
+    ['key','partition','offset','timestamp','ts','topic','headers'].forEach(function(k) { delete rest[k]; });
+    if (Object.keys(rest).length) msg.value = { ok: true, val: rest };
+  }
+  return msg;
+}
+
+function parseMessages(text, fmt) {
+  if (fmt === 'auto') fmt = detectFormat(text);
+  var msgs = [];
+
+  if (fmt === 'value-only') {
+    splitJSONBlocks(text).forEach(function(b) {
+      msgs.push({ idx: msgs.length + 1, value: tryJSON(b) });
+    });
+
+  } else if (fmt === 'key-value') {
+    text.trim().split('\n').forEach(function(line) {
+      if (!line.trim()) return;
+      var ti = line.indexOf('\t');
+      if (ti === -1) {
+        msgs.push({ idx: msgs.length + 1, value: tryJSON(line) });
+      } else {
+        msgs.push({ idx: msgs.length + 1, key: line.slice(0, ti), value: tryJSON(line.slice(ti + 1)) });
+      }
+    });
+
+  } else if (fmt === 'ts-key-value') {
+    text.trim().split('\n').forEach(function(line) {
+      if (!line.trim()) return;
+      var parts = line.split('\t');
+      var ts = null, key = null, valStr = line;
+      if (parts.length >= 3) {
+        var p0 = parts[0];
+        if (/^CreateTime:\d+$/.test(p0)) ts = parseInt(p0.slice('CreateTime:'.length));
+        else if (/^\d{13}$/.test(p0))    ts = parseInt(p0);
+        key = parts[1];
+        valStr = parts.slice(2).join('\t');
+      } else if (parts.length === 2) {
+        key = parts[0]; valStr = parts[1];
+      }
+      msgs.push({ idx: msgs.length + 1, ts: ts, key: key, value: tryJSON(valStr) });
+    });
+
+  } else if (fmt === 'json-envelope') {
+    try {
+      var parsed = JSON.parse(text.trim());
+      var arr = Array.isArray(parsed) ? parsed : [parsed];
+      arr.forEach(function(item) { msgs.push(normalizeEnvelope(item, msgs.length + 1)); });
+    } catch(e) {
+      msgs.push({ idx: 1, error: 'JSON parse error: ' + e.message });
+    }
+
+  } else if (fmt === 'kcat') {
+    text.split('\n').forEach(function(line) {
+      var t = line.trim();
+      if (!t || /^%\s/.test(t)) return;
+      var m = t.match(/^([^:]+):\s(.+)$/);
+      if (m) msgs.push({ idx: msgs.length + 1, key: m[1], value: tryJSON(m[2]) });
+      else   msgs.push({ idx: msgs.length + 1, value: tryJSON(t) });
+    });
+  }
+
+  return msgs;
+}
+
+// ── Rendering ─────────────────────────────────────────────────────────────────
+
+function highlight(json) {
+  return escH(json).replace(
+    /("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    function(m) {
+      var cls = /^"/.test(m) ? (/:$/.test(m) ? 'jk' : 'js') : /true|false/.test(m) ? 'jb' : /null/.test(m) ? 'jn' : 'ji';
+      return '<span class="' + cls + '">' + m + '</span>';
+    }
+  );
+}
+
+function formatValue(v) {
+  if (!v) return '<span class="no-value">(empty)</span>';
+  if (v.error) return '<div class="parse-err">&#9888; ' + escH(v.error) + '</div>';
+  if (!v.ok) return '<pre class="msg-raw">' + escH(v.raw || '') + '</pre>';
+  return '<pre class="msg-json">' + highlight(JSON.stringify(v.val, null, 2)) + '</pre>';
+}
+
+function fmtTs(ts) {
+  try {
+    return new Date(ts).toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+  } catch(e) { return ''; }
+}
+
+function renderCard(msg) {
+  var meta = [];
+  if (msg.ts) meta.push('<span class="msg-ts">' + fmtTs(msg.ts) + '</span>');
+  if (msg.partition !== undefined) meta.push('<span>P' + msg.partition + '</span>');
+  if (msg.offset !== undefined)    meta.push('<span>@' + msg.offset + '</span>');
+
+  var hdrs = '';
+  if (msg.headers && msg.headers.length) {
+    hdrs = '<div class="msg-headers"><span class="hdr-label">Headers</span>' +
+      msg.headers.map(function(h) {
+        var k = h.key || h.name || '';
+        var v = typeof h.value === 'object' ? JSON.stringify(h.value) : (h.value || '');
+        return '<span class="hdr-chip"><em>' + escH(k) + '</em>: ' + escH(v) + '</span>';
+      }).join('') + '</div>';
+  }
+
+  return '<div class="msg-card" data-idx="' + msg.idx + '">' +
+    '<div class="msg-head">' +
+      '<span class="msg-badge">#' + msg.idx + '</span>' +
+      (msg.key !== undefined && msg.key !== null
+        ? '<span class="msg-key">' + escH(String(msg.key)) + '</span>'
+        : '<span class="msg-key-none">no key</span>') +
+      (meta.length ? '<span class="msg-meta">' + meta.join('&nbsp;·&nbsp;') + '</span>' : '') +
+      '<button class="copy-msg-btn" onclick="copyCard(' + msg.idx + ')" title="Copy value">&#128203;</button>' +
+    '</div>' +
+    '<div class="msg-body">' + (msg.error ? '<div class="parse-err">&#9888; ' + escH(msg.error) + '</div>' : formatValue(msg.value)) + '</div>' +
+    hdrs +
+  '</div>';
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+
+var parsedMsgs = [];
+
+function runParse() {
+  var raw = document.getElementById('rawInput').value;
+  var fmt = document.getElementById('fmtSel').value;
+  var out = document.getElementById('outputScroll');
+  var msg = document.getElementById('statusMsg');
+  var filter = document.getElementById('filterInput').value.trim().toLowerCase();
+
+  if (!raw.trim()) {
+    out.innerHTML = '<div class="empty-state"><div class="icon">&#128202;</div><div>Paste messages and click <strong>Parse</strong></div></div>';
+    parsedMsgs = [];
+    updateStats([]);
+    return;
+  }
+
+  try {
+    parsedMsgs = parseMessages(raw, fmt);
+
+    // Auto-fill detected format label
+    if (fmt === 'auto') {
+      var detected = detectFormat(raw);
+      var sel = document.getElementById('fmtSel');
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === detected) {
+          sel.options[0].text = '&#128268; Auto-detect → ' + sel.options[i].text.replace(/^[^ ]+ /, '');
+          break;
+        }
+      }
+    }
+
+    renderOutput(filter);
+    updateStats(parsedMsgs);
+    document.getElementById('toggleAllBtn').style.display = parsedMsgs.length ? '' : 'none';
+    msg.textContent = 'Parsed ' + parsedMsgs.length + ' message' + (parsedMsgs.length !== 1 ? 's' : '') + ' ✓';
+    msg.className = 'ok';
+    setTimeout(function() { msg.textContent = ''; msg.className = ''; }, 3000);
+
+  } catch(e) {
+    out.innerHTML = '<div class="empty-state" style="color:var(--danger)"><div class="icon">&#10005;</div><div>' + escH(e.message) + '</div></div>';
+    parsedMsgs = [];
+    msg.textContent = 'Parse error'; msg.className = 'err';
+  }
+}
+
+function renderOutput(filter) {
+  var out = document.getElementById('outputScroll');
+  var nm = document.getElementById('noMatchMsg');
+
+  if (!parsedMsgs.length) {
+    out.innerHTML = '<div class="empty-state"><div class="icon">&#128202;</div><div>No messages parsed.</div></div>';
+    nm.style.display = 'none';
+    return;
+  }
+
+  var visible = parsedMsgs.filter(function(m) {
+    if (!filter) return true;
+    var keyMatch = m.key && String(m.key).toLowerCase().includes(filter);
+    var valStr = m.value ? (m.value.ok ? JSON.stringify(m.value.val) : (m.value.raw || '')) : '';
+    return keyMatch || valStr.toLowerCase().includes(filter);
+  });
+
+  if (!visible.length) {
+    out.innerHTML = '';
+    nm.style.display = '';
+    document.getElementById('countBadge').textContent = '0 / ' + parsedMsgs.length + ' shown';
+    return;
+  }
+
+  nm.style.display = 'none';
+  out.innerHTML = visible.map(renderCard).join('');
+  document.getElementById('countBadge').textContent = visible.length < parsedMsgs.length
+    ? visible.length + ' / ' + parsedMsgs.length + ' shown'
+    : parsedMsgs.length + ' message' + (parsedMsgs.length !== 1 ? 's' : '');
+}
+
+function applyFilter() {
+  renderOutput(document.getElementById('filterInput').value.trim().toLowerCase());
+}
+
+function updateStats(msgs) {
+  document.getElementById('statTotal').textContent = msgs.length;
+
+  var keys = msgs.filter(function(m) { return m.key != null; })
+                 .map(function(m) { return String(m.key); });
+  document.getElementById('statKeys').textContent = keys.length
+    ? new Set(keys).size + ' (' + keys.length + ' total)'
+    : '—';
+
+  var ts = msgs.map(function(m) { return m.ts; }).filter(Boolean);
+  if (ts.length) {
+    var lo = Math.min.apply(null, ts);
+    var hi = Math.max.apply(null, ts);
+    document.getElementById('statTsRange').textContent = lo === hi
+      ? fmtTs(lo)
+      : fmtTs(lo).slice(11, 19) + ' → ' + fmtTs(hi).slice(11, 19) + ' UTC';
+  } else {
+    document.getElementById('statTsRange').textContent = '—';
+  }
+
+  document.getElementById('countBadge').textContent = msgs.length
+    ? msgs.length + ' message' + (msgs.length !== 1 ? 's' : '')
+    : '';
+}
+
+function clearAll() {
+  document.getElementById('rawInput').value = '';
+  document.getElementById('filterInput').value = '';
+  document.getElementById('fmtSel').options[0].text = '&#128268; Auto-detect';
+  document.getElementById('outputScroll').innerHTML =
+    '<div class="empty-state"><div class="icon">&#128202;</div><div>Paste messages and click <strong>Parse</strong></div><div style="font-size:12px;opacity:.6">Supports console consumer, kcat, JSON envelope and more</div></div>';
+  parsedMsgs = [];
+  updateStats([]);
+  document.getElementById('statusMsg').textContent = '';
+  document.getElementById('statusMsg').className = '';
+  document.getElementById('noMatchMsg').style.display = 'none';
+  document.getElementById('toggleAllBtn').style.display = 'none';
+}
+
+function copyCard(idx) {
+  var m = parsedMsgs.find(function(x) { return x.idx === idx; });
+  if (!m) return;
+  var txt = m.value
+    ? (m.value.ok ? JSON.stringify(m.value.val, null, 2) : (m.value.raw || ''))
+    : '';
+  navigator.clipboard.writeText(txt).catch(function() {});
+}
+
+async function pasteInput() {
+  try {
+    var t = await navigator.clipboard.readText();
+    document.getElementById('rawInput').value = t;
+    runParse();
+  } catch { document.getElementById('rawInput').focus(); }
+}
+
+var allCollapsed = false;
+function toggleAll() {
+  var bodies = document.querySelectorAll('.msg-body');
+  allCollapsed = !allCollapsed;
+  bodies.forEach(function(b) { b.style.display = allCollapsed ? 'none' : ''; });
+  document.getElementById('toggleAllBtn').textContent = (allCollapsed ? '&#9654;' : '&#9660;') + ' All';
+}
+
+// ── Presets ───────────────────────────────────────────────────────────────────
+
+var PRESETS = {
+  'value-only': '{"orderId":"ord-001","customerId":"cust-42","total":99.99,"status":"PLACED","items":[{"sku":"WIDGET-A","qty":2,"price":34.99},{"sku":"GADGET-B","qty":1,"price":30.01}],"createdAt":"2025-06-01T08:30:00Z"}\n{"orderId":"ord-002","customerId":"cust-17","total":249.00,"status":"PAID","items":[{"sku":"DEVICE-X","qty":1,"price":249.00}],"createdAt":"2025-06-01T09:15:00Z"}\n{"orderId":"ord-003","customerId":"cust-99","total":14.50,"status":"SHIPPED","items":[{"sku":"CABLE-C","qty":5,"price":2.90}],"createdAt":"2025-06-01T09:45:00Z"}',
+
+  'key-value': 'ord-001\t{"orderId":"ord-001","customerId":"cust-42","total":99.99,"status":"PLACED","region":"US-EAST"}\nord-002\t{"orderId":"ord-002","customerId":"cust-17","total":249.00,"status":"PAID","region":"EU-WEST"}\nord-003\t{"orderId":"ord-003","customerId":"cust-99","total":14.50,"status":"SHIPPED","region":"US-WEST"}',
+
+  'ts-key-value': 'CreateTime:1748764200000\tord-001\t{"orderId":"ord-001","customerId":"cust-42","total":99.99,"status":"PLACED"}\nCreateTime:1748764215000\tord-002\t{"orderId":"ord-002","customerId":"cust-17","total":249.00,"status":"PAID"}\nCreateTime:1748764230000\tord-003\t{"orderId":"ord-003","customerId":"cust-99","total":14.50,"status":"SHIPPED"}',
+
+  'json-envelope': '[{"topic":"orders","partition":0,"offset":100,"timestamp":1748764200000,"key":"ord-001","value":{"orderId":"ord-001","customerId":"cust-42","total":99.99,"status":"PLACED"},"headers":[{"key":"source","value":"checkout-service"},{"key":"version","value":"1"}]},{"topic":"orders","partition":1,"offset":101,"timestamp":1748764215000,"key":"ord-002","value":{"orderId":"ord-002","customerId":"cust-17","total":249.00,"status":"PAID"},"headers":[{"key":"source","value":"payment-service"}]},{"topic":"orders","partition":0,"offset":102,"timestamp":1748764230000,"key":"ord-003","value":{"orderId":"ord-003","customerId":"cust-99","total":14.50,"status":"SHIPPED"},"headers":[]}]',
+
+  'kcat': '% Consuming from topic [orders], partition [0], offset [100]\nord-001: {"orderId":"ord-001","customerId":"cust-42","total":99.99,"status":"PLACED"}\nord-002: {"orderId":"ord-002","customerId":"cust-17","total":249.00,"status":"PAID"}\nord-003: {"orderId":"ord-003","customerId":"cust-99","total":14.50,"status":"SHIPPED"}'
+};
+
+var FMT_MAP = {
+  'value-only': 'value-only',
+  'key-value': 'key-value',
+  'ts-key-value': 'ts-key-value',
+  'json-envelope': 'json-envelope',
+  'kcat': 'kcat'
+};
+
+function loadPreset(key) {
+  document.getElementById('rawInput').value = PRESETS[key] || '';
+  document.getElementById('fmtSel').value = FMT_MAP[key] || 'auto';
+  document.getElementById('presetMenu').classList.remove('open');
+  runParse();
+}
+
+function togglePresets(btn) {
+  document.getElementById('presetMenu').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.preset-wrap')) {
+    document.getElementById('presetMenu').classList.remove('open');
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runParse(); }
+});
+</script>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Templates — LangChain Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangChain</a><span class="sep">/</span>Prompt Templates</div>
+      <h1>Prompt Templates</h1>
+      <p class="lead">Prompt templates separate your prompt structure from dynamic input values. Instead of building strings by hand, you define a template once and fill it with variables at runtime — making prompts reusable, testable, and composable in chains.</p>
+
+      <h2>PromptTemplate — simple string prompts</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.prompts import PromptTemplate
+
+# Define template with {variable} placeholders
+template = PromptTemplate.from_template(
+    "You are an expert in {topic}. Explain {concept} in simple terms."
+)
+
+# Fill the template
+prompt = template.invoke({"topic": "Docker", "concept": "container networking"})
+print(prompt.text)
+# "You are an expert in Docker. Explain container networking in simple terms."
+
+# Use in a chain
+from langchain_openai import ChatOpenAI
+llm = ChatOpenAI(model="gpt-4o-mini")
+chain = template | llm
+response = chain.invoke({"topic": "Kubernetes", "concept": "pod scheduling"})</code></pre>
+
+      <h2>ChatPromptTemplate — for chat models</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.prompts import ChatPromptTemplate
+
+# Define system + human messages
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a {role}. Always respond in {language}."),
+    ("human", "{question}"),
+])
+
+# Invoke with variables
+messages = prompt.invoke({
+    "role": "senior DevOps engineer",
+    "language": "English",
+    "question": "What is the difference between a Deployment and a StatefulSet?",
+})
+
+chain = prompt | llm
+response = chain.invoke({
+    "role": "Python tutor",
+    "language": "English",
+    "question": "What is a list comprehension?",
+})</code></pre>
+
+      <h2>MessagesPlaceholder — inject conversation history</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant."),
+    MessagesPlaceholder("history"),   # ← insert chat history here
+    ("human", "{input}"),
+])
+
+# history is a list of BaseMessage objects (AIMessage, HumanMessage)
+chain = prompt | llm
+response = chain.invoke({
+    "history": [
+        ("human", "My name is Alice."),
+        ("assistant", "Nice to meet you, Alice!"),
+    ],
+    "input": "What's my name?",
+})
+# "Your name is Alice."</code></pre>
+
+      <h2>Output parsers — structured responses</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
+from langchain_core.pydantic_v1 import BaseModel, Field
+from typing import List
+
+# 1. String parser — extract .content automatically
+chain = prompt | llm | StrOutputParser()
+result = chain.invoke({"question": "What is Python?"})
+print(type(result))   # str (not AIMessage)
+
+# 2. Pydantic structured output
+class CodeReview(BaseModel):
+    score: int = Field(description="Quality score 1-10")
+    issues: List[str] = Field(description="List of issues found")
+    suggestion: str = Field(description="Main improvement suggestion")
+
+structured_llm = llm.with_structured_output(CodeReview)
+review_prompt = ChatPromptTemplate.from_template(
+    "Review this Python code and return structured feedback:\n\n{code}"
+)
+chain = review_prompt | structured_llm
+result = chain.invoke({"code": "def add(a,b): return a+b"})
+print(result.score)       # 7
+print(result.issues)      # ["Missing type hints", "No docstring"]</code></pre>
+
+      <h2>Few-shot prompting</h2>
+      <pre class="code" data-lang="python"><code>from langchain_core.prompts import FewShotChatMessagePromptTemplate
+
+examples = [
+    {"input": "2 + 2",    "output": "4"},
+    {"input": "5 * 3",    "output": "15"},
+    {"input": "10 / 2",   "output": "5"},
+]
+
+example_prompt = ChatPromptTemplate.from_messages([
+    ("human", "{input}"),
+    ("ai",    "{output}"),
+])
+
+few_shot_prompt = FewShotChatMessagePromptTemplate(
+    example_prompt=example_prompt,
+    examples=examples,
+)
+
+final_prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a calculator. Only return the number."),
+    few_shot_prompt,
+    ("human", "{input}"),
+])
+
+chain = final_prompt | llm | StrOutputParser()
+print(chain.invoke({"input": "8 + 7"}))   # "15"</code></pre>
+
+      <h2>Partial prompts — pre-fill some variables</h2>
+      <pre class="code" data-lang="python"><code">from langchain_core.prompts import PromptTemplate
+from datetime import datetime
+
+# Pre-fill the date variable; {question} is filled at call time
+prompt = PromptTemplate.from_template(
+    "Today is {date}. Answer this question: {question}"
+)
+
+prompt_with_date = prompt.partial(date=datetime.now().strftime("%Y-%m-%d"))
+
+chain = prompt_with_date | llm | StrOutputParser()
+print(chain.invoke({"question": "What day of the week is it?"}))</code></pre>
+
+      <div class="callout tip"><strong>Best practice:</strong> Always use <code>ChatPromptTemplate</code> with chat models — never build raw strings. It gives you cleaner role separation (system vs human vs assistant), easier few-shot examples, and seamless integration with memory and history.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Embeddings — RAG Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">RAG</a><span class="sep">/</span>Embeddings</div>
+      <h1>Embeddings</h1>
+      <p class="lead">Embeddings convert text into dense numeric vectors (arrays of floats) that capture semantic meaning. Texts with similar meaning cluster near each other in vector space — enabling similarity search without exact keyword matching. The embedding model you choose directly determines retrieval quality.</p>
+
+      <h2>How embeddings work</h2>
+      <div class="diagram">
+        <div class="diagram-box hl"><h4>Input text</h4><ul><li>"Docker containers are isolated"</li><li>"Pods run in Kubernetes"</li><li>"Weather is sunny today"</li></ul></div>
+        <div class="diagram-box"><h4>Embedding model</h4><ul><li>Neural network encoder</li><li>Maps tokens → vector</li><li>1536 / 768 dimensions</li></ul></div>
+        <div class="diagram-box"><h4>Vector space</h4><ul><li>Docker ≈ Kubernetes (close)</li><li>Weather ≠ Docker (far)</li><li>Cosine similarity score</li></ul></div>
+      </div>
+
+      <h2>OpenAI Embeddings</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import OpenAIEmbeddings
+
+# text-embedding-3-small — best price/performance
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-small",   # 1536 dims, ~$0.02/1M tokens
+    dimensions=512,                    # reduce dims to save storage/cost
+)
+
+# Embed a single query
+vector = embeddings.embed_query("What is a Docker container?")
+print(f"Dimensions: {len(vector)}")        # 512
+print(f"First values: {vector[:5]}")       # [0.023, -0.041, ...]
+
+# Embed a batch of documents (more efficient)
+texts = [
+    "Docker runs containers",
+    "Kubernetes orchestrates pods",
+    "RAG retrieves documents",
+]
+vectors = embeddings.embed_documents(texts)
+print(f"Embedded {len(vectors)} docs, each with {len(vectors[0])} dims")</code></pre>
+
+      <h2>OpenAI model comparison</h2>
+      <table>
+        <tr><th>Model</th><th>Dimensions</th><th>Cost per 1M tokens</th><th>Best for</th></tr>
+        <tr><td><code>text-embedding-3-small</code></td><td>1536 (reducible)</td><td>~$0.02</td><td>General use, best value</td></tr>
+        <tr><td><code>text-embedding-3-large</code></td><td>3072 (reducible)</td><td>~$0.13</td><td>Highest accuracy</td></tr>
+        <tr><td><code>text-embedding-ada-002</code></td><td>1536 (fixed)</td><td>~$0.10</td><td>Legacy, avoid for new projects</td></tr>
+      </table>
+
+      <h2>HuggingFace — free, local models</h2>
+      <pre class="code" data-lang="bash"><code>pip install sentence-transformers langchain-huggingface</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_huggingface import HuggingFaceEmbeddings
+
+# Runs entirely locally — no API key, no cost
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",  # 384 dims, fast
+    model_kwargs={"device": "cpu"},      # or "cuda" for GPU
+    encode_kwargs={"normalize_embeddings": True},
+)
+
+vector = embeddings.embed_query("What is LangChain?")
+print(len(vector))   # 384
+
+# Best HuggingFace models for RAG (MTEB leaderboard):
+# all-MiniLM-L6-v2          — fast, good quality (384d)
+# all-mpnet-base-v2          — better quality (768d)
+# BAAI/bge-large-en-v1.5    — top English quality (1024d)
+# intfloat/multilingual-e5-large — multilingual (1024d)</code></pre>
+
+      <h2>Ollama — local embeddings with Ollama</h2>
+      <pre class="code" data-lang="bash"><code>ollama pull nomic-embed-text    # 768d, great quality
+ollama pull mxbai-embed-large   # 1024d, higher quality</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_community.embeddings import OllamaEmbeddings
+
+embeddings = OllamaEmbeddings(model="nomic-embed-text")
+vector = embeddings.embed_query("What is RAG?")
+print(len(vector))   # 768</code></pre>
+
+      <h2>Measuring embedding similarity</h2>
+      <pre class="code" data-lang="python"><code">import numpy as np
+
+def cosine_similarity(a: list, b: list) -> float:
+    a, b = np.array(a), np.array(b)
+    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+v1 = embeddings.embed_query("Docker runs containers")
+v2 = embeddings.embed_query("Containers are created by Docker")
+v3 = embeddings.embed_query("The weather is sunny today")
+
+print(cosine_similarity(v1, v2))   # ~0.95 — very similar
+print(cosine_similarity(v1, v3))   # ~0.12 — not related</code></pre>
+
+      <h2>Caching embeddings</h2>
+      <pre class="code" data-lang="python"><code">from langchain.embeddings import CacheBackedEmbeddings
+from langchain.storage import LocalFileStore
+
+store = LocalFileStore("./embedding_cache/")
+
+# Wrap any embeddings model with a cache
+# Identical texts are only embedded ONCE — great for re-indexing
+cached_embeddings = CacheBackedEmbeddings.from_bytes_store(
+    underlying_embeddings=OpenAIEmbeddings(model="text-embedding-3-small"),
+    document_embedding_cache=store,
+    namespace="openai-small-v1",
+)
+
+# First call: hits OpenAI API
+vectors1 = cached_embeddings.embed_documents(texts)
+
+# Second call: reads from disk cache instantly
+vectors2 = cached_embeddings.embed_documents(texts)</code></pre>
+
+      <div class="callout tip"><strong>Embedding model must stay consistent.</strong> You MUST use the same embedding model at both indexing time and query time — mixing models will give garbage results since the vector spaces are incompatible. If you change models, re-index all your documents. For most production workloads, <code>text-embedding-3-small</code> with dimension reduction to 512 gives excellent results at low cost.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

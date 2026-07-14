@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spring Boot Best Practices — Best Practices</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+  <style>
+    .bp-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      background: rgba(109,179,63,.15);
+      border: 1px solid rgba(109,179,63,.35);
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6db33f;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+    .bp-title {
+      display: flex;
+      align-items: center;
+      margin-top: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .bp-title h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.2px;
+    }
+    .bp-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 10px;
+      background: rgba(109,179,63,.12);
+      color: #6db33f;
+      border: 1px solid rgba(109,179,63,.25);
+    }
+    .bp-tag.amber  { background: rgba(245,158,11,.12); color: #d97706; border-color: rgba(245,158,11,.25); }
+    .bp-tag.blue   { background: rgba(59,130,246,.12); color: #2563eb; border-color: rgba(59,130,246,.25); }
+    .bp-tag.purple { background: rgba(124,58,237,.12); color: #7c3aed; border-color: rgba(124,58,237,.25); }
+    .bp-tag.red    { background: rgba(220,38,38,.12); color: #dc2626; border-color: rgba(220,38,38,.25); }
+    .bp-desc {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 2rem;
+      column-count: 2;
+      column-gap: 2rem;
+    }
+    .toc a {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 3px 0;
+      break-inside: avoid;
+    }
+    .toc a:hover { color: #6db33f; }
+    .toc a span { color: #6db33f; font-weight: 700; margin-right: 6px; }
+    @media (max-width: 640px) { .toc { column-count: 1; } }
+  </style>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="java.html">Best Practices</a><span class="sep">/</span>Spring Boot</div>
+      <h1>Spring Boot Best Practices</h1>
+      <p class="lead">28 production-proven rules for building robust, maintainable, and secure Spring Boot applications — covering configuration, dependency injection, REST design, data access, security, testing, and operations.</p>
+
+      <!-- TOC -->
+      <div class="toc">
+        <a href="#bp1"><span>01</span>Use @ConfigurationProperties over @Value</a>
+        <a href="#bp2"><span>02</span>Externalise all configuration</a>
+        <a href="#bp3"><span>03</span>Use profiles for environment config</a>
+        <a href="#bp4"><span>04</span>Prefer constructor injection</a>
+        <a href="#bp5"><span>05</span>Structure packages by feature</a>
+        <a href="#bp6"><span>06</span>Keep controllers thin</a>
+        <a href="#bp7"><span>07</span>Use DTOs to decouple the API</a>
+        <a href="#bp8"><span>08</span>Return ResponseEntity for REST</a>
+        <a href="#bp9"><span>09</span>Handle errors with @ControllerAdvice</a>
+        <a href="#bp10"><span>10</span>Validate input with Bean Validation</a>
+        <a href="#bp11"><span>11</span>Use Spring Data JPA repositories</a>
+        <a href="#bp12"><span>12</span>Apply @Transactional correctly</a>
+        <a href="#bp13"><span>13</span>Use readOnly transactions for queries</a>
+        <a href="#bp14"><span>14</span>Avoid the N+1 query problem</a>
+        <a href="#bp15"><span>15</span>Use database migrations (Flyway/Liquibase)</a>
+        <a href="#bp16"><span>16</span>Paginate large result sets</a>
+        <a href="#bp17"><span>17</span>Cache expensive operations</a>
+        <a href="#bp18"><span>18</span>Use connection pooling (HikariCP)</a>
+        <a href="#bp19"><span>19</span>Secure endpoints with Spring Security</a>
+        <a href="#bp20"><span>20</span>Use stateless JWT authentication</a>
+        <a href="#bp21"><span>21</span>Never log sensitive data</a>
+        <a href="#bp22"><span>22</span>Use @Async for non-blocking work</a>
+        <a href="#bp23"><span>23</span>Test slices with @DataJpaTest, MockMvc</a>
+        <a href="#bp24"><span>24</span>Use @SpringBootTest for integration tests</a>
+        <a href="#bp25"><span>25</span>Expose health and metrics via Actuator</a>
+        <a href="#bp26"><span>26</span>Configure CORS explicitly</a>
+        <a href="#bp27"><span>27</span>Package as a fat JAR for deployment</a>
+        <a href="#bp28"><span>28</span>Use @Scheduled for background tasks</a>
+      </div>
+
+      <!-- ── Configuration ── -->
+      <h2>Configuration &amp; Structure</h2>
+
+      <div class="bp-title" id="bp1">
+        <span class="bp-number">1</span>
+        <h3>Use <code>@ConfigurationProperties</code> over <code>@Value</code></h3>
+        <span class="bp-tag">Configuration</span>
+      </div>
+      <p class="bp-desc">Group related properties into a typed, validated POJO. It gives you autocomplete in IDEs, refactoring safety, and a single source of truth — instead of scattered <code>@Value</code> injections spread across dozens of classes.</p>
+      <pre class="code" data-lang="java"><code>// application.yml
+// app:
+//   cache:
+//     ttl-seconds: 300
+//     max-size: 1000
+//   api:
+//     key: ${API_KEY}
+//     timeout-ms: 5000
+
+@ConfigurationProperties(prefix = "app")
+@Validated
+public record AppProperties(
+    @Valid CacheProperties cache,
+    @Valid ApiProperties api
+) {
+  public record CacheProperties(
+      @Positive int ttlSeconds,
+      @Positive int maxSize) {}
+
+  public record ApiProperties(
+      @NotBlank String key,
+      @Positive long timeoutMs) {}
+}
+
+// Enable in @SpringBootApplication or a @Configuration class:
+@EnableConfigurationProperties(AppProperties.class)
+
+// Usage — inject the record, not individual @Value strings
+@Service
+public class CacheService {
+  private final AppProperties props;
+  CacheService(AppProperties props) { this.props = props; }
+
+  Duration getTtl() {
+    return Duration.ofSeconds(props.cache().ttlSeconds());
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp2">
+        <span class="bp-number">2</span>
+        <h3>Externalise all configuration — never hardcode</h3>
+        <span class="bp-tag">Configuration</span>
+      </div>
+      <p class="bp-desc">Credentials, URLs, feature flags, and timeouts must live outside the binary. Use environment variables (12-Factor App), Spring Cloud Config, or Kubernetes secrets — and keep <code>application.yml</code> free of production values.</p>
+      <pre class="code" data-lang="yaml"><code># application.yml — defaults and structure only
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mydb}
+    username: ${DB_USER:myapp}
+    password: ${DB_PASS}   # no default — must be set externally
+
+app:
+  api:
+    key: ${EXTERNAL_API_KEY}  # will fail fast at startup if missing</code></pre>
+
+      <div class="bp-title" id="bp3">
+        <span class="bp-number">3</span>
+        <h3>Use profiles for environment-specific configuration</h3>
+        <span class="bp-tag">Configuration</span>
+      </div>
+      <p class="bp-desc">Each environment (dev, test, staging, prod) has different infrastructure addresses and behaviour. Profiles let you switch with a single variable (<code>SPRING_PROFILES_ACTIVE=prod</code>) without code changes.</p>
+      <pre class="code" data-lang="yaml"><code># application.yml — shared defaults
+spring:
+  jpa.show-sql: false
+logging.level.root: WARN
+
+---
+# application-dev.yml
+spring:
+  config.activate.on-profile: dev
+  jpa.show-sql: true
+  h2.console.enabled: true
+logging.level.com.myapp: DEBUG
+
+---
+# application-prod.yml
+spring:
+  config.activate.on-profile: prod
+  jpa:
+    hibernate.ddl-auto: validate   # never auto-create in prod
+logging.level.root: WARN</code></pre>
+
+      <!-- ── Dependency Injection & Design ── -->
+      <h2>Dependency Injection &amp; Design</h2>
+
+      <div class="bp-title" id="bp4">
+        <span class="bp-number">4</span>
+        <h3>Prefer constructor injection over field injection</h3>
+        <span class="bp-tag blue">Design</span>
+      </div>
+      <p class="bp-desc">Constructor injection makes dependencies explicit, enables immutability, and works without the Spring container in unit tests. Field injection with <code>@Autowired</code> hides dependencies and makes testing painful.</p>
+      <pre class="code" data-lang="java"><code>// BAD — field injection
+@Service
+public class OrderService {
+  @Autowired private OrderRepository repo;   // hidden dependency
+  @Autowired private PaymentGateway gateway;
+}
+
+// GOOD — constructor injection (omit @Autowired when single constructor)
+@Service
+public class OrderService {
+  private final OrderRepository repo;
+  private final PaymentGateway gateway;
+
+  public OrderService(OrderRepository repo, PaymentGateway gateway) {
+    this.repo = repo;
+    this.gateway = gateway;
+  }
+  // Testable: new OrderService(mockRepo, mockGateway)
+}</code></pre>
+
+      <div class="bp-title" id="bp5">
+        <span class="bp-number">5</span>
+        <h3>Structure packages by feature, not layer</h3>
+        <span class="bp-tag blue">Design</span>
+      </div>
+      <p class="bp-desc">Layer-based structure (<code>controllers/</code>, <code>services/</code>, <code>repositories/</code>) scatters a single feature across three packages. Feature-based structure keeps all related code together, making it easier to delete, move, or extract a feature as a microservice.</p>
+      <pre class="code" data-lang="text"><code># BAD — by layer
+com.myapp/
+  controllers/ OrderController, UserController
+  services/    OrderService, UserService
+  repositories/ OrderRepository, UserRepository
+
+# GOOD — by feature
+com.myapp/
+  order/
+    OrderController.java
+    OrderService.java
+    OrderRepository.java
+    OrderDto.java
+    Order.java
+  user/
+    UserController.java
+    UserService.java
+    ...</code></pre>
+
+      <div class="bp-title" id="bp6">
+        <span class="bp-number">6</span>
+        <h3>Keep controllers thin — delegate to services</h3>
+        <span class="bp-tag blue">Design</span>
+      </div>
+      <p class="bp-desc">Controllers should only handle HTTP concerns: parse requests, call the service, and return a response. Business logic in controllers cannot be reused, tested without a servlet container, or called from messaging consumers.</p>
+      <pre class="code" data-lang="java"><code>@RestController
+@RequestMapping("/api/orders")
+public class OrderController {
+  private final OrderService orderService;
+
+  OrderController(OrderService orderService) {
+    this.orderService = orderService;
+  }
+
+  @PostMapping
+  public ResponseEntity&lt;OrderResponse&gt; create(
+      @Valid @RequestBody CreateOrderRequest req,
+      @AuthenticationPrincipal UserDetails user) {
+    // No business logic here — just orchestrate HTTP → service → response
+    OrderResponse order = orderService.createOrder(req, user.getUsername());
+    return ResponseEntity.status(HttpStatus.CREATED).body(order);
+  }
+}</code></pre>
+
+      <!-- ── REST API ── -->
+      <h2>REST API Design</h2>
+
+      <div class="bp-title" id="bp7">
+        <span class="bp-number">7</span>
+        <h3>Use DTOs to decouple the API from the domain</h3>
+        <span class="bp-tag amber">REST</span>
+      </div>
+      <p class="bp-desc">Never expose JPA entities directly from REST endpoints. Entities carry persistence annotations, lazy-loaded collections, and internal state you don't want to serialize. DTOs let you version your API independently of the database schema.</p>
+      <pre class="code" data-lang="java"><code>// Entity — internal, never serialized directly
+@Entity
+public class Order {
+  @Id @GeneratedValue private Long id;
+  private String customerId;
+  private BigDecimal total;
+  @Enumerated(EnumType.STRING) private OrderStatus status;
+  @OneToMany(mappedBy = "order") private List&lt;OrderItem&gt; items;
+}
+
+// DTO — public contract, safe to expose
+public record OrderResponse(
+    Long id,
+    String status,
+    BigDecimal total,
+    int itemCount
+) {
+  public static OrderResponse from(Order o) {
+    return new OrderResponse(o.getId(), o.getStatus().name(),
+        o.getTotal(), o.getItems().size());
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp8">
+        <span class="bp-number">8</span>
+        <h3>Return <code>ResponseEntity</code> for full HTTP control</h3>
+        <span class="bp-tag amber">REST</span>
+      </div>
+      <p class="bp-desc">Returning a bare object from a controller method locks you into status 200. <code>ResponseEntity</code> gives you control over status codes, headers (Location, ETag, Cache-Control), and conditional responses.</p>
+      <pre class="code" data-lang="java"><code>@GetMapping("/{id}")
+public ResponseEntity&lt;OrderResponse&gt; getOrder(@PathVariable Long id) {
+  return orderService.findById(id)
+      .map(ResponseEntity::ok)
+      .orElse(ResponseEntity.notFound().build());
+}
+
+@PostMapping
+public ResponseEntity&lt;OrderResponse&gt; create(@Valid @RequestBody CreateOrderRequest req) {
+  OrderResponse created = orderService.create(req);
+  URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+      .path("/{id}").buildAndExpand(created.id()).toUri();
+  return ResponseEntity.created(location).body(created);
+}
+
+@DeleteMapping("/{id}")
+public ResponseEntity&lt;Void&gt; delete(@PathVariable Long id) {
+  orderService.delete(id);
+  return ResponseEntity.noContent().build();
+}</code></pre>
+
+      <div class="bp-title" id="bp9">
+        <span class="bp-number">9</span>
+        <h3>Handle all errors centrally with <code>@ControllerAdvice</code></h3>
+        <span class="bp-tag amber">REST</span>
+      </div>
+      <p class="bp-desc">Scattered try/catch in controllers produces inconsistent error shapes across your API. A single <code>@RestControllerAdvice</code> translates exceptions into a consistent JSON error response — in one place.</p>
+      <pre class="code" data-lang="java"><code>public record ErrorResponse(int status, String error, String message, Instant timestamp) {}
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity&lt;ErrorResponse&gt; notFound(EntityNotFoundException ex) {
+    return error(HttpStatus.NOT_FOUND, ex.getMessage());
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity&lt;ErrorResponse&gt; validationError(MethodArgumentNotValidException ex) {
+    String msg = ex.getBindingResult().getFieldErrors().stream()
+        .map(f -&gt; f.getField() + ": " + f.getDefaultMessage())
+        .collect(Collectors.joining(", "));
+    return error(HttpStatus.BAD_REQUEST, msg);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity&lt;ErrorResponse&gt; forbidden(AccessDeniedException ex) {
+    return error(HttpStatus.FORBIDDEN, "Access denied");
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity&lt;ErrorResponse&gt; fallback(Exception ex) {
+    log.error("Unhandled exception", ex);
+    return error(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+  }
+
+  private ResponseEntity&lt;ErrorResponse&gt; error(HttpStatus status, String message) {
+    return ResponseEntity.status(status)
+        .body(new ErrorResponse(status.value(), status.getReasonPhrase(), message, Instant.now()));
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp10">
+        <span class="bp-number">10</span>
+        <h3>Validate all input with Bean Validation</h3>
+        <span class="bp-tag amber">REST</span>
+      </div>
+      <p class="bp-desc">Never trust user input. Annotate request DTOs with Bean Validation constraints and add <code>@Valid</code> on the parameter — Spring will reject invalid requests before they reach your service.</p>
+      <pre class="code" data-lang="java"><code>public record CreateOrderRequest(
+    @NotBlank(message = "Customer ID is required")
+    String customerId,
+
+    @NotEmpty(message = "Order must have at least one item")
+    @Size(max = 50, message = "Order cannot exceed 50 items")
+    List&lt;@Valid OrderItemRequest&gt; items,
+
+    @DecimalMin(value = "0.01", message = "Total must be positive")
+    @NotNull BigDecimal total
+) {}
+
+public record OrderItemRequest(
+    @NotNull Long productId,
+    @Min(1) @Max(999) int quantity
+) {}
+
+// Controller — @Valid triggers validation before the method body runs
+@PostMapping
+public ResponseEntity&lt;OrderResponse&gt; create(@Valid @RequestBody CreateOrderRequest req) {
+  // req is guaranteed valid here
+  return ResponseEntity.status(HttpStatus.CREATED).body(orderService.create(req));
+}</code></pre>
+
+      <!-- ── Data Access ── -->
+      <h2>Data Access</h2>
+
+      <div class="bp-title" id="bp11">
+        <span class="bp-number">11</span>
+        <h3>Use Spring Data JPA repository interfaces</h3>
+        <span class="bp-tag purple">Data</span>
+      </div>
+      <p class="bp-desc">Extend <code>JpaRepository</code> (or <code>CrudRepository</code>) to get CRUD, pagination, and sorting for free. Use derived query method names for simple queries and <code>@Query</code> for complex ones — avoid hand-written SQL unless absolutely necessary.</p>
+      <pre class="code" data-lang="java"><code>public interface OrderRepository extends JpaRepository&lt;Order, Long&gt; {
+
+  // Derived query — Spring generates the JPQL automatically
+  List&lt;Order&gt; findByCustomerIdAndStatus(String customerId, OrderStatus status);
+
+  // Pageable support
+  Page&lt;Order&gt; findByCustomerId(String customerId, Pageable pageable);
+
+  // Named query for complex JPQL
+  @Query("SELECT o FROM Order o JOIN FETCH o.items WHERE o.customerId = :cid AND o.total &gt; :min")
+  List&lt;Order&gt; findHighValueOrders(@Param("cid") String customerId, @Param("min") BigDecimal min);
+
+  // Projection — only load what you need
+  @Query("SELECT new com.myapp.order.OrderSummary(o.id, o.status, o.total) FROM Order o WHERE o.customerId = :cid")
+  List&lt;OrderSummary&gt; findSummariesByCustomer(@Param("cid") String customerId);
+}</code></pre>
+
+      <div class="bp-title" id="bp12">
+        <span class="bp-number">12</span>
+        <h3>Apply <code>@Transactional</code> at the service layer, not the repository</h3>
+        <span class="bp-tag purple">Data</span>
+      </div>
+      <p class="bp-desc">Transactions should span a unit of business work, which typically involves multiple repository calls. Marking individual repository methods transactional creates many small transactions that can't be composed. The service is the right boundary.</p>
+      <pre class="code" data-lang="java"><code>// BAD — single-operation transactions in the repository layer
+@Repository
+public class OrderRepositoryImpl {
+  @Transactional  // too granular
+  public Order save(Order order) { ... }
+}
+
+// GOOD — service method spans the full business operation in one transaction
+@Service
+@Transactional   // default for all methods in this class
+public class OrderService {
+  private final OrderRepository orderRepo;
+  private final InventoryRepository inventoryRepo;
+
+  public Order createOrder(CreateOrderRequest req) {
+    // Both saves happen in a single transaction — all or nothing
+    inventoryRepo.decrementStock(req.items());
+    return orderRepo.save(Order.from(req));
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp13">
+        <span class="bp-number">13</span>
+        <h3>Use <code>@Transactional(readOnly = true)</code> for read operations</h3>
+        <span class="bp-tag purple">Data</span>
+      </div>
+      <p class="bp-desc">Read-only transactions skip dirty checking (Hibernate won't compare snapshot vs. current state for every entity in the session), reducing memory use and CPU overhead. They also signal intent clearly — a read-only method should never mutate.</p>
+      <pre class="code" data-lang="java"><code>@Service
+@Transactional(readOnly = true)   // default: all queries are read-only
+public class OrderQueryService {
+
+  public Optional&lt;OrderResponse&gt; findById(Long id) {
+    return orderRepo.findById(id).map(OrderResponse::from);
+  }
+
+  public Page&lt;OrderResponse&gt; findByCustomer(String customerId, Pageable page) {
+    return orderRepo.findByCustomerId(customerId, page).map(OrderResponse::from);
+  }
+
+  // Override with write transaction for the one mutation in this class
+  @Transactional
+  public void markAsViewed(Long id) {
+    orderRepo.incrementViewCount(id);
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp14">
+        <span class="bp-number">14</span>
+        <h3>Avoid the N+1 query problem</h3>
+        <span class="bp-tag purple">Data</span>
+      </div>
+      <p class="bp-desc">Lazy loading a collection inside a loop issues one query per entity — for 100 orders with items, that's 101 queries. Use <code>JOIN FETCH</code>, <code>@EntityGraph</code>, or batch fetching to load associations in bulk.</p>
+      <pre class="code" data-lang="java"><code>// BAD — N+1: one query for orders, then one per order for items
+List&lt;Order&gt; orders = orderRepo.findAll();
+orders.forEach(o -&gt; processItems(o.getItems()));   // N lazy loads!
+
+// GOOD — @EntityGraph: eager-load only for this query
+public interface OrderRepository extends JpaRepository&lt;Order, Long&gt; {
+  @EntityGraph(attributePaths = {"items", "items.product"})
+  List&lt;Order&gt; findByCustomerId(String customerId);
+}
+
+// GOOD — JOIN FETCH in @Query
+@Query("SELECT DISTINCT o FROM Order o JOIN FETCH o.items WHERE o.status = :status")
+List&lt;Order&gt; findWithItemsByStatus(@Param("status") OrderStatus status);
+
+// GOOD — batch fetching in application.yml (applies globally)
+// spring.jpa.properties.hibernate.default_batch_fetch_size: 25</code></pre>
+
+      <div class="bp-title" id="bp15">
+        <span class="bp-number">15</span>
+        <h3>Use Flyway or Liquibase for database migrations</h3>
+        <span class="bp-tag purple">Data</span>
+      </div>
+      <p class="bp-desc">Never rely on <code>spring.jpa.hibernate.ddl-auto=update</code> in production. It can't drop columns, rename tables, or migrate data safely. Version-controlled migration scripts let you reproduce any database state and roll back systematically.</p>
+      <pre class="code" data-lang="sql"><code>-- db/migration/V1__create_orders.sql
+CREATE TABLE orders (
+    id          BIGSERIAL PRIMARY KEY,
+    customer_id VARCHAR(36)    NOT NULL,
+    status      VARCHAR(20)    NOT NULL DEFAULT 'PENDING',
+    total       NUMERIC(12, 2) NOT NULL,
+    created_at  TIMESTAMPTZ    NOT NULL DEFAULT now()
+);
+
+-- db/migration/V2__add_order_items.sql
+CREATE TABLE order_items (
+    id         BIGSERIAL PRIMARY KEY,
+    order_id   BIGINT         NOT NULL REFERENCES orders(id),
+    product_id BIGINT         NOT NULL,
+    quantity   INT            NOT NULL,
+    unit_price NUMERIC(10, 2) NOT NULL
+);
+
+-- db/migration/V3__add_customer_index.sql
+CREATE INDEX idx_orders_customer_id ON orders(customer_id);</code></pre>
+
+      <div class="bp-title" id="bp16">
+        <span class="bp-number">16</span>
+        <h3>Paginate large result sets</h3>
+        <span class="bp-tag purple">Data</span>
+      </div>
+      <p class="bp-desc">Returning millions of rows crashes the JVM and the client. Always paginate list endpoints using Spring Data's <code>Pageable</code>/<code>Page</code> and expose page, size, and totalElements in the response.</p>
+      <pre class="code" data-lang="java"><code>public record PagedResponse&lt;T&gt;(
+    List&lt;T&gt; content,
+    int page,
+    int size,
+    long totalElements,
+    int totalPages
+) {
+  public static &lt;T&gt; PagedResponse&lt;T&gt; from(Page&lt;T&gt; page) {
+    return new PagedResponse&lt;&gt;(
+        page.getContent(), page.getNumber(), page.getSize(),
+        page.getTotalElements(), page.getTotalPages());
+  }
+}
+
+@GetMapping
+public ResponseEntity&lt;PagedResponse&lt;OrderResponse&gt;&gt; list(
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "20") @Max(100) int size,
+    @RequestParam(defaultValue = "createdAt,desc") String sort) {
+  Pageable pageable = PageRequest.of(page, size, Sort.by(sort.split(",")));
+  Page&lt;OrderResponse&gt; result = orderService.findAll(pageable).map(OrderResponse::from);
+  return ResponseEntity.ok(PagedResponse.from(result));
+}</code></pre>
+
+      <!-- ── Performance ── -->
+      <h2>Performance &amp; Resilience</h2>
+
+      <div class="bp-title" id="bp17">
+        <span class="bp-number">17</span>
+        <h3>Cache expensive operations with <code>@Cacheable</code></h3>
+        <span class="bp-tag">Performance</span>
+      </div>
+      <p class="bp-desc">Repeated DB or external API calls with the same parameters waste resources. Spring's <code>@Cacheable</code>/<code>@CacheEvict</code> annotations add caching declaratively — backed by Redis, Caffeine, or any JSR-107 provider.</p>
+      <pre class="code" data-lang="java"><code>@Service
+public class ProductService {
+
+  @Cacheable(value = "products", key = "#id")
+  public Optional&lt;ProductResponse&gt; findById(Long id) {
+    return productRepo.findById(id).map(ProductResponse::from);
+  }
+
+  @CacheEvict(value = "products", key = "#id")
+  @Transactional
+  public ProductResponse update(Long id, UpdateProductRequest req) {
+    var product = productRepo.findById(id).orElseThrow();
+    product.update(req);
+    return ProductResponse.from(product);
+  }
+
+  @CacheEvict(value = "products", allEntries = true)
+  @Scheduled(fixedRate = 3_600_000)   // evict all hourly
+  public void evictProductCache() {}
+}</code></pre>
+
+      <div class="bp-title" id="bp18">
+        <span class="bp-number">18</span>
+        <h3>Configure HikariCP connection pool explicitly</h3>
+        <span class="bp-tag">Performance</span>
+      </div>
+      <p class="bp-desc">Spring Boot's default HikariCP settings are conservative (pool size 10). Under load, exhausted connections cause timeouts. Size the pool to <code>CPU cores × 2 + disk spindles</code> (Hikari's recommended formula) and set explicit timeouts.</p>
+      <pre class="code" data-lang="yaml"><code>spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20          # tune per environment
+      minimum-idle: 5
+      connection-timeout: 30000      # ms — max wait to acquire connection
+      idle-timeout: 600000           # ms — remove idle connections after 10m
+      max-lifetime: 1800000          # ms — recycle connections after 30m
+      connection-test-query: SELECT 1
+      pool-name: MyAppHikariPool</code></pre>
+
+      <!-- ── Security ── -->
+      <h2>Security</h2>
+
+      <div class="bp-title" id="bp19">
+        <span class="bp-number">19</span>
+        <h3>Secure endpoints explicitly with Spring Security</h3>
+        <span class="bp-tag red">Security</span>
+      </div>
+      <p class="bp-desc">Define a <code>SecurityFilterChain</code> bean with explicit rules for every URL pattern. Don't rely on default settings — require authentication by default and grant access by exception, not the other way around.</p>
+      <pre class="code" data-lang="java"><code>@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    return http
+        .csrf(AbstractHttpConfigurer::disable)          // disable for stateless JWT APIs
+        .sessionManagement(s -&gt; s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -&gt; auth
+            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/actuator/health").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()              // deny everything else
+        )
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp20">
+        <span class="bp-number">20</span>
+        <h3>Use stateless JWT authentication</h3>
+        <span class="bp-tag red">Security</span>
+      </div>
+      <p class="bp-desc">HTTP sessions are hard to scale horizontally. JWT tokens carry the authentication payload, are verified on every request without a database lookup, and work naturally with load balancers and multiple instances.</p>
+      <pre class="code" data-lang="java"><code>@Component
+public class JwtAuthFilter extends OncePerRequestFilter {
+  private final JwtService jwtService;
+  private final UserDetailsService userDetailsService;
+
+  @Override
+  protected void doFilterInternal(HttpServletRequest request,
+      HttpServletResponse response, FilterChain chain)
+      throws ServletException, IOException {
+
+    String header = request.getHeader("Authorization");
+    if (header == null || !header.startsWith("Bearer ")) {
+      chain.doFilter(request, response);
+      return;
+    }
+    String token = header.substring(7);
+    String username = jwtService.extractUsername(token);
+    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+      UserDetails user = userDetailsService.loadUserByUsername(username);
+      if (jwtService.isValid(token, user)) {
+        var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+      }
+    }
+    chain.doFilter(request, response);
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp21">
+        <span class="bp-number">21</span>
+        <h3>Never log sensitive data</h3>
+        <span class="bp-tag red">Security</span>
+      </div>
+      <p class="bp-desc">Passwords, API keys, credit card numbers, and tokens written to logs are accessible to anyone with log access — including in structured logging pipelines and log aggregation services. Mask or exclude them explicitly.</p>
+      <pre class="code" data-lang="java"><code>// BAD
+log.debug("Creating user with password: {}", request.getPassword());
+log.info("Calling payment API with key: {}", apiKey);
+
+// GOOD — log only safe attributes
+log.info("Creating user: username={}", request.getUsername());
+log.info("Payment gateway call initiated: orderId={}", orderId);
+
+// GOOD — use a DTO toString that masks sensitive fields
+public record CreateUserRequest(String username, String email,
+    @JsonIgnore String password) {
+  @Override public String toString() {
+    return "CreateUserRequest{username='%s', email='%s', password='[REDACTED]'}"
+        .formatted(username, email);
+  }
+}</code></pre>
+
+      <!-- ── Async & Scheduling ── -->
+      <h2>Async &amp; Scheduling</h2>
+
+      <div class="bp-title" id="bp22">
+        <span class="bp-number">22</span>
+        <h3>Use <code>@Async</code> with a configured thread pool</h3>
+        <span class="bp-tag blue">Async</span>
+      </div>
+      <p class="bp-desc">Spring's <code>@Async</code> by default uses a <code>SimpleAsyncTaskExecutor</code> that creates a new thread per call — unbounded and dangerous under load. Always configure a <code>ThreadPoolTaskExecutor</code> with sensible limits.</p>
+      <pre class="code" data-lang="java"><code>@Configuration
+@EnableAsync
+public class AsyncConfig {
+  @Bean(name = "notificationExecutor")
+  public Executor notificationExecutor() {
+    var executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(4);
+    executor.setMaxPoolSize(16);
+    executor.setQueueCapacity(100);
+    executor.setThreadNamePrefix("notification-");
+    executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+    executor.initialize();
+    return executor;
+  }
+}
+
+@Service
+public class NotificationService {
+  // Runs on the named executor; caller continues immediately
+  @Async("notificationExecutor")
+  public CompletableFuture&lt;Void&gt; sendEmail(String to, String subject, String body) {
+    emailClient.send(to, subject, body);
+    return CompletableFuture.completedFuture(null);
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp28">
+        <span class="bp-number">28</span>
+        <h3>Use <code>@Scheduled</code> for background tasks</h3>
+        <span class="bp-tag blue">Async</span>
+      </div>
+      <p class="bp-desc">Spring's scheduling is ideal for cleanup jobs, cache warm-ups, and report generation. Enable it with <code>@EnableScheduling</code> and configure a dedicated thread pool so scheduled tasks don't block web request handling.</p>
+      <pre class="code" data-lang="java"><code>@Configuration
+@EnableScheduling
+public class SchedulingConfig implements SchedulingConfigurer {
+  @Override
+  public void configureTasks(ScheduledTaskRegistrar registrar) {
+    registrar.setScheduler(scheduledTaskExecutor());
+  }
+  @Bean(destroyMethod = "shutdown")
+  public Executor scheduledTaskExecutor() {
+    return Executors.newScheduledThreadPool(4);
+  }
+}
+
+@Component
+public class MaintenanceTasks {
+
+  @Scheduled(cron = "0 0 2 * * *")          // 2am daily
+  public void archiveOldOrders() { ... }
+
+  @Scheduled(fixedDelay = 60_000, initialDelay = 30_000)  // every 60s, start after 30s
+  public void syncInventory() { ... }
+
+  @Scheduled(fixedRate = 300_000)            // every 5 minutes
+  public void refreshCaches() { ... }
+}</code></pre>
+
+      <!-- ── Testing ── -->
+      <h2>Testing</h2>
+
+      <div class="bp-title" id="bp23">
+        <span class="bp-number">23</span>
+        <h3>Use test slices: <code>@DataJpaTest</code> and <code>MockMvc</code></h3>
+        <span class="bp-tag amber">Testing</span>
+      </div>
+      <p class="bp-desc">Loading the full application context for every test is slow. Spring's slice annotations load only the relevant layer — <code>@DataJpaTest</code> for repositories, <code>@WebMvcTest</code> for controllers — keeping tests fast.</p>
+      <pre class="code" data-lang="java"><code>// Repository slice — only JPA infrastructure, uses H2 or Testcontainers
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class OrderRepositoryTest {
+  @Autowired private OrderRepository orderRepo;
+
+  @Test void findsByCustomerAndStatus() {
+    orderRepo.save(anOrder("cust-1", OrderStatus.PENDING));
+    List&lt;Order&gt; found = orderRepo.findByCustomerIdAndStatus("cust-1", OrderStatus.PENDING);
+    assertThat(found).hasSize(1);
+  }
+}
+
+// Controller slice — only web layer, services are mocked
+@WebMvcTest(OrderController.class)
+class OrderControllerTest {
+  @Autowired private MockMvc mockMvc;
+  @MockBean private OrderService orderService;
+
+  @Test void returnsCreatedWithLocation() throws Exception {
+    given(orderService.create(any())).willReturn(new OrderResponse(42L, "PENDING", bd("99.99"), 2));
+    mockMvc.perform(post("/api/orders")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"customerId\":\"c1\",\"total\":99.99,\"items\":[]}"))
+        .andExpect(status().isCreated())
+        .andExpect(header().exists("Location"))
+        .andExpect(jsonPath("$.id").value(42));
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp24">
+        <span class="bp-number">24</span>
+        <h3>Use <code>@SpringBootTest</code> for integration tests</h3>
+        <span class="bp-tag amber">Testing</span>
+      </div>
+      <p class="bp-desc">Integration tests verify the complete request-to-database flow with real infrastructure (PostgreSQL via Testcontainers). Keep them in a separate test source set and run them in CI — not on every build.</p>
+      <pre class="code" data-lang="java"><code>@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Testcontainers
+class OrderIntegrationTest {
+
+  @Container
+  static PostgreSQLContainer&lt;?&gt; postgres = new PostgreSQLContainer&lt;&gt;("postgres:16")
+      .withDatabaseName("testdb");
+
+  @DynamicPropertySource
+  static void registerProps(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.url", postgres::getJdbcUrl);
+    registry.add("spring.datasource.username", postgres::getUsername);
+    registry.add("spring.datasource.password", postgres::getPassword);
+  }
+
+  @Autowired private TestRestTemplate rest;
+
+  @Test void createOrderReturns201() {
+    var req = new CreateOrderRequest("cust-1", List.of(new OrderItemRequest(1L, 3)), bd("59.99"));
+    var response = rest.postForEntity("/api/orders", req, OrderResponse.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    assertThat(response.getBody().id()).isPositive();
+  }
+}</code></pre>
+
+      <!-- ── Operations ── -->
+      <h2>Operations &amp; Observability</h2>
+
+      <div class="bp-title" id="bp25">
+        <span class="bp-number">25</span>
+        <h3>Expose health checks and metrics via Actuator</h3>
+        <span class="bp-tag">Ops</span>
+      </div>
+      <p class="bp-desc">Kubernetes liveness/readiness probes and monitoring systems depend on standardised health endpoints. Spring Boot Actuator provides them out of the box — expose <code>/actuator/health</code> publicly and protect management endpoints from external access.</p>
+      <pre class="code" data-lang="yaml"><code>management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized   # hide DB details from anonymous callers
+      probes.enabled: true            # /health/liveness and /health/readiness
+  server:
+    port: 8081                        # serve actuator on a separate port
+    address: 127.0.0.1               # not accessible externally</code></pre>
+      <pre class="code" data-lang="java"><code>// Custom health indicator
+@Component
+public class ExternalApiHealthIndicator implements HealthIndicator {
+  private final ExternalApiClient client;
+
+  @Override
+  public Health health() {
+    try {
+      client.ping();
+      return Health.up().withDetail("response", "ok").build();
+    } catch (Exception e) {
+      return Health.down().withDetail("error", e.getMessage()).build();
+    }
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp26">
+        <span class="bp-number">26</span>
+        <h3>Configure CORS explicitly — never use wildcard in production</h3>
+        <span class="bp-tag red">Security</span>
+      </div>
+      <p class="bp-desc">A wildcard <code>allowedOrigins("*")</code> allows any origin to make authenticated cross-origin requests. Specify exact origins for each environment and ensure preflight caching is configured.</p>
+      <pre class="code" data-lang="java"><code>@Configuration
+public class CorsConfig {
+
+  @Value("${app.cors.allowed-origins}")
+  private List&lt;String&gt; allowedOrigins;
+
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    var config = new CorsConfiguration();
+    config.setAllowedOrigins(allowedOrigins);   // e.g. ["https://app.example.com"]
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-ID"));
+    config.setExposedHeaders(List.of("Location", "X-Total-Count"));
+    config.setAllowCredentials(true);
+    config.setMaxAge(3600L);                    // cache preflight for 1 hour
+    var source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/api/**", config);
+    return source;
+  }
+}</code></pre>
+
+      <div class="bp-title" id="bp27">
+        <span class="bp-number">27</span>
+        <h3>Package as a fat JAR and use multi-stage Docker builds</h3>
+        <span class="bp-tag">Ops</span>
+      </div>
+      <p class="bp-desc">Spring Boot's fat JAR is the deployment unit — it contains the app and all dependencies. Use a multi-stage Dockerfile to keep the final image small (JRE only) and layer the JAR for fast Docker layer caching.</p>
+      <pre class="code" data-lang="dockerfile"><code># Stage 1 — extract layers for better cache utilisation
+FROM eclipse-temurin:21-jdk AS builder
+WORKDIR /app
+COPY target/*.jar app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
+
+# Stage 2 — runtime image (JRE only, no build tools)
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
+
+COPY --from=builder /app/dependencies/ ./
+COPY --from=builder /app/spring-boot-loader/ ./
+COPY --from=builder /app/snapshot-dependencies/ ./
+COPY --from=builder /app/application/ ./
+
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s \
+  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "org.springframework.boot.loader.launch.JarLauncher"]</code></pre>
+
+      <div class="callout tip"><strong>Spring Boot checklist for production:</strong> (1) <code>ddl-auto: validate</code> — never <code>update</code> or <code>create-drop</code>. (2) All secrets from environment variables. (3) Actuator on a separate port. (4) HikariCP pool sized explicitly. (5) CORS locked to known origins. (6) <code>@Transactional(readOnly=true)</code> on all read-only service methods. (7) Global exception handler returning consistent JSON errors. (8) Integration tests with Testcontainers hitting a real database.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

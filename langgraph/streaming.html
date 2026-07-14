@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Streaming &amp; Async — LangGraph Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangGraph</a><span class="sep">/</span>Streaming &amp; Async</div>
+      <h1>Streaming &amp; Async</h1>
+      <p class="lead">LangGraph has built-in streaming support at multiple levels — node outputs, LLM token streams, and custom events. This enables responsive UIs that show progress as the graph executes rather than waiting for the entire run to finish.</p>
+
+      <h2>Stream modes comparison</h2>
+      <table>
+        <tr><th>Mode</th><th>Yields</th><th>Best for</th></tr>
+        <tr><td><code>"values"</code></td><td>Full state after each node</td><td>Inspect complete state at each step</td></tr>
+        <tr><td><code>"updates"</code></td><td>State delta from each node</td><td>Efficient: only changed fields</td></tr>
+        <tr><td><code>"messages"</code></td><td>LLM tokens as they generate</td><td>Live chat UI, token-by-token display</td></tr>
+        <tr><td><code>"debug"</code></td><td>All internal events</td><td>Debugging, tracing</td></tr>
+        <tr><td><code>"custom"</code></td><td>Your own events via <code>astream_events</code></td><td>Custom UI progress indicators</td></tr>
+      </table>
+
+      <h2>stream("values") — full state at each step</h2>
+      <pre class="code" data-lang="python"><code>from langgraph.graph import StateGraph, START, END, MessagesState
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+def step1(state): return {"messages": [llm.invoke("Step 1: " + state["messages"][-1].content)]}
+def step2(state): return {"messages": [llm.invoke("Step 2: Refine this: " + state["messages"][-1].content)]}
+
+g = StateGraph(MessagesState)
+g.add_node("s1", step1); g.add_node("s2", step2)
+g.add_edge(START, "s1"); g.add_edge("s1", "s2"); g.add_edge("s2", END)
+app = g.compile()
+
+for state in app.stream(
+    {"messages": [HumanMessage("Explain Docker")]},
+    stream_mode="values",
+):
+    last = state["messages"][-1]
+    print(f"[{last.type}] {last.content[:60]}...")</code></pre>
+
+      <h2>stream("updates") — delta per node</h2>
+      <pre class="code" data-lang="python"><code>for update in app.stream(
+    {"messages": [HumanMessage("Explain Kubernetes")]},
+    stream_mode="updates",
+):
+    # update = {"node_name": {state_delta}}
+    for node_name, state_delta in update.items():
+        if "messages" in state_delta:
+            msg = state_delta["messages"][-1]
+            print(f"[{node_name}] → {msg.content[:80]}")</code></pre>
+
+      <h2>stream("messages") — token-by-token LLM output</h2>
+      <pre class="code" data-lang="python"><code">from langchain_core.messages import AIMessageChunk
+
+# Stream individual tokens as the LLM generates them
+for chunk, metadata in app.stream(
+    {"messages": [HumanMessage("Write a short poem about agents")]},
+    stream_mode="messages",
+):
+    if isinstance(chunk, AIMessageChunk) and chunk.content:
+        print(chunk.content, end="", flush=True)   # live token display</code></pre>
+
+      <h2>Async streaming — for FastAPI / web apps</h2>
+      <pre class="code" data-lang="python"><code>import asyncio
+from langchain_core.messages import HumanMessage
+
+async def stream_response():
+    async for chunk, metadata in app.astream(
+        {"messages": [HumanMessage("List 5 Docker best practices")]},
+        stream_mode="messages",
+    ):
+        if hasattr(chunk, "content") and chunk.content:
+            print(chunk.content, end="", flush=True)
+
+asyncio.run(stream_response())
+
+# FastAPI SSE endpoint
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+import json
+
+api = FastAPI()
+
+@api.post("/chat")
+async def chat_endpoint(user_input: str):
+    async def generate():
+        async for chunk, _ in app.astream(
+            {"messages": [HumanMessage(user_input)]},
+            stream_mode="messages",
+        ):
+            if hasattr(chunk, "content") and chunk.content:
+                yield f"data: {json.dumps({'token': chunk.content})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")</code></pre>
+
+      <h2>Multiple stream modes simultaneously</h2>
+      <pre class="code" data-lang="python"><code># Get both updates AND messages in one stream
+for event in app.stream(
+    {"messages": [HumanMessage("What is RAG?")]},
+    stream_mode=["updates", "messages"],
+):
+    event_type, payload = event
+    if event_type == "updates":
+        print(f"NODE UPDATE: {list(payload.keys())}")
+    elif event_type == "messages":
+        chunk, metadata = payload
+        if hasattr(chunk, "content") and chunk.content:
+            print(chunk.content, end="", flush=True)</code></pre>
+
+      <h2>astream_events — rich event stream</h2>
+      <pre class="code" data-lang="python"><code">async def watch_events():
+    async for event in app.astream_events(
+        {"messages": [HumanMessage("Summarise LangGraph")]},
+        version="v2",
+    ):
+        kind = event["event"]
+
+        if kind == "on_chat_model_stream":
+            chunk = event["data"]["chunk"]
+            print(chunk.content, end="", flush=True)
+
+        elif kind == "on_chain_start":
+            print(f"\n[START] {event['name']}")
+
+        elif kind == "on_chain_end":
+            print(f"\n[END]   {event['name']}")
+
+        elif kind == "on_tool_start":
+            print(f"\n[TOOL]  {event['name']}({event['data'].get('input', {})})")
+
+asyncio.run(watch_events())</code></pre>
+
+      <div class="callout tip"><strong>Production tip:</strong> In FastAPI or Django Channels, use <code>astream</code> or <code>astream_events</code> with Server-Sent Events (SSE) to push tokens to the browser in real time. Set <code>streaming=True</code> on your <code>ChatOpenAI</code> to ensure tokens flow through; without it, the LLM buffers everything and the stream sends one large chunk at the end.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

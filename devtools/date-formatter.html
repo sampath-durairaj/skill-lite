@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Date Formatter</title>
+  <script src="../js/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/advancedFormat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <style>
+    /* Page layout */
+    .page {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 370px 1fr;
+      overflow: hidden;
+    }
+
+    /* Left panel */
+    .left-panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 24px 20px;
+      overflow-y: auto;
+    }
+
+    .section-label { margin-bottom: 8px; }
+
+    #dateInput {
+      width: 100%;
+      background: #13151f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #dateInput:focus { border-color: var(--accent); }
+    #dateInput::placeholder { color: #3a3d52; }
+
+    .quick-btns { display: flex; gap: 7px; margin-top: 9px; }
+    .btn.primary { width: 100%; padding: 11px; text-align: center; display: block; }
+    .btn.danger  { margin-left: auto; }
+    select { width: 100%; }
+    .divider { margin: 0 -20px; }
+
+    #detectedBadge {
+      font-size: 12px; color: var(--success);
+      background: rgba(62,207,142,.1); border: 1px solid rgba(62,207,142,.25);
+      border-radius: 6px; padding: 6px 12px; display: none; margin-top: 8px;
+    }
+    #errorBanner {
+      font-size: 12px; color: var(--danger);
+      background: rgba(255,107,107,.1); border: 1px solid rgba(255,107,107,.25);
+      border-radius: 6px; padding: 8px 12px; display: none; margin-top: 8px;
+    }
+
+    /* Right panel */
+    .right-panel { display: flex; flex-direction: column; overflow: hidden; }
+
+    .result-hero {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 22px 28px;
+      display: flex; align-items: center; gap: 16px;
+      flex-shrink: 0;
+    }
+    .result-hero-inner { flex: 1; min-width: 0; }
+    .result-hero-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
+    }
+    #heroValue {
+      font-family: 'Cascadia Code','Fira Code','Consolas',monospace;
+      font-size: 22px; font-weight: 600; color: #a8d8b0;
+      word-break: break-all; line-height: 1.4;
+    }
+    #heroValue.placeholder { color: #3a3d52; font-size: 15px; font-weight: 400; font-family: inherit; }
+    #heroMeta { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+
+    /* Formats table */
+    .formats-wrap { flex: 1; overflow-y: auto; padding: 0 28px 32px; }
+
+    .empty-state {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; gap: 12px;
+      color: var(--text-muted); font-size: 14px;
+      text-align: center; padding: 40px;
+    }
+    .empty-state .big { font-size: 50px; opacity: 0.3; }
+
+    .cat-block { margin-top: 22px; }
+    .cat-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--text-muted);
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+      margin-bottom: 2px;
+    }
+    .fmt-row {
+      display: grid;
+      grid-template-columns: 200px 1fr auto;
+      align-items: center;
+      padding: 9px 4px;
+      border-bottom: 1px solid rgba(46,50,72,.5);
+      gap: 12px;
+    }
+    .fmt-row:hover { background: rgba(108,99,255,.05); border-radius: 6px; }
+    .fmt-name { font-size: 13px; color: var(--text); }
+    .fmt-result {
+      font-family: 'Cascadia Code','Fira Code','Consolas',monospace;
+      font-size: 13px; color: #a8d8b0; word-break: break-all;
+    }
+    .copy-cell {
+      background: none; border: 1px solid transparent;
+      color: var(--text-muted); cursor: pointer;
+      padding: 4px 9px; border-radius: 5px; font-size: 12px;
+      transition: color .15s, border-color .15s, background .15s;
+      white-space: nowrap;
+    }
+    .copy-cell:hover { color: var(--text); border-color: var(--border); background: var(--surface2); }
+
+    @media (max-width: 720px) {
+      .page { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .left-panel { border-right: none; border-bottom: 1px solid var(--border); overflow-y: visible; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#128197;</div>
+    <div class="app-title">
+      <h1>Date Formatter</h1>
+      <p>Parse any date and convert it to the format you need</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu active">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../index.html"              class="nav-dropdown-item">&#127968; Home</a>
+        <div class="nav-dropdown-divider"></div>
+        <a href="sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="date-formatter.html"     class="nav-dropdown-item active">&#128197; Date Formatter</a>
+        <a href="timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="cron-generator.html"         class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="k8s-yaml-validator.html"    class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="page">
+
+  <!-- ── Left: Input ── -->
+  <div class="left-panel">
+
+    <div>
+      <div class="section-label">Enter Date</div>
+      <input type="text" id="dateInput"
+        placeholder="e.g.  2024-01-15  |  01/15/2024  |  Jan 15 2024  |  1705276800"
+        onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();convertDate()}"
+        oninput="clearFeedback()" />
+      <div class="quick-btns">
+        <button class="btn" onclick="useToday()">Today</button>
+        <button class="btn" onclick="useNow()">Now</button>
+        <button class="btn danger" onclick="clearAll()">Clear</button>
+      </div>
+      <div id="detectedBadge"></div>
+      <div id="errorBanner"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field-group">
+      <label>Input Format</label>
+      <select id="inputFormat" onchange="clearFeedback()">
+        <option value="auto">&#128270; Auto Detect</option>
+        <optgroup label="Date Only">
+          <option value="YYYY-MM-DD">YYYY-MM-DD &nbsp;&nbsp;&nbsp; 2024-01-15</option>
+          <option value="MM/DD/YYYY">MM/DD/YYYY &nbsp;&nbsp;&nbsp; 01/15/2024</option>
+          <option value="DD/MM/YYYY">DD/MM/YYYY &nbsp;&nbsp;&nbsp; 15/01/2024</option>
+          <option value="DD-MM-YYYY">DD-MM-YYYY &nbsp;&nbsp;&nbsp; 15-01-2024</option>
+          <option value="MM-DD-YYYY">MM-DD-YYYY &nbsp;&nbsp;&nbsp; 01-15-2024</option>
+          <option value="DD.MM.YYYY">DD.MM.YYYY &nbsp;&nbsp;&nbsp; 15.01.2024</option>
+          <option value="YYYY/MM/DD">YYYY/MM/DD &nbsp;&nbsp;&nbsp; 2024/01/15</option>
+          <option value="YYYYMMDD">YYYYMMDD &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 20240115</option>
+          <option value="DD MMM YYYY">DD MMM YYYY &nbsp;&nbsp;&nbsp; 15 Jan 2024</option>
+          <option value="MMM DD, YYYY">MMM DD, YYYY &nbsp;&nbsp; Jan 15, 2024</option>
+          <option value="MMMM DD, YYYY">MMMM DD, YYYY January 15, 2024</option>
+          <option value="DD MMMM YYYY">DD MMMM YYYY &nbsp; 15 January 2024</option>
+        </optgroup>
+        <optgroup label="Date &amp; Time">
+          <option value="YYYY-MM-DDTHH:mm:ss">ISO 8601 — 2024-01-15T10:30:00</option>
+          <option value="YYYY-MM-DD HH:mm:ss">YYYY-MM-DD HH:mm:ss</option>
+          <option value="MM/DD/YYYY HH:mm:ss">MM/DD/YYYY HH:mm:ss</option>
+          <option value="DD/MM/YYYY HH:mm:ss">DD/MM/YYYY HH:mm:ss</option>
+          <option value="MM/DD/YYYY hh:mm:ss A">MM/DD/YYYY hh:mm:ss AM/PM</option>
+          <option value="DD MMM YYYY HH:mm:ss">DD MMM YYYY HH:mm:ss</option>
+        </optgroup>
+        <optgroup label="Timestamp">
+          <option value="unix-s">Unix Timestamp (seconds)</option>
+          <option value="unix-ms">Unix Timestamp (milliseconds)</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field-group">
+      <label>Output Format</label>
+      <select id="outputFormat" onchange="onOutputChange()">
+        <optgroup label="Date Only">
+          <option value="YYYY-MM-DD">YYYY-MM-DD &nbsp;&mdash; ISO Date</option>
+          <option value="MM/DD/YYYY">MM/DD/YYYY &nbsp;&mdash; US</option>
+          <option value="DD/MM/YYYY">DD/MM/YYYY &nbsp;&mdash; European</option>
+          <option value="DD-MM-YYYY">DD-MM-YYYY</option>
+          <option value="DD.MM.YYYY">DD.MM.YYYY</option>
+          <option value="YYYY/MM/DD">YYYY/MM/DD</option>
+          <option value="YYYYMMDD">YYYYMMDD &nbsp;&mdash; Compact</option>
+          <option value="MMMM DD, YYYY">MMMM DD, YYYY &nbsp;&mdash; Long</option>
+          <option value="MMM DD, YYYY">MMM DD, YYYY &nbsp;&mdash; Medium</option>
+          <option value="DD MMMM YYYY">DD MMMM YYYY</option>
+          <option value="DD MMM YYYY">DD MMM YYYY</option>
+          <option value="dddd, MMMM DD, YYYY">Full with Weekday</option>
+          <option value="ddd, MMM DD YYYY">Short with Weekday</option>
+          <option value="Do MMMM YYYY">Ordinal (1st January 2024)</option>
+          <option value="MMMM YYYY">Month &amp; Year</option>
+        </optgroup>
+        <optgroup label="Date &amp; Time">
+          <option value="YYYY-MM-DDTHH:mm:ss">ISO 8601</option>
+          <option value="YYYY-MM-DDTHH:mm:ssZ">ISO 8601 with Offset</option>
+          <option value="YYYY-MM-DD HH:mm:ss">YYYY-MM-DD HH:mm:ss</option>
+          <option value="MM/DD/YYYY hh:mm:ss A">US 12-hour</option>
+          <option value="DD/MM/YYYY HH:mm:ss">EU 24-hour</option>
+          <option value="MMMM DD, YYYY HH:mm:ss">Long Date &amp; Time</option>
+          <option value="ddd, DD MMM YYYY HH:mm:ss ZZ">RFC 2822</option>
+        </optgroup>
+        <optgroup label="Time Only">
+          <option value="HH:mm:ss">HH:mm:ss (24-hour)</option>
+          <option value="hh:mm:ss A">hh:mm:ss AM/PM</option>
+          <option value="HH:mm">HH:mm</option>
+          <option value="hh:mm A">hh:mm AM/PM</option>
+        </optgroup>
+        <optgroup label="Technical">
+          <option value="X">Unix Timestamp (seconds)</option>
+          <option value="x">Unix Timestamp (ms)</option>
+          <option value="DDD">Day of Year</option>
+          <option value="WW">Week Number</option>
+          <option value="[Q]Q YYYY">Quarter</option>
+          <option value="Do">Day (Ordinal)</option>
+          <option value="dddd">Weekday Name</option>
+          <option value="MMMM">Month Name</option>
+          <option value="YYYY">Year Only</option>
+        </optgroup>
+        <optgroup label="Relative">
+          <option value="relative">Relative (e.g. "2 days ago")</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <button class="btn primary" onclick="convertDate()">
+      &#10227;&nbsp; Convert &nbsp;<span style="opacity:.55;font-size:11px;font-weight:400">Ctrl+Enter</span>
+    </button>
+
+  </div>
+
+  <!-- ── Right: Results ── -->
+  <div class="right-panel">
+
+    <div class="result-hero">
+      <div class="result-hero-inner">
+        <div class="result-hero-label">Result</div>
+        <div id="heroValue" class="placeholder">Enter a date on the left and click Convert</div>
+        <div id="heroMeta"></div>
+      </div>
+      <button class="btn" id="heroCopyBtn" onclick="copyText(document.getElementById('heroValue').textContent)" disabled>
+        &#128203; Copy
+      </button>
+    </div>
+
+    <div class="formats-wrap">
+      <div class="empty-state" id="emptyState">
+        <div class="big">&#128197;</div>
+        <div>Enter any date and click <strong>Convert</strong> to see it in all formats.</div>
+        <div style="font-size:12px;color:#3a3d52;margin-top:4px">
+          Supports ISO, US, European, named months, Unix timestamps &amp; more
+        </div>
+      </div>
+      <div id="formatsTable" style="display:none"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+  dayjs.extend(window.dayjs_plugin_customParseFormat);
+  dayjs.extend(window.dayjs_plugin_advancedFormat);
+  dayjs.extend(window.dayjs_plugin_utc);
+  dayjs.extend(window.dayjs_plugin_relativeTime);
+
+  // ── Auto-detect candidates (ordered by specificity) ──
+  const DETECT_FMTS = [
+    { fmt: 'YYYY-MM-DDTHH:mm:ssZ',  label: 'ISO 8601 with timezone' },
+    { fmt: 'YYYY-MM-DDTHH:mm:ss',   label: 'ISO 8601' },
+    { fmt: 'YYYY-MM-DD HH:mm:ss',   label: 'YYYY-MM-DD HH:mm:ss' },
+    { fmt: 'YYYY-MM-DD',            label: 'YYYY-MM-DD' },
+    { fmt: 'MM/DD/YYYY hh:mm:ss A', label: 'MM/DD/YYYY hh:mm:ss AM/PM' },
+    { fmt: 'MM/DD/YYYY HH:mm:ss',   label: 'MM/DD/YYYY HH:mm:ss' },
+    { fmt: 'MM/DD/YYYY',            label: 'MM/DD/YYYY' },
+    { fmt: 'DD MMM YYYY HH:mm:ss',  label: 'DD MMM YYYY HH:mm:ss' },
+    { fmt: 'DD MMM YYYY',           label: 'DD MMM YYYY' },
+    { fmt: 'MMM DD, YYYY',          label: 'MMM DD, YYYY' },
+    { fmt: 'MMMM DD, YYYY',         label: 'MMMM DD, YYYY' },
+    { fmt: 'DD MMMM YYYY',          label: 'DD MMMM YYYY' },
+    { fmt: 'YYYY/MM/DD',            label: 'YYYY/MM/DD' },
+    { fmt: 'YYYYMMDD',              label: 'YYYYMMDD' },
+    { fmt: 'DD/MM/YYYY HH:mm:ss',   label: 'DD/MM/YYYY HH:mm:ss' },
+    { fmt: 'DD/MM/YYYY',            label: 'DD/MM/YYYY' },
+    { fmt: 'DD-MM-YYYY',            label: 'DD-MM-YYYY' },
+    { fmt: 'DD.MM.YYYY',            label: 'DD.MM.YYYY' },
+    { fmt: 'MM-DD-YYYY',            label: 'MM-DD-YYYY' },
+  ];
+
+  // ── All output categories shown in the table ──
+  const CATEGORIES = [
+    {
+      title: 'Date Only',
+      rows: [
+        { name: 'ISO Date',               pattern: 'YYYY-MM-DD' },
+        { name: 'US Format',              pattern: 'MM/DD/YYYY' },
+        { name: 'European Format',        pattern: 'DD/MM/YYYY' },
+        { name: 'Hyphen (EU)',            pattern: 'DD-MM-YYYY' },
+        { name: 'Dot Format',             pattern: 'DD.MM.YYYY' },
+        { name: 'Year / Month / Day',     pattern: 'YYYY/MM/DD' },
+        { name: 'Compact',                pattern: 'YYYYMMDD' },
+        { name: 'Long Date',              pattern: 'MMMM DD, YYYY' },
+        { name: 'Medium Date',            pattern: 'MMM DD, YYYY' },
+        { name: 'Long (Day first)',        pattern: 'DD MMMM YYYY' },
+        { name: 'Short (Day first)',       pattern: 'DD MMM YYYY' },
+        { name: 'Full with Weekday',      pattern: 'dddd, MMMM DD, YYYY' },
+        { name: 'Short Weekday',          pattern: 'ddd, MMM DD YYYY' },
+        { name: 'Ordinal Date',           pattern: 'Do MMMM YYYY' },
+        { name: 'Month & Year',           pattern: 'MMMM YYYY' },
+        { name: 'Short Month & Year',     pattern: 'MMM YYYY' },
+      ],
+    },
+    {
+      title: 'Date & Time',
+      rows: [
+        { name: 'ISO 8601',               pattern: 'YYYY-MM-DDTHH:mm:ss' },
+        { name: 'ISO 8601 with Offset',   pattern: 'YYYY-MM-DDTHH:mm:ssZ' },
+        { name: 'Date Time',              pattern: 'YYYY-MM-DD HH:mm:ss' },
+        { name: 'US Date Time (24h)',     pattern: 'MM/DD/YYYY HH:mm:ss' },
+        { name: 'US Date Time (12h)',     pattern: 'MM/DD/YYYY hh:mm:ss A' },
+        { name: 'EU Date Time',           pattern: 'DD/MM/YYYY HH:mm:ss' },
+        { name: 'Long Date & Time',       pattern: 'MMMM DD, YYYY HH:mm:ss' },
+        { name: 'RFC 2822',               pattern: 'ddd, DD MMM YYYY HH:mm:ss ZZ' },
+      ],
+    },
+    {
+      title: 'Time Only',
+      rows: [
+        { name: '24-hour',                pattern: 'HH:mm:ss' },
+        { name: '12-hour AM/PM',          pattern: 'hh:mm:ss A' },
+        { name: 'Short 24-hour',          pattern: 'HH:mm' },
+        { name: 'Short 12-hour',          pattern: 'hh:mm A' },
+      ],
+    },
+    {
+      title: 'Technical',
+      rows: [
+        { name: 'Unix Timestamp (s)',      pattern: 'X' },
+        { name: 'Unix Timestamp (ms)',     pattern: 'x' },
+        { name: 'Day of Year',             pattern: 'DDD' },
+        { name: 'Week Number',             pattern: 'WW' },
+        { name: 'Quarter',                 pattern: '[Q]Q YYYY' },
+        { name: 'Day of Month (Ordinal)', pattern: 'Do' },
+        { name: 'Weekday Name',            pattern: 'dddd' },
+        { name: 'Month Name',              pattern: 'MMMM' },
+        { name: 'Year Only',               pattern: 'YYYY' },
+      ],
+    },
+    {
+      title: 'Relative',
+      rows: [
+        { name: 'Relative to now',         pattern: 'relative' },
+      ],
+    },
+  ];
+
+  let currentDate = null;
+
+  // ── Parse ──
+  function parse(raw, fmtVal) {
+    raw = raw.trim();
+    if (!raw) return null;
+
+    if (fmtVal === 'unix-s')  { const d = dayjs.unix(+raw); return d.isValid() ? { date: d } : null; }
+    if (fmtVal === 'unix-ms') { const d = dayjs(+raw);      return d.isValid() ? { date: d } : null; }
+
+    if (fmtVal !== 'auto') {
+      const d = dayjs(raw, fmtVal, true);
+      return d.isValid() ? { date: d } : null;
+    }
+
+    // Auto: try unix ms (13 digits)
+    if (/^\d{13}$/.test(raw)) {
+      const d = dayjs(+raw);
+      if (d.isValid()) return { date: d, detected: 'Unix Timestamp (milliseconds)' };
+    }
+    // Auto: try unix s (10 digits)
+    if (/^\d{10}$/.test(raw)) {
+      const d = dayjs.unix(+raw);
+      if (d.isValid()) return { date: d, detected: 'Unix Timestamp (seconds)' };
+    }
+    // Strict format loop
+    for (const { fmt, label } of DETECT_FMTS) {
+      const d = dayjs(raw, fmt, true);
+      if (d.isValid()) return { date: d, detected: label };
+    }
+    // Lenient fallback
+    const native = new Date(raw);
+    if (!isNaN(native)) return { date: dayjs(native), detected: 'Browser auto-detect' };
+    return null;
+  }
+
+  function fmt(d, pattern) {
+    return pattern === 'relative' ? d.fromNow() : d.format(pattern);
+  }
+
+  // ── Convert ──
+  function convertDate() {
+    const raw      = document.getElementById('dateInput').value;
+    const inFmt    = document.getElementById('inputFormat').value;
+    const outFmt   = document.getElementById('outputFormat').value;
+
+    clearFeedback();
+
+    if (!raw.trim()) { showError('Please enter a date.'); return; }
+
+    const result = parse(raw, inFmt);
+    if (!result) {
+      showError('Could not parse this date. Try selecting the input format manually.');
+      resetHero();
+      renderTable(null);
+      return;
+    }
+
+    currentDate = result.date;
+
+    if (result.detected) {
+      const b = document.getElementById('detectedBadge');
+      b.innerHTML = '&#x1F50D; Detected as: <strong>' + esc(result.detected) + '</strong>';
+      b.style.display = 'block';
+    }
+
+    updateHero(outFmt);
+    renderTable(currentDate);
+  }
+
+  function updateHero(outFmt) {
+    if (!currentDate) return;
+    const val  = fmt(currentDate, outFmt);
+    const hero = document.getElementById('heroValue');
+    hero.textContent = val;
+    hero.className   = '';
+    document.getElementById('heroMeta').textContent = 'Pattern: ' + (outFmt === 'relative' ? 'relative' : outFmt);
+    document.getElementById('heroCopyBtn').disabled = false;
+  }
+
+  function resetHero() {
+    const hero = document.getElementById('heroValue');
+    hero.textContent = 'Enter a date on the left and click Convert';
+    hero.className   = 'placeholder';
+    document.getElementById('heroMeta').textContent = '';
+    document.getElementById('heroCopyBtn').disabled = true;
+    currentDate = null;
+  }
+
+  function renderTable(d) {
+    const empty = document.getElementById('emptyState');
+    const table = document.getElementById('formatsTable');
+    if (!d) { empty.style.display='flex'; table.style.display='none'; return; }
+
+    empty.style.display = 'none';
+    table.style.display = 'block';
+
+    let html = '';
+    for (const cat of CATEGORIES) {
+      html += `<div class="cat-block"><div class="cat-title">${cat.title}</div>`;
+      for (const row of cat.rows) {
+        const result = fmt(d, row.pattern);
+        html += `<div class="fmt-row">
+          <span class="fmt-name">${esc(row.name)}</span>
+          <span class="fmt-result">${esc(result)}</span>
+          <button class="copy-cell" onclick="copyText('${esc(result).replace(/'/g,"&#39;")}')">Copy</button>
+        </div>`;
+      }
+      html += '</div>';
+    }
+    table.innerHTML = html;
+  }
+
+  // ── Quick fill ──
+  function useToday() {
+    document.getElementById('dateInput').value = dayjs().format('YYYY-MM-DD');
+    document.getElementById('inputFormat').value = 'YYYY-MM-DD';
+    clearFeedback();
+    convertDate();
+  }
+
+  function useNow() {
+    document.getElementById('dateInput').value = dayjs().format('YYYY-MM-DDTHH:mm:ss');
+    document.getElementById('inputFormat').value = 'YYYY-MM-DDTHH:mm:ss';
+    clearFeedback();
+    convertDate();
+  }
+
+  function clearAll() {
+    document.getElementById('dateInput').value = '';
+    clearFeedback();
+    resetHero();
+    renderTable(null);
+  }
+
+  function onOutputChange() {
+    if (currentDate) updateHero(document.getElementById('outputFormat').value);
+    if (currentDate) renderTable(currentDate);
+  }
+
+  // ── Feedback helpers ──
+  function clearFeedback() {
+    document.getElementById('detectedBadge').style.display = 'none';
+    document.getElementById('errorBanner').style.display   = 'none';
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorBanner');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // ── Copy ──
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); }
+    catch {
+      const t = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove();
+    }
+    const el = document.getElementById('toast');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1800);
+  }
+</script>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

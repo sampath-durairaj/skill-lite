@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Java Best Practices — Best Practices</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+  <style>
+    .bp-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      background: rgba(245,158,11,.15);
+      border: 1px solid rgba(245,158,11,.35);
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      color: #f59e0b;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+    .bp-title {
+      display: flex;
+      align-items: center;
+      margin-top: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .bp-title h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.2px;
+    }
+    .bp-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 10px;
+      background: rgba(245,158,11,.12);
+      color: #f59e0b;
+      border: 1px solid rgba(245,158,11,.25);
+    }
+    .bp-tag.green  { background: rgba(34,197,94,.12); color: #16a34a; border-color: rgba(34,197,94,.25); }
+    .bp-tag.blue   { background: rgba(59,130,246,.12); color: #2563eb; border-color: rgba(59,130,246,.25); }
+    .bp-tag.purple { background: rgba(124,58,237,.12); color: #7c3aed; border-color: rgba(124,58,237,.25); }
+    .bp-tag.red    { background: rgba(220,38,38,.12); color: #dc2626; border-color: rgba(220,38,38,.25); }
+    .bp-desc {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 2rem;
+      column-count: 2;
+      column-gap: 2rem;
+    }
+    .toc a {
+      display: block;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 3px 0;
+      break-inside: avoid;
+    }
+    .toc a:hover { color: #f59e0b; }
+    .toc a span { color: #f59e0b; font-weight: 700; margin-right: 6px; }
+    @media (max-width: 640px) { .toc { column-count: 1; } }
+  </style>
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="java.html">Best Practices</a><span class="sep">/</span>Java</div>
+      <h1>Java Best Practices</h1>
+      <p class="lead">25 battle-tested rules for writing Java code that is readable, maintainable, safe, and performant — with concrete examples of what to do and what to avoid.</p>
+
+      <!-- TOC -->
+      <div class="toc">
+        <a href="#bp1"><span>01</span>Follow naming conventions</a>
+        <a href="#bp2"><span>02</span>Use meaningful names</a>
+        <a href="#bp3"><span>03</span>Program to interfaces</a>
+        <a href="#bp4"><span>04</span>Prefer immutability</a>
+        <a href="#bp5"><span>05</span>Use Optional, not null</a>
+        <a href="#bp6"><span>06</span>Prefer composition over inheritance</a>
+        <a href="#bp7"><span>07</span>Use try-with-resources</a>
+        <a href="#bp8"><span>08</span>Handle exceptions specifically</a>
+        <a href="#bp9"><span>09</span>Use enums, not int constants</a>
+        <a href="#bp10"><span>10</span>Override equals &amp; hashCode together</a>
+        <a href="#bp11"><span>11</span>Use the Builder pattern</a>
+        <a href="#bp12"><span>12</span>Validate parameters early</a>
+        <a href="#bp13"><span>13</span>Use StringBuilder in loops</a>
+        <a href="#bp14"><span>14</span>Use generics, avoid raw types</a>
+        <a href="#bp15"><span>15</span>Prefer Stream API for collections</a>
+        <a href="#bp16"><span>16</span>Use immutable collections</a>
+        <a href="#bp17"><span>17</span>Use records for data carriers</a>
+        <a href="#bp18"><span>18</span>Leverage var for local variables</a>
+        <a href="#bp19"><span>19</span>Use pattern matching instanceof</a>
+        <a href="#bp20"><span>20</span>Apply Single Responsibility</a>
+        <a href="#bp21"><span>21</span>Replace magic numbers with constants</a>
+        <a href="#bp22"><span>22</span>Always use @Override</a>
+        <a href="#bp23"><span>23</span>Use proper logging</a>
+        <a href="#bp24"><span>24</span>Write thread-safe code correctly</a>
+        <a href="#bp25"><span>25</span>Use Optional methods correctly</a>
+        <a href="#bp26"><span>26</span>Close streams and connections</a>
+        <a href="#bp27"><span>27</span>Prefer switch expressions</a>
+        <a href="#bp28"><span>28</span>Use sealed classes for hierarchies</a>
+      </div>
+
+      <!-- ── 01 ── -->
+      <div class="bp-title" id="bp1">
+        <span class="bp-number">01</span>
+        <h3>Follow Naming Conventions</h3>
+        <span class="bp-tag">Readability</span>
+      </div>
+      <p class="bp-desc">Consistent naming makes code self-documenting. Java has industry-wide conventions that every developer expects — violating them creates cognitive friction for everyone reading your code.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — inconsistent, cryptic names
+class account_manager { }
+int X = 10;
+void DoSomething() { }
+final int max_retry = 3;
+
+// ✓ Good — standard Java conventions
+class AccountManager { }           // PascalCase for classes
+int itemCount = 10;                // lowerCamelCase for variables
+void processPayment() { }         // lowerCamelCase for methods
+static final int MAX_RETRY = 3;   // SCREAMING_SNAKE_CASE for constants
+interface Printable { }           // PascalCase for interfaces (no "I" prefix)
+enum OrderStatus { PENDING, SHIPPED, DELIVERED }  // PascalCase enum, UPPER values</code></pre>
+
+      <!-- ── 02 ── -->
+      <div class="bp-title" id="bp2">
+        <span class="bp-number">02</span>
+        <h3>Use Meaningful, Pronounceable Names</h3>
+        <span class="bp-tag">Readability</span>
+      </div>
+      <p class="bp-desc">Names should reveal intent. If you need a comment to explain a variable, the name is wrong. Avoid abbreviations, single letters (except loop counters), and vague terms like <code>data</code>, <code>info</code>, or <code>temp</code>.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad
+int d;               // elapsed time in days
+List&lt;int[]&gt; list1;
+String s = getUserInput();
+void calc(int a, int b) { }
+
+// ✓ Good
+int elapsedDays;
+List&lt;int[]&gt; flaggedCells;
+String rawUserInput = getUserInput();
+void calculateMonthlyInterest(int principal, int ratePercent) { }
+
+// ✓ Boolean names should read as questions
+boolean isEmpty;            // not "empty"
+boolean hasPermission;      // not "permission"
+boolean isUserAuthenticated; // not "auth"</code></pre>
+
+      <!-- ── 03 ── -->
+      <div class="bp-title" id="bp3">
+        <span class="bp-number">03</span>
+        <h3>Program to Interfaces, Not Implementations</h3>
+        <span class="bp-tag blue">Design</span>
+      </div>
+      <p class="bp-desc">Declaring variables and parameters with interface types decouples your code from specific implementations, making it easier to swap, mock, and test.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — locked to ArrayList
+ArrayList&lt;String&gt; names = new ArrayList&lt;&gt;();
+HashMap&lt;String, User&gt; cache = new HashMap&lt;&gt;();
+
+// ✓ Good — flexible, mockable
+List&lt;String&gt; names = new ArrayList&lt;&gt;();
+Map&lt;String, User&gt; cache = new HashMap&lt;&gt;();
+
+// ✓ Same principle for method signatures
+// ✗ Bad
+public void process(ArrayList&lt;Order&gt; orders) { }
+
+// ✓ Good — accepts any List implementation
+public void process(List&lt;Order&gt; orders) { }
+
+// ✓ Even better — accept the most general type needed
+public void process(Collection&lt;Order&gt; orders) { }
+public void process(Iterable&lt;Order&gt; orders) { }</code></pre>
+
+      <!-- ── 04 ── -->
+      <div class="bp-title" id="bp4">
+        <span class="bp-number">04</span>
+        <h3>Prefer Immutability</h3>
+        <span class="bp-tag green">Safety</span>
+      </div>
+      <p class="bp-desc">Immutable objects are inherently thread-safe, easier to reason about, and cannot be corrupted by callers. Make fields <code>final</code> by default and only relax when mutation is truly needed.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — mutable, exposes internals
+public class Point {
+    public int x;
+    public int y;
+}
+
+// ✓ Good — immutable value object
+public final class Point {
+    private final int x;
+    private final int y;
+
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() { return x; }
+    public int getY() { return y; }
+
+    // Return new instance instead of mutating
+    public Point translate(int dx, int dy) {
+        return new Point(x + dx, y + dy);
+    }
+}
+
+// ✓ Java 16+ — use records for immutable data
+public record Point(int x, int y) {
+    public Point translate(int dx, int dy) {
+        return new Point(x + dx, y + dy);
+    }
+}</code></pre>
+
+      <!-- ── 05 ── -->
+      <div class="bp-title" id="bp5">
+        <span class="bp-number">05</span>
+        <h3>Use Optional Instead of Returning null</h3>
+        <span class="bp-tag red">Safety</span>
+      </div>
+      <p class="bp-desc"><code>null</code> is the billion-dollar mistake. Returning <code>Optional&lt;T&gt;</code> forces callers to explicitly handle the absent case, making <code>NullPointerException</code> much less likely.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — caller might forget null check
+public User findUserById(long id) {
+    return userRepository.find(id);  // can return null
+}
+User user = findUserById(42);
+System.out.println(user.getName()); // NPE if not found
+
+// ✓ Good — absence is explicit in the type
+public Optional&lt;User&gt; findUserById(long id) {
+    return Optional.ofNullable(userRepository.find(id));
+}
+
+// Caller must handle both cases
+findUserById(42)
+    .map(User::getName)
+    .ifPresent(System.out::println);
+
+// Or with a default
+String name = findUserById(42)
+    .map(User::getName)
+    .orElse("Unknown");
+
+// Or throw a meaningful exception
+User user = findUserById(42)
+    .orElseThrow(() -> new UserNotFoundException("User 42 not found"));</code></pre>
+
+      <!-- ── 06 ── -->
+      <div class="bp-title" id="bp6">
+        <span class="bp-number">06</span>
+        <h3>Prefer Composition Over Inheritance</h3>
+        <span class="bp-tag blue">Design</span>
+      </div>
+      <p class="bp-desc">Inheritance creates tight coupling between parent and child. Favour composition — hold a reference to a collaborator and delegate to it — for more flexible, reusable designs.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — inheriting just to reuse helper logic
+class EmailService extends SmtpClient {
+    public void sendWelcome(User user) {
+        send(user.getEmail(), "Welcome!");  // uses inherited method
+    }
+}
+
+// ✓ Good — SmtpClient is a collaborator, not a parent
+class EmailService {
+    private final SmtpClient smtpClient;   // composition
+
+    public EmailService(SmtpClient smtpClient) {
+        this.smtpClient = smtpClient;
+    }
+
+    public void sendWelcome(User user) {
+        smtpClient.send(user.getEmail(), "Welcome!");
+    }
+}
+// Now EmailService can be tested by injecting a mock SmtpClient</code></pre>
+
+      <!-- ── 07 ── -->
+      <div class="bp-title" id="bp7">
+        <span class="bp-number">07</span>
+        <h3>Always Use try-with-resources</h3>
+        <span class="bp-tag red">Safety</span>
+      </div>
+      <p class="bp-desc">Any class implementing <code>AutoCloseable</code> (streams, connections, readers) must be closed after use. <code>try-with-resources</code> guarantees closure even when exceptions occur — a manual <code>finally</code> block is error-prone.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — resource leak if exception occurs before close()
+BufferedReader reader = new BufferedReader(new FileReader("file.txt"));
+String line = reader.readLine();
+reader.close();   // never reached if readLine() throws
+
+// ✓ Good — auto-closed even on exception
+try (BufferedReader reader = new BufferedReader(new FileReader("file.txt"))) {
+    String line = reader.readLine();
+    System.out.println(line);
+}
+
+// ✓ Multiple resources — closed in reverse order
+try (
+    Connection conn = dataSource.getConnection();
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    ResultSet rs = stmt.executeQuery()
+) {
+    while (rs.next()) {
+        process(rs.getString("name"));
+    }
+}</code></pre>
+
+      <!-- ── 08 ── -->
+      <div class="bp-title" id="bp8">
+        <span class="bp-number">08</span>
+        <h3>Handle Exceptions at the Right Level</h3>
+        <span class="bp-tag red">Safety</span>
+      </div>
+      <p class="bp-desc">Catch the most specific exception possible. Never swallow exceptions silently. Handle errors where you have enough context to do something meaningful; otherwise let them propagate.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — swallows exception, hides bugs
+try {
+    processPayment(order);
+} catch (Exception e) {
+    // do nothing
+}
+
+// ✗ Bad — catches too broadly
+try {
+    int result = Integer.parseInt(input);
+} catch (Exception e) {
+    log.error("Error", e);
+}
+
+// ✓ Good — specific catch, meaningful message
+try {
+    int result = Integer.parseInt(input);
+} catch (NumberFormatException e) {
+    throw new InvalidInputException("Expected integer, got: " + input, e);
+}
+
+// ✓ Good — log + rethrow when you can't fully handle it
+try {
+    userService.createUser(dto);
+} catch (DuplicateEmailException e) {
+    log.warn("Duplicate email attempt: {}", dto.getEmail());
+    throw e;  // let the controller turn it into a 409
+}</code></pre>
+
+      <!-- ── 09 ── -->
+      <div class="bp-title" id="bp9">
+        <span class="bp-number">09</span>
+        <h3>Use Enums Instead of int Constants</h3>
+        <span class="bp-tag green">Safety</span>
+      </div>
+      <p class="bp-desc">Integer constants like <code>STATUS_ACTIVE = 1</code> provide no type safety — any integer can be passed. Enums are compile-time safe, support methods and fields, and are self-documenting.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — int constants
+public static final int STATUS_PENDING  = 0;
+public static final int STATUS_ACTIVE   = 1;
+public static final int STATUS_INACTIVE = 2;
+
+void activate(int status) { }   // accepts any int — no safety
+
+// ✓ Good — type-safe enum with behaviour
+public enum OrderStatus {
+    PENDING("Awaiting payment"),
+    PROCESSING("Being prepared"),
+    SHIPPED("En route"),
+    DELIVERED("Received"),
+    CANCELLED("Cancelled");
+
+    private final String description;
+
+    OrderStatus(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() { return description; }
+
+    public boolean isFinal() {
+        return this == DELIVERED || this == CANCELLED;
+    }
+}
+
+void ship(OrderStatus status) { }  // only OrderStatus values accepted</code></pre>
+
+      <!-- ── 10 ── -->
+      <div class="bp-title" id="bp10">
+        <span class="bp-number">10</span>
+        <h3>Override equals() and hashCode() Together</h3>
+        <span class="bp-tag red">Correctness</span>
+      </div>
+      <p class="bp-desc">If you override <code>equals()</code>, you <em>must</em> override <code>hashCode()</code>. Objects that are <code>equals()</code> must have the same <code>hashCode()</code>. Violating this breaks <code>HashMap</code>, <code>HashSet</code>, and any hash-based structure.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — only overrides equals, breaks HashMap
+public class Product {
+    private final String sku;
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Product p)) return false;
+        return Objects.equals(sku, p.sku);
+    }
+    // Missing hashCode — Product is broken in HashSet/HashMap!
+}
+
+// ✓ Good — both overridden consistently
+import java.util.Objects;
+
+public class Product {
+    private final String sku;
+    private final String name;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product p)) return false;
+        return Objects.equals(sku, p.sku);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sku);   // same fields as equals
+    }
+}
+
+// ✓ Best for pure data — use records (auto-generates both)
+public record Product(String sku, String name) { }</code></pre>
+
+      <!-- ── 11 ── -->
+      <div class="bp-title" id="bp11">
+        <span class="bp-number">11</span>
+        <h3>Use the Builder Pattern for Complex Objects</h3>
+        <span class="bp-tag blue">Design</span>
+      </div>
+      <p class="bp-desc">Constructors with many parameters are hard to read and error-prone — it's easy to swap two arguments of the same type. Builders make construction explicit and readable, especially when some parameters are optional.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — what does each argument mean?
+new User("Alice", "alice@example.com", true, false, null, "en");
+
+// ✓ Good — self-documenting builder
+User user = User.builder()
+    .name("Alice")
+    .email("alice@example.com")
+    .active(true)
+    .locale("en")
+    .build();
+
+// Classic builder implementation
+public class User {
+    private final String name;
+    private final String email;
+    private final boolean active;
+    private final String locale;
+
+    private User(Builder b) {
+        this.name   = Objects.requireNonNull(b.name, "name required");
+        this.email  = Objects.requireNonNull(b.email, "email required");
+        this.active = b.active;
+        this.locale = b.locale != null ? b.locale : "en";
+    }
+
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private String name, email, locale;
+        private boolean active = true;
+
+        public Builder name(String v)   { this.name = v;   return this; }
+        public Builder email(String v)  { this.email = v;  return this; }
+        public Builder active(boolean v){ this.active = v;  return this; }
+        public Builder locale(String v) { this.locale = v; return this; }
+        public User build()             { return new User(this); }
+    }
+}</code></pre>
+
+      <!-- ── 12 ── -->
+      <div class="bp-title" id="bp12">
+        <span class="bp-number">12</span>
+        <h3>Validate Parameters at the Boundary</h3>
+        <span class="bp-tag red">Safety</span>
+      </div>
+      <p class="bp-desc">Validate inputs at the point they enter your system — public constructors, public methods, and API handlers. Failing fast with a clear message is infinitely better than a <code>NullPointerException</code> three stack frames deeper.</p>
+      <pre class="code" data-lang="java"><code>import java.util.Objects;
+
+public class BankAccount {
+    private final String accountId;
+    private double balance;
+
+    public BankAccount(String accountId, double initialBalance) {
+        // Validate immediately, fail with meaningful messages
+        this.accountId = Objects.requireNonNull(accountId, "accountId must not be null");
+        if (accountId.isBlank()) throw new IllegalArgumentException("accountId must not be blank");
+        if (initialBalance &lt; 0)  throw new IllegalArgumentException("Initial balance cannot be negative");
+        this.balance = initialBalance;
+    }
+
+    public void deposit(double amount) {
+        if (amount &lt;= 0) throw new IllegalArgumentException("Deposit amount must be positive, was: " + amount);
+        this.balance += amount;
+    }
+
+    public void withdraw(double amount) {
+        if (amount &lt;= 0)          throw new IllegalArgumentException("Withdrawal amount must be positive");
+        if (amount &gt; this.balance) throw new IllegalStateException("Insufficient funds");
+        this.balance -= amount;
+    }
+}</code></pre>
+
+      <!-- ── 13 ── -->
+      <div class="bp-title" id="bp13">
+        <span class="bp-number">13</span>
+        <h3>Use StringBuilder for String Concatenation in Loops</h3>
+        <span class="bp-tag">Performance</span>
+      </div>
+      <p class="bp-desc">Strings are immutable. Using <code>+</code> inside a loop creates a new <code>String</code> object on every iteration — O(n²) allocations. <code>StringBuilder</code> maintains a resizable buffer and is O(n).</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — O(n²) allocations for n items
+String result = "";
+for (String item : items) {
+    result += item + ", ";  // creates new String each iteration
+}
+
+// ✓ Good — single buffer, O(n)
+StringBuilder sb = new StringBuilder();
+for (String item : items) {
+    sb.append(item).append(", ");
+}
+String result = sb.toString();
+
+// ✓ Even better — use String.join() or Stream for simple cases
+String joined = String.join(", ", items);
+
+String joined2 = items.stream()
+    .collect(java.util.stream.Collectors.joining(", "));
+
+// Note: the "+" operator INSIDE a single expression (not loop) is fine
+// The compiler optimises it automatically
+String msg = "Hello, " + name + "! You have " + count + " messages."; // OK</code></pre>
+
+      <!-- ── 14 ── -->
+      <div class="bp-title" id="bp14">
+        <span class="bp-number">14</span>
+        <h3>Use Generics — Avoid Raw Types</h3>
+        <span class="bp-tag green">Safety</span>
+      </div>
+      <p class="bp-desc">Raw types (e.g. <code>List</code> instead of <code>List&lt;String&gt;</code>) bypass the type system, pushing errors to runtime. Generics catch type mismatches at compile time and eliminate unchecked casts.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — raw type, unchecked cast at runtime
+List names = new ArrayList();
+names.add("Alice");
+names.add(42);              // compiles, then blows up
+String first = (String) names.get(0);
+
+// ✓ Good — type-safe, compiler catches mistakes
+List&lt;String&gt; names = new ArrayList&lt;&gt;();
+names.add("Alice");
+// names.add(42);           // compile error — caught early
+String first = names.get(0); // no cast needed
+
+// ✓ Generic methods
+public &lt;T extends Comparable&lt;T&gt;&gt; T max(List&lt;T&gt; list) {
+    return list.stream().max(Comparator.naturalOrder())
+               .orElseThrow(NoSuchElementException::new);
+}
+
+// ✓ Bounded wildcards for flexibility
+public double sumList(List&lt;? extends Number&gt; list) {
+    return list.stream().mapToDouble(Number::doubleValue).sum();
+}</code></pre>
+
+      <!-- ── 15 ── -->
+      <div class="bp-title" id="bp15">
+        <span class="bp-number">15</span>
+        <h3>Prefer the Stream API for Collection Processing</h3>
+        <span class="bp-tag blue">Design</span>
+      </div>
+      <p class="bp-desc">Stream pipelines express <em>what</em> to compute, not <em>how</em> — making the intent immediately clear. They also enable lazy evaluation and easy parallelism.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Imperative — verbose, noisy
+List&lt;String&gt; result = new ArrayList&lt;&gt;();
+for (Order order : orders) {
+    if (order.getStatus() == OrderStatus.SHIPPED) {
+        String name = order.getCustomerName().toUpperCase();
+        result.add(name);
+    }
+}
+Collections.sort(result);
+
+// ✓ Declarative — reads like a specification
+List&lt;String&gt; result = orders.stream()
+    .filter(o -&gt; o.getStatus() == OrderStatus.SHIPPED)
+    .map(Order::getCustomerName)
+    .map(String::toUpperCase)
+    .sorted()
+    .collect(Collectors.toList());   // or .toList() in Java 16+
+
+// ✓ Grouping, counting
+Map&lt;OrderStatus, Long&gt; countByStatus = orders.stream()
+    .collect(Collectors.groupingBy(Order::getStatus, Collectors.counting()));
+
+// ✓ Parallel for large datasets (only when order doesn't matter)
+long expensiveOrderCount = orders.parallelStream()
+    .filter(o -&gt; o.getTotal() &gt; 1000)
+    .count();</code></pre>
+
+      <!-- ── 16 ── -->
+      <div class="bp-title" id="bp16">
+        <span class="bp-number">16</span>
+        <h3>Use Immutable Collections</h3>
+        <span class="bp-tag green">Safety</span>
+      </div>
+      <p class="bp-desc">Returning mutable internal collections exposes your object's state. Return immutable views or copies so callers cannot corrupt your internals.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — caller can modify your internal list
+public List&lt;String&gt; getRoles() {
+    return roles;   // direct reference leaks
+}
+
+// ✓ Good — unmodifiable view (Java 9+)
+public List&lt;String&gt; getRoles() {
+    return Collections.unmodifiableList(roles);
+}
+
+// ✓ Best — factory methods create truly immutable collections (Java 9+)
+List&lt;String&gt; DAYS = List.of("Mon", "Tue", "Wed", "Thu", "Fri");
+Set&lt;String&gt; CODES = Set.of("A", "B", "C");
+Map&lt;String, Integer&gt; HTTP = Map.of("OK", 200, "NOT_FOUND", 404);
+
+// ✓ Copying a mutable collection to make it immutable
+List&lt;String&gt; snapshot = List.copyOf(mutableList);
+
+// Note: List.of() / Set.of() do NOT allow null elements
+// Use Collections.unmodifiableList(list) if nulls are possible</code></pre>
+
+      <!-- ── 17 ── -->
+      <div class="bp-title" id="bp17">
+        <span class="bp-number">17</span>
+        <h3>Use Records for Data Carriers (Java 16+)</h3>
+        <span class="bp-tag purple">Modern Java</span>
+      </div>
+      <p class="bp-desc">Records eliminate the boilerplate of DTOs and value objects — constructor, getters, <code>equals()</code>, <code>hashCode()</code>, and <code>toString()</code> are all generated automatically.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — 40 lines of boilerplate for a simple DTO
+public class UserDto {
+    private final String name;
+    private final String email;
+    public UserDto(String name, String email) { ... }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    @Override public boolean equals(Object o) { ... }
+    @Override public int hashCode() { ... }
+    @Override public String toString() { ... }
+}
+
+// ✓ Good — 1 line, all of the above generated
+public record UserDto(String name, String email) { }
+
+// ✓ Records with custom validation
+public record Temperature(double value, String unit) {
+    // Compact constructor — runs before fields are assigned
+    public Temperature {
+        if (!Set.of("C", "F", "K").contains(unit))
+            throw new IllegalArgumentException("Unknown unit: " + unit);
+        if (unit.equals("K") &amp;&amp; value &lt; 0)
+            throw new IllegalArgumentException("Kelvin cannot be negative");
+    }
+
+    public Temperature toCelsius() {
+        return switch (unit) {
+            case "C" -&gt; this;
+            case "F" -&gt; new Temperature((value - 32) * 5 / 9, "C");
+            case "K" -&gt; new Temperature(value - 273.15, "C");
+            default  -&gt; throw new IllegalStateException();
+        };
+    }
+}</code></pre>
+
+      <!-- ── 18 ── -->
+      <div class="bp-title" id="bp18">
+        <span class="bp-number">18</span>
+        <h3>Use var for Local Variable Type Inference (Java 10+)</h3>
+        <span class="bp-tag purple">Modern Java</span>
+      </div>
+      <p class="bp-desc"><code>var</code> removes redundant type declarations without sacrificing type safety. Use it when the type is obvious from the right-hand side; keep explicit types when they add clarity.</p>
+      <pre class="code" data-lang="java"><code>// ✓ Good uses of var — type is obvious from RHS
+var names   = new ArrayList&lt;String&gt;();
+var counter = Map.entry("hits", 42);
+var path    = Paths.get("/tmp/output.csv");
+
+try (var reader = new BufferedReader(new FileReader("data.txt"))) {
+    var line = reader.readLine();
+}
+
+// ✓ Great in for-each when type is long
+for (var entry : userPermissionMap.entrySet()) {
+    System.out.println(entry.getKey() + " → " + entry.getValue());
+}
+
+// ✗ Bad uses — type is not obvious; reduces readability
+var result = process(data);       // what type does process() return?
+var x = 42;                       // just write int x = 42
+
+// var is only for LOCAL variables — cannot use for fields, params, or return types
+// var names; ← compile error (cannot infer without initialiser)</code></pre>
+
+      <!-- ── 19 ── -->
+      <div class="bp-title" id="bp19">
+        <span class="bp-number">19</span>
+        <h3>Use Pattern Matching instanceof (Java 16+)</h3>
+        <span class="bp-tag purple">Modern Java</span>
+      </div>
+      <p class="bp-desc">Pattern matching eliminates the redundant cast after an <code>instanceof</code> check, reducing boilerplate and making the code harder to misread.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Old style — check then cast (redundant)
+if (shape instanceof Circle) {
+    Circle c = (Circle) shape;   // already know it's a Circle!
+    return Math.PI * c.getRadius() * c.getRadius();
+}
+
+// ✓ Pattern matching — check + bind in one step (Java 16+)
+if (shape instanceof Circle c) {
+    return Math.PI * c.getRadius() * c.getRadius();
+}
+
+// ✓ With sealed classes and switch expressions (Java 21 — switch patterns)
+double area = switch (shape) {
+    case Circle c    -&gt; Math.PI * c.radius() * c.radius();
+    case Rectangle r -&gt; r.width() * r.height();
+    case Triangle t  -&gt; 0.5 * t.base() * t.height();
+};
+
+// ✓ Pattern matching in equals()
+@Override
+public boolean equals(Object o) {
+    return o instanceof Point p
+        &amp;&amp; this.x == p.x
+        &amp;&amp; this.y == p.y;
+}</code></pre>
+
+      <!-- ── 20 ── -->
+      <div class="bp-title" id="bp20">
+        <span class="bp-number">20</span>
+        <h3>Apply the Single Responsibility Principle</h3>
+        <span class="bp-tag blue">Design</span>
+      </div>
+      <p class="bp-desc">A class should have only one reason to change. When a class handles multiple concerns, a change in one concern risks breaking another. Keep classes focused — small, cohesive, and testable.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — one class doing everything
+class OrderProcessor {
+    public void processOrder(Order order) {
+        // Validation logic
+        if (order.getItems().isEmpty()) throw new InvalidOrderException("...");
+        // Persistence logic
+        orderRepository.save(order);
+        // Email logic
+        emailClient.send(order.getCustomerEmail(), "Your order...");
+        // Invoice PDF logic
+        pdfService.generate(order);
+    }
+}
+
+// ✓ Good — each class has one responsibility
+class OrderValidator {
+    public void validate(Order order) { /* validation only */ }
+}
+class OrderRepository {
+    public void save(Order order) { /* persistence only */ }
+}
+class OrderNotifier {
+    public void notifyCustomer(Order order) { /* email only */ }
+}
+class InvoiceGenerator {
+    public void generate(Order order) { /* PDF only */ }
+}
+class OrderService {
+    // Coordinates the workflow — its single responsibility
+    public void processOrder(Order order) {
+        validator.validate(order);
+        repository.save(order);
+        notifier.notifyCustomer(order);
+        invoiceGenerator.generate(order);
+    }
+}</code></pre>
+
+      <!-- ── 21 ── -->
+      <div class="bp-title" id="bp21">
+        <span class="bp-number">21</span>
+        <h3>Replace Magic Numbers and Strings with Named Constants</h3>
+        <span class="bp-tag">Readability</span>
+      </div>
+      <p class="bp-desc">Literal values embedded in code are opaque and fragile — when you need to change a value, you have to find every occurrence. Named constants document intent and centralise change.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — what do these numbers mean?
+if (account.getBalance() &lt; 500) {
+    applyFee(12.50);
+}
+Thread.sleep(5000);
+String url = "https://api.example.com/v2/users";
+
+// ✓ Good — intent is clear, single place to change
+private static final double MINIMUM_BALANCE         = 500.00;
+private static final double LOW_BALANCE_FEE         = 12.50;
+private static final long   POLL_INTERVAL_MS        = 5_000L;
+private static final String USER_API_ENDPOINT       = "https://api.example.com/v2/users";
+
+if (account.getBalance() &lt; MINIMUM_BALANCE) {
+    applyFee(LOW_BALANCE_FEE);
+}
+Thread.sleep(POLL_INTERVAL_MS);
+
+// ✓ Use enum for related groups of constants (see Best Practice #09)
+// ✓ Use underscore separators in long numeric literals (Java 7+)
+long worldPopulation = 8_000_000_000L;
+double pi            = 3.141_592_653;</code></pre>
+
+      <!-- ── 22 ── -->
+      <div class="bp-title" id="bp22">
+        <span class="bp-number">22</span>
+        <h3>Always Use @Override</h3>
+        <span class="bp-tag green">Safety</span>
+      </div>
+      <p class="bp-desc">The <code>@Override</code> annotation tells the compiler to verify that you are actually overriding a method. Without it, a typo creates a new method instead of overriding the intended one — a silent, hard-to-find bug.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — typo creates a NEW method instead of overriding equals()
+public class User {
+    public boolean equal(Object o) {  // ← typo: "equal" not "equals"
+        // This is never called by Java's equality mechanism
+        return o instanceof User u &amp;&amp; this.id == u.id;
+    }
+}
+user1.equals(user2); // calls Object.equals() — always false (reference equality)!
+
+// ✓ Good — @Override catches the typo at compile time
+public class User {
+    @Override
+    public boolean equals(Object o) { // compiler verifies this overrides Object.equals
+        return o instanceof User u &amp;&amp; this.id == u.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "User{id=" + id + ", name='" + name + "'}";
+    }
+}</code></pre>
+
+      <!-- ── 23 ── -->
+      <div class="bp-title" id="bp23">
+        <span class="bp-number">23</span>
+        <h3>Use a Proper Logging Framework</h3>
+        <span class="bp-tag">Observability</span>
+      </div>
+      <p class="bp-desc"><code>System.out.println</code> has no log levels, no timestamps, no caller info, and cannot be disabled in production. SLF4J with Logback/Log4j2 gives you structured, configurable, production-grade logging.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad
+System.out.println("User " + user.getId() + " logged in");
+System.err.println("Error processing payment: " + e.getMessage());
+
+// ✓ Good — SLF4J (facade) + Logback/Log4j2 (implementation)
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class PaymentService {
+    // One logger per class — use class literal for refactoring safety
+    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
+
+    public void processPayment(Payment payment) {
+        log.debug("Processing payment: id={}, amount={}", payment.getId(), payment.getAmount());
+        try {
+            gateway.charge(payment);
+            log.info("Payment successful: id={}", payment.getId());
+        } catch (PaymentGatewayException e) {
+            // Pass exception as last argument — SLF4J prints the stack trace
+            log.error("Payment failed: id={}", payment.getId(), e);
+            throw e;
+        }
+    }
+}
+// Use parameterised messages — NOT string concatenation
+// log.debug("User: " + id);     ← string built even when DEBUG is disabled
+// log.debug("User: {}", id);    ← string built only when DEBUG is enabled</code></pre>
+
+      <!-- ── 24 ── -->
+      <div class="bp-title" id="bp24">
+        <span class="bp-number">24</span>
+        <h3>Write Thread-Safe Code Correctly</h3>
+        <span class="bp-tag red">Concurrency</span>
+      </div>
+      <p class="bp-desc">Concurrency bugs are among the hardest to reproduce and debug. Use the right tool: <code>java.util.concurrent</code> classes for shared state, immutable objects where possible, and only raw <code>synchronized</code> when nothing else fits.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — not thread-safe counter
+private int count = 0;
+public void increment() { count++; }  // read-modify-write is not atomic
+
+// ✓ Good — AtomicInteger for single-variable counters
+private final AtomicInteger count = new AtomicInteger(0);
+public void increment() { count.incrementAndGet(); }
+
+// ✓ ConcurrentHashMap instead of HashMap + synchronized
+private final Map&lt;String, Session&gt; sessions = new ConcurrentHashMap&lt;&gt;();
+// sessions.put / get / remove are thread-safe without external sync
+
+// ✓ BlockingQueue for producer-consumer
+private final BlockingQueue&lt;Task&gt; queue = new LinkedBlockingQueue&lt;&gt;(100);
+// Producer
+queue.put(task);   // blocks if full
+// Consumer
+Task t = queue.take();  // blocks if empty
+
+// ✓ Use volatile for visibility-only (no compound actions)
+private volatile boolean running = true;
+public void stop()  { running = false; }
+public void run()   { while (running) { /* ... */ } }
+
+// ✓ Prefer higher-level: ExecutorService over raw Thread
+ExecutorService pool = Executors.newFixedThreadPool(4);
+Future&lt;Result&gt; future = pool.submit(() -&gt; heavyComputation());
+Result result = future.get();</code></pre>
+
+      <!-- ── 25 ── -->
+      <div class="bp-title" id="bp25">
+        <span class="bp-number">25</span>
+        <h3>Use Optional Methods Correctly — Never Call get() Without isPresent()</h3>
+        <span class="bp-tag red">Safety</span>
+      </div>
+      <p class="bp-desc">Calling <code>Optional.get()</code> on an empty Optional throws <code>NoSuchElementException</code>, defeating the entire purpose. Always use the safe terminal methods.</p>
+      <pre class="code" data-lang="java"><code>Optional&lt;User&gt; optUser = userRepo.findById(id);
+
+// ✗ Bad — NoSuchElementException if empty
+User user = optUser.get();
+
+// ✗ Still bad — verbose, same as null check
+if (optUser.isPresent()) {
+    User user = optUser.get();
+}
+
+// ✓ Good — idiomatic Optional usage
+// Provide a default value
+User user = optUser.orElse(User.ANONYMOUS);
+
+// Compute a default lazily
+User user = optUser.orElseGet(() -&gt; userRepo.createGuest());
+
+// Throw a meaningful exception
+User user = optUser.orElseThrow(() -&gt; new UserNotFoundException(id));
+
+// Transform and consume
+optUser
+    .map(User::getEmail)
+    .filter(email -&gt; email.endsWith("@company.com"))
+    .ifPresent(email -&gt; sendInternalAlert(email));
+
+// Execute action only if present
+optUser.ifPresent(u -&gt; auditLog.record(u, "LOGIN"));
+
+// Execute different actions for present/empty (Java 9+)
+optUser.ifPresentOrElse(
+    u  -&gt; log.info("Found user: {}", u.getName()),
+    () -&gt; log.warn("User {} not found", id)
+);</code></pre>
+
+      <!-- ── 26 ── -->
+      <div class="bp-title" id="bp26">
+        <span class="bp-number">26</span>
+        <h3>Close Streams and Connections — Prevent Resource Leaks</h3>
+        <span class="bp-tag red">Safety</span>
+      </div>
+      <p class="bp-desc">Unclosed streams exhaust file descriptors; unclosed connections exhaust connection pools. Use try-with-resources for everything <code>AutoCloseable</code> and be especially careful with Java 8 Streams that wrap I/O.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Bad — FileInputStream not closed on exception
+InputStream in = new FileInputStream("file.txt");
+processData(in);
+in.close();   // skipped if processData() throws
+
+// ✓ Good — always closed
+try (InputStream in = new FileInputStream("file.txt")) {
+    processData(in);
+}
+
+// ✓ Files.lines() returns a Stream that wraps I/O — MUST be closed
+try (Stream&lt;String&gt; lines = Files.lines(Paths.get("data.csv"))) {
+    lines.filter(l -&gt; l.startsWith("ACTIVE"))
+         .forEach(this::processLine);
+}
+// Without try-with-resources, the underlying file handle is never closed
+
+// ✓ HTTP clients
+try (HttpClient client = HttpClient.newHttpClient()) {  // Java 21+
+    HttpResponse&lt;String&gt; resp = client.send(request, BodyHandlers.ofString());
+    System.out.println(resp.body());
+}</code></pre>
+
+      <!-- ── 27 ── -->
+      <div class="bp-title" id="bp27">
+        <span class="bp-number">27</span>
+        <h3>Prefer Switch Expressions Over Switch Statements (Java 14+)</h3>
+        <span class="bp-tag purple">Modern Java</span>
+      </div>
+      <p class="bp-desc">Switch expressions are exhaustive (compiler ensures every case is covered), support arrow syntax (no fall-through), and return a value directly — eliminating common switch-statement bugs.</p>
+      <pre class="code" data-lang="java"><code>// ✗ Old switch statement — fall-through bugs, no return value
+String label;
+switch (day) {
+    case MONDAY:
+    case TUESDAY:
+        label = "Early week";
+        break;
+    case WEDNESDAY:
+        label = "Mid week";
+        break;
+    // Forgot THURSDAY, FRIDAY, WEEKEND — no compile error!
+    default:
+        label = "Unknown";
+}
+
+// ✓ Switch expression — exhaustive, no fall-through, returns value
+String label = switch (day) {
+    case MONDAY, TUESDAY             -&gt; "Early week";
+    case WEDNESDAY                   -&gt; "Mid week";
+    case THURSDAY, FRIDAY            -&gt; "Late week";
+    case SATURDAY, SUNDAY            -&gt; "Weekend";
+    // Compiler error if any DayOfWeek value is missing
+};
+
+// ✓ With yield for multi-statement cases
+int score = switch (grade) {
+    case "A" -&gt; 4;
+    case "B" -&gt; 3;
+    case "C" -&gt; {
+        log.warn("Low grade recorded");
+        yield 2;
+    }
+    default  -&gt; 0;
+};</code></pre>
+
+      <!-- ── 28 ── -->
+      <div class="bp-title" id="bp28">
+        <span class="bp-number">28</span>
+        <h3>Use Sealed Classes for Controlled Hierarchies (Java 17+)</h3>
+        <span class="bp-tag purple">Modern Java</span>
+      </div>
+      <p class="bp-desc">Sealed classes restrict which other classes can extend them. This enables exhaustive pattern matching and communicates that the type hierarchy is closed — callers don't need to handle unknown subtypes.</p>
+      <pre class="code" data-lang="java"><code>// ✓ Sealed hierarchy — only these three can implement Shape
+public sealed interface Shape
+    permits Circle, Rectangle, Triangle { }
+
+public record Circle(double radius)              implements Shape { }
+public record Rectangle(double width, double height) implements Shape { }
+public record Triangle(double base,  double height)  implements Shape { }
+
+// ✓ Compiler verifies exhaustiveness — no default needed
+double area = switch (shape) {
+    case Circle c    -&gt; Math.PI * c.radius() * c.radius();
+    case Rectangle r -&gt; r.width() * r.height();
+    case Triangle t  -&gt; 0.5 * t.base() * t.height();
+    // No default required — compiler knows all three cases are covered
+};
+
+// ✓ Great for domain modelling — e.g. payment result
+public sealed interface PaymentResult permits Success, Failure, Pending { }
+public record Success(String transactionId, double amount) implements PaymentResult { }
+public record Failure(String reason, int errorCode)        implements PaymentResult { }
+public record Pending(String referenceId)                  implements PaymentResult { }
+
+// Processing is exhaustive and type-safe
+String message = switch (result) {
+    case Success s  -&gt; "Charged " + s.amount();
+    case Failure f  -&gt; "Failed: " + f.reason();
+    case Pending p  -&gt; "Awaiting confirmation: " + p.referenceId();
+};</code></pre>
+
+      <div class="callout tip"><strong>Keep growing:</strong> These 28 practices cover naming, OOP, modern Java (10–21), safety, error handling, collections, concurrency, and observability. Apply them systematically — start with the red-tagged safety practices, then the readability and design ones, and finally adopt modern Java features as your JDK version allows.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

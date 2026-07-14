@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Models &amp; LLMs — LangChain Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title"><h1>Skill-Lite</h1><p>Practical tutorials &amp; tools for modern developers.</p></div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html" class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html" class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html" class="nav-dropdown-item">&#9889; API Tester</a>
+      </div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langchainDropdown" data-root=""></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html"  class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">LangChain</a><span class="sep">/</span>Models &amp; LLMs</div>
+      <h1>Models &amp; LLMs</h1>
+      <p class="lead">LangChain wraps every LLM provider behind a unified interface. Switch from OpenAI to Anthropic to a local Ollama model by changing one line — your chain logic stays the same.</p>
+
+      <h2>Model types</h2>
+      <table>
+        <tr><th>Type</th><th>Input</th><th>Output</th><th>Use case</th></tr>
+        <tr><td><code>ChatModel</code></td><td>List of messages</td><td>AIMessage</td><td>Conversation, instruction-following (most common)</td></tr>
+        <tr><td><code>LLM</code></td><td>Plain string</td><td>Plain string</td><td>Older completion-style APIs</td></tr>
+        <tr><td><code>Embeddings</code></td><td>Text</td><td>Float vector</td><td>Semantic search, RAG, similarity</td></tr>
+      </table>
+
+      <h2>OpenAI</h2>
+      <pre class="code" data-lang="python"><code>from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+
+# Chat model
+llm = ChatOpenAI(
+    model="gpt-4o",           # gpt-4o, gpt-4o-mini, gpt-3.5-turbo
+    temperature=0,            # 0 = deterministic, 1 = creative
+    max_tokens=1024,
+    timeout=30,
+    max_retries=2,
+)
+
+response = llm.invoke("What is LangChain?")
+print(response.content)      # AIMessage.content
+
+# Embeddings
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+vector = embeddings.embed_query("Hello world")
+print(len(vector))           # 1536 dimensions</code></pre>
+
+      <h2>Anthropic (Claude)</h2>
+      <pre class="code" data-lang="python"><code>from langchain_anthropic import ChatAnthropic
+
+llm = ChatAnthropic(
+    model="claude-sonnet-5",   # claude-opus-4-8, claude-haiku-4-5
+    temperature=0,
+    max_tokens=2048,
+)
+
+response = llm.invoke("Explain RAG in one paragraph.")
+print(response.content)</code></pre>
+
+      <h2>Local models with Ollama</h2>
+      <pre class="code" data-lang="bash"><code># Install Ollama and pull a model locally
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull llama3.2
+ollama pull nomic-embed-text   # for embeddings</code></pre>
+      <pre class="code" data-lang="python"><code>from langchain_community.chat_models import ChatOllama
+from langchain_community.embeddings import OllamaEmbeddings
+
+# Completely local — no API key needed
+llm = ChatOllama(model="llama3.2", temperature=0)
+embeddings = OllamaEmbeddings(model="nomic-embed-text")
+
+response = llm.invoke("What is a neural network?")
+print(response.content)</code></pre>
+
+      <h2>Streaming responses</h2>
+      <pre class="code" data-lang="python"><code>llm = ChatOpenAI(model="gpt-4o-mini", streaming=True)
+
+# Print tokens as they arrive
+for chunk in llm.stream("Write a haiku about Python."):
+    print(chunk.content, end="", flush=True)
+
+# Async streaming
+import asyncio
+
+async def stream_async():
+    async for chunk in llm.astream("Write a poem about Docker."):
+        print(chunk.content, end="", flush=True)
+
+asyncio.run(stream_async())</code></pre>
+
+      <h2>Batch inference</h2>
+      <pre class="code" data-lang="python"><code># Process multiple prompts in parallel (respects rate limits)
+questions = [
+    "What is Docker?",
+    "What is Kubernetes?",
+    "What is LangChain?",
+]
+
+responses = llm.batch(questions)
+for q, r in zip(questions, responses):
+    print(f"Q: {q}")
+    print(f"A: {r.content}\n")</code></pre>
+
+      <h2>Model configuration &amp; caching</h2>
+      <pre class="code" data-lang="python"><code">from langchain.globals import set_llm_cache
+from langchain.cache import InMemoryCache, SQLiteCache
+
+# Cache responses in memory (useful during development)
+set_llm_cache(InMemoryCache())
+
+# Or persist to SQLite (survives restarts)
+set_llm_cache(SQLiteCache(database_path=".langchain.db"))
+
+# The same prompt now returns instantly from cache
+llm.invoke("What is 2 + 2?")   # hits API
+llm.invoke("What is 2 + 2?")   # returns from cache</code></pre>
+
+      <h2>Token counting &amp; cost estimation</h2>
+      <pre class="code" data-lang="python"><code">from langchain_openai import ChatOpenAI
+from langchain_core.callbacks import UsageMetadataCallbackHandler
+
+callback = UsageMetadataCallbackHandler()
+llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
+
+llm.invoke("Summarise the history of Docker in 3 bullet points.")
+
+print(callback.usage_metadata)
+# {'input_tokens': 18, 'output_tokens': 87, 'total_tokens': 105}</code></pre>
+
+      <h2>Switching providers (the key benefit)</h2>
+      <pre class="code" data-lang="python"><code">def get_llm(provider: str):
+    if provider == "openai":
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(model="gpt-4o-mini", temperature=0)
+    elif provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+        return ChatAnthropic(model="claude-haiku-4-5", temperature=0)
+    elif provider == "ollama":
+        from langchain_community.chat_models import ChatOllama
+        return ChatOllama(model="llama3.2", temperature=0)
+
+# Your chain works with any provider
+llm = get_llm("anthropic")
+response = llm.invoke("What is LangChain?")</code></pre>
+
+      <div class="callout tip"><strong>Temperature guide:</strong> use <code>0</code> for factual tasks (code generation, data extraction), <code>0.3–0.7</code> for balanced responses, and <code>0.9–1.0</code> for creative writing. Keep it at <code>0</code> when building RAG or agent pipelines for reproducibility.</div>
+    </article>
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

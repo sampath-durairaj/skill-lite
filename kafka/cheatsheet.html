@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLI Cheat Sheet — Apache Kafka Tutorial</title>
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <div class="logo">&#9881;</div>
+    <div class="app-title">
+      <h1>Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Kafka</a><span class="sep">/</span>CLI Cheat Sheet</div>
+      <h1>Kafka CLI Cheat Sheet</h1>
+      <p class="lead">All the shell commands you'll reach for daily — topic management, producing, consuming, consumer group inspection, offset resets, and common configs.</p>
+
+      <div class="callout tip"><strong>Shorthand:</strong> replace <code>kafka-topics.sh</code> with <code>kafka-topics</code> (no extension) on installations that include the shell wrapper. All commands assume <code>--bootstrap-server localhost:9092</code>; set an alias: <code>alias kbs="--bootstrap-server localhost:9092"</code>.</div>
+
+      <h2>Topics</h2>
+      <pre class="code" data-lang="bash"><code># List all topics
+kafka-topics.sh --bootstrap-server localhost:9092 --list
+
+# Create
+kafka-topics.sh --bootstrap-server localhost:9092 \
+  --create --topic my-topic --partitions 6 --replication-factor 3
+
+# Describe (shows partition/replica/ISR layout)
+kafka-topics.sh --bootstrap-server localhost:9092 \
+  --describe --topic my-topic
+
+# Describe all topics
+kafka-topics.sh --bootstrap-server localhost:9092 --describe
+
+# Alter partition count (can only increase)
+kafka-topics.sh --bootstrap-server localhost:9092 \
+  --alter --topic my-topic --partitions 12
+
+# Alter topic config
+kafka-configs.sh --bootstrap-server localhost:9092 \
+  --alter --entity-type topics --entity-name my-topic \
+  --add-config retention.ms=86400000
+
+# Delete (requires delete.topic.enable=true, which is default)
+kafka-topics.sh --bootstrap-server localhost:9092 \
+  --delete --topic my-topic</code></pre>
+
+      <h2>Produce &amp; consume (console tools)</h2>
+      <pre class="code" data-lang="bash"><code># Produce — type messages, press Enter for each
+kafka-console-producer.sh --bootstrap-server localhost:9092 \
+  --topic my-topic
+
+# Produce with key (key:value separated by ":")
+kafka-console-producer.sh --bootstrap-server localhost:9092 \
+  --topic my-topic \
+  --property parse.key=true \
+  --property key.separator=:
+
+# Consume from beginning
+kafka-console-consumer.sh --bootstrap-server localhost:9092 \
+  --topic my-topic --from-beginning
+
+# Consume and print key, value, timestamp, offset
+kafka-console-consumer.sh --bootstrap-server localhost:9092 \
+  --topic my-topic --from-beginning \
+  --property print.key=true \
+  --property print.timestamp=true \
+  --property print.offset=true \
+  --property key.separator=" | "
+
+# Consume with a consumer group
+kafka-console-consumer.sh --bootstrap-server localhost:9092 \
+  --topic my-topic --group my-group
+
+# Consume only N messages then exit
+kafka-console-consumer.sh --bootstrap-server localhost:9092 \
+  --topic my-topic --from-beginning --max-messages 100</code></pre>
+
+      <h2>Consumer groups</h2>
+      <pre class="code" data-lang="bash"><code># List all consumer groups
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
+
+# Describe a group (shows lag per partition)
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group my-group --describe
+
+# Describe all groups
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --all-groups --describe
+
+# Delete a consumer group (must be inactive)
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group my-group --delete</code></pre>
+
+      <h2>Offset management</h2>
+      <pre class="code" data-lang="bash"><code># Reset offsets to earliest (dry run first)
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group my-group --topic my-topic \
+  --reset-offsets --to-earliest --dry-run
+
+# Apply the reset
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group my-group --topic my-topic \
+  --reset-offsets --to-earliest --execute
+
+# Reset to specific offset
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group my-group --topic my-topic:0 \
+  --reset-offsets --to-offset 1000 --execute
+
+# Reset to a datetime
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group my-group --topic my-topic \
+  --reset-offsets --to-datetime 2024-01-01T00:00:00.000 --execute
+
+# Reset by shifting N messages back
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --group my-group --topic my-topic \
+  --reset-offsets --shift-by -500 --execute</code></pre>
+
+      <h2>Cluster and broker info</h2>
+      <pre class="code" data-lang="bash"><code># Describe cluster (lists all brokers)
+kafka-broker-api-versions.sh --bootstrap-server localhost:9092
+
+# Show broker configs
+kafka-configs.sh --bootstrap-server localhost:9092 \
+  --describe --entity-type brokers --entity-name 1
+
+# Show topic configs (non-default)
+kafka-configs.sh --bootstrap-server localhost:9092 \
+  --describe --entity-type topics --entity-name my-topic
+
+# Check leader election
+kafka-leader-election.sh --bootstrap-server localhost:9092 \
+  --election-type preferred --all-topic-partitions</code></pre>
+
+      <h2>Log inspection</h2>
+      <pre class="code" data-lang="bash"><code># Print earliest/latest offsets per partition
+kafka-run-class.sh kafka.tools.GetOffsetShell \
+  --bootstrap-server localhost:9092 --topic my-topic
+
+# Dump segment file contents (raw)
+kafka-dump-log.sh \
+  --files /var/kafka-logs/my-topic-0/00000000000000000000.log \
+  --print-data-log
+
+# Dump with deep iteration (decode values)
+kafka-dump-log.sh \
+  --files /var/kafka-logs/my-topic-0/00000000000000000000.log \
+  --deep-iteration --print-data-log</code></pre>
+
+      <h2>Producer / consumer performance tests</h2>
+      <pre class="code" data-lang="bash"><code># Produce 1M 100-byte messages as fast as possible
+kafka-producer-perf-test.sh \
+  --topic perf-test --num-records 1000000 \
+  --record-size 100 --throughput -1 \
+  --producer-props bootstrap.servers=localhost:9092
+
+# Consume and measure throughput
+kafka-consumer-perf-test.sh \
+  --bootstrap-server localhost:9092 \
+  --topic perf-test --messages 1000000</code></pre>
+
+      <h2>Key configuration reference</h2>
+      <h3>Broker</h3>
+      <table>
+        <tr><th>Property</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>log.retention.hours</code></td><td>168 (7 days)</td><td>How long to keep messages</td></tr>
+        <tr><td><code>log.retention.bytes</code></td><td>-1 (unlimited)</td><td>Max size per partition log</td></tr>
+        <tr><td><code>log.segment.bytes</code></td><td>1 073 741 824 (1 GB)</td><td>Size at which a segment file is rolled</td></tr>
+        <tr><td><code>num.partitions</code></td><td>1</td><td>Default partition count for new topics</td></tr>
+        <tr><td><code>default.replication.factor</code></td><td>1</td><td>Default replication factor for new topics</td></tr>
+        <tr><td><code>min.insync.replicas</code></td><td>1</td><td>Minimum ISR for acks=all writes</td></tr>
+        <tr><td><code>auto.create.topics.enable</code></td><td>true</td><td>Set false in production — require explicit topic creation</td></tr>
+        <tr><td><code>message.max.bytes</code></td><td>1 048 576 (1 MB)</td><td>Max message size accepted by broker</td></tr>
+      </table>
+
+      <h3>Producer quick-reference</h3>
+      <table>
+        <tr><th>Property</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>acks</code></td><td><code>all</code></td><td>Delivery acknowledgment (0 / 1 / all)</td></tr>
+        <tr><td><code>enable.idempotence</code></td><td><code>true</code></td><td>Exactly-once per partition</td></tr>
+        <tr><td><code>linger.ms</code></td><td>0</td><td>Batch accumulation delay</td></tr>
+        <tr><td><code>batch.size</code></td><td>16 384</td><td>Max batch bytes per partition</td></tr>
+        <tr><td><code>compression.type</code></td><td><code>none</code></td><td>none / gzip / snappy / lz4 / zstd</td></tr>
+        <tr><td><code>retries</code></td><td>2 147 483 647</td><td>Max retries on transient error</td></tr>
+        <tr><td><code>max.block.ms</code></td><td>60 000</td><td>Time send() blocks when buffer full</td></tr>
+      </table>
+
+      <h3>Consumer quick-reference</h3>
+      <table>
+        <tr><th>Property</th><th>Default</th><th>Description</th></tr>
+        <tr><td><code>auto.offset.reset</code></td><td><code>latest</code></td><td>earliest or latest for new groups</td></tr>
+        <tr><td><code>enable.auto.commit</code></td><td><code>true</code></td><td>false for manual offset control</td></tr>
+        <tr><td><code>max.poll.records</code></td><td>500</td><td>Max records per poll()</td></tr>
+        <tr><td><code>max.poll.interval.ms</code></td><td>300 000</td><td>Max time between polls</td></tr>
+        <tr><td><code>session.timeout.ms</code></td><td>45 000</td><td>Heartbeat timeout</td></tr>
+        <tr><td><code>fetch.min.bytes</code></td><td>1</td><td>Min bytes before broker responds</td></tr>
+        <tr><td><code>fetch.max.wait.ms</code></td><td>500</td><td>Max wait for fetch.min.bytes</td></tr>
+      </table>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>
