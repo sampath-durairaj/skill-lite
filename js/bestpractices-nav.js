@@ -18,8 +18,10 @@
     return parts[parts.length - 1] || 'java.html';
   }
   function isTutorialPage() {
+    var parts = window.location.pathname.split('/');
+    var dir = parts[parts.length - 2] || '';
     var file = currentFile();
-    return PAGES.some(function (p) { return p.file === file; });
+    return dir === 'best-practices' && PAGES.some(function (p) { return p.file === file; });
   }
 
   document.addEventListener('DOMContentLoaded', function () {

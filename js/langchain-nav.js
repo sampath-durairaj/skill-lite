@@ -28,8 +28,10 @@
     return parts[parts.length - 1] || 'introduction.html';
   }
   function isTutorialPage() {
+    var parts = window.location.pathname.split('/');
+    var dir = parts[parts.length - 2] || '';
     var file = currentFile();
-    return PAGES.some(function (p) { return p.file === file; });
+    return dir === 'langchain' && PAGES.some(function (p) { return p.file === file; });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -53,7 +55,7 @@
 
     /* ── Sidebar ── */
     var side = document.getElementById('sideNav');
-    if (side) {
+    if (side && onTutorial) {
       var sHtml = '<div class="side-title"><span class="langchain-logo">🦜</span>LangChain Tutorial</div>';
       SECTIONS.forEach(function (sec) {
         sHtml += '<div class="side-section-label">' + sec.label + '</div>';

@@ -31,8 +31,10 @@
   }
 
   function isTutorialPage() {
+    var parts = window.location.pathname.split('/');
+    var dir = parts[parts.length - 2] || '';
     var file = currentFile();
-    return PAGES.some(function (p) { return p.file === file; });
+    return dir === 'kafka' && PAGES.some(function (p) { return p.file === file; });
   }
 
   document.addEventListener('DOMContentLoaded', function () {

@@ -41,8 +41,10 @@
   }
 
   function isTutorialPage() {
+    var parts = window.location.pathname.split('/');
+    var dir = parts[parts.length - 2] || '';
     var file = currentFile();
-    return PAGES.some(function (p) { return p.file === file; });
+    return dir === 'kubernetes' && PAGES.some(function (p) { return p.file === file; });
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -67,7 +69,7 @@
 
     /* ── 2. Sidebar ── */
     var side = document.getElementById('sideNav');
-    if (side) {
+    if (side && onTutorial) {
       var sHtml = '<div class="side-title"><span class="k8s-logo">⎈</span>Kubernetes Tutorial</div>';
       SECTIONS.forEach(function (sec) {
         sHtml += '<div class="side-section-label">' + sec.label + '</div>';

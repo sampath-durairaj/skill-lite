@@ -508,3 +508,110 @@ html.theme-nord {
   background: var(--border);
   margin: 4px 6px;
 }
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 48px;
+  text-align: center;
+}
+footer p {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.footer-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+}
+.footer-links a {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.12s;
+}
+.footer-links a:hover {
+  color: var(--accent);
+}
+
+/* ── Static Content Pages (About / Contact / Privacy / Terms) ── */
+.static-hero {
+  padding: 44px 48px 8px;
+  text-align: center;
+}
+.static-hero-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.static-hero h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+.static-hero p {
+  color: var(--text-muted);
+  font-size: 15px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.static-content {
+  flex: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 48px 64px;
+  width: 100%;
+}
+.static-content h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 30px 0 12px;
+}
+.static-content h2:first-child {
+  margin-top: 0;
+}
+.static-content p {
+  margin-bottom: 14px;
+  color: var(--text);
+  line-height: 1.7;
+}
+.static-content ul {
+  margin: 0 0 14px 20px;
+}
+.static-content li {
+  margin-bottom: 6px;
+  line-height: 1.65;
+}
+.static-content a {
+  color: var(--accent);
+}
+.static-updated {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: -6px;
+  margin-bottom: 24px;
+}
+.static-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 11px 20px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.static-contact-btn:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
