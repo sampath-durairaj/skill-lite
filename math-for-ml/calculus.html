@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculus — Math for ML</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
+    <div class="app-title">
+      <h1 class="sr-only">Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root="../python/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Math for ML</a><span class="sep">/</span>Calculus</div>
+      <h1>Calculus</h1>
+      <p class="lead">Calculus is how models <em>learn</em>. Training a model means adjusting its parameters to minimize a loss function — and the direction that minimizes it fastest is given by the <strong>gradient</strong>, the multivariable generalization of a derivative. Every call to <code>loss.backward()</code> in PyTorch is calculus, done automatically.</p>
+
+      <h2>Derivatives — the rate of change</h2>
+      <p>The derivative of a function tells you its slope at a point: how much the output changes for a tiny change in input.</p>
+      <pre class="code" data-lang="python"><code># f(x) = x²  →  f'(x) = 2x   (power rule: d/dx x^n = n*x^(n-1))
+
+def f(x):
+    return x ** 2
+
+def numerical_derivative(f, x, h=1e-6):
+    return (f(x + h) - f(x - h)) / (2 * h)     # slope of the secant line, h -> 0
+
+numerical_derivative(f, 3.0)     # ≈ 6.0 — matches the analytical f'(x) = 2x at x=3</code></pre>
+
+      <table>
+        <tr><th>Function</th><th>Derivative</th><th>Rule</th></tr>
+        <tr><td><code>x^n</code></td><td><code>n * x^(n-1)</code></td><td>Power rule</td></tr>
+        <tr><td><code>e^x</code></td><td><code>e^x</code></td><td>Exponential — its own derivative</td></tr>
+        <tr><td><code>ln(x)</code></td><td><code>1/x</code></td><td>Logarithm</td></tr>
+        <tr><td><code>sigmoid(x)</code></td><td><code>sigmoid(x) * (1 - sigmoid(x))</code></td><td>Common activation function</td></tr>
+        <tr><td><code>f(x) + g(x)</code></td><td><code>f'(x) + g'(x)</code></td><td>Sum rule</td></tr>
+      </table>
+
+      <h2>Partial derivatives and the gradient</h2>
+      <p>A loss function depends on many parameters at once (every weight in the network). A <strong>partial derivative</strong> is the rate of change with respect to just one of them, holding the others fixed. The <strong>gradient</strong> stacks all partial derivatives into a vector that points in the direction of steepest increase.</p>
+      <pre class="code" data-lang="python"><code># f(w1, w2) = w1² + w2²
+# ∂f/∂w1 = 2*w1     ∂f/∂w2 = 2*w2
+# gradient = [2*w1, 2*w2]
+
+import numpy as np
+
+def f(w):
+    return w[0]**2 + w[1]**2
+
+def gradient(f, w, h=1e-6):
+    grad = np.zeros_like(w)
+    for i in range(len(w)):
+        w_plus, w_minus = w.copy(), w.copy()
+        w_plus[i] += h
+        w_minus[i] -= h
+        grad[i] = (f(w_plus) - f(w_minus)) / (2 * h)
+    return grad
+
+w = np.array([3.0, 4.0])
+gradient(f, w)     # ≈ [6.0, 8.0] — matches [2*3, 2*4]</code></pre>
+
+      <h2>The chain rule — how backpropagation works</h2>
+      <p>Neural networks are functions composed of functions (layer after layer). The <strong>chain rule</strong> lets you compute the derivative of a composition by multiplying the derivatives of each piece — this is exactly what backpropagation automates.</p>
+      <pre class="code" data-lang="python"><code># y = f(g(x))  →  dy/dx = f'(g(x)) * g'(x)
+#
+# A 2-layer network:  z = w*x + b,  y = sigmoid(z),  loss = (y - target)²
+# dloss/dw = dloss/dy * dy/dz * dz/dw    ← chain rule, three local derivatives multiplied
+
+def sigmoid(z): return 1 / (1 + np.exp(-z))
+
+x, w, b, target = 2.0, 0.5, 0.1, 1.0
+
+z = w * x + b
+y = sigmoid(z)
+loss = (y - target) ** 2
+
+dloss_dy = 2 * (y - target)
+dy_dz    = y * (1 - y)              # sigmoid derivative
+dz_dw    = x                          # dz/dw = x since z = w*x + b
+
+dloss_dw = dloss_dy * dy_dz * dz_dw     # chain rule
+print(f"dloss/dw = {dloss_dw:.4f}")</code></pre>
+
+      <h2>Gradient descent — how learning happens</h2>
+      <pre class="code" data-lang="python"><code>w = np.array([3.0, 4.0])
+lr = 0.1
+
+for step in range(20):
+    grad = gradient(f, w)          # direction of steepest ascent
+    w = w - lr * grad                # step downhill (minimize f)
+
+print(w)     # converges toward [0, 0] — the minimum of f(w) = w1² + w2²</code></pre>
+      <div class="callout tip"><strong>This is the entire training loop:</strong> compute the gradient of the loss with respect to every weight, then nudge each weight a small step in the opposite direction. Frameworks like PyTorch (<code>autograd</code>) and TensorFlow compute these gradients automatically via the chain rule — but the update rule is exactly the loop above.</div>
+
+      <h2>Integrals — the other half of calculus</h2>
+      <p>Where a derivative measures instantaneous rate of change, an integral accumulates a quantity over a range. In ML, integrals appear less often in day-to-day code, but underpin probability (the area under a probability density function must integrate to 1) and metrics like AUC (area under the ROC curve).</p>
+      <pre class="code" data-lang="python"><code>from scipy import integrate
+
+# Area under a normal distribution's PDF between -1 and 1 (~68%, the "1-sigma" range)
+from scipy.stats import norm
+area, _ = integrate.quad(norm.pdf, -1, 1)
+print(f"{area:.3f}")   # ≈ 0.683</code></pre>
+
+      <div class="callout"><strong>You've completed the core path:</strong> Linear Algebra represents data and weights, Probability &amp; Statistics reasons about uncertainty and evaluates results, and Calculus drives the optimization that trains a model. Check the Cheat Sheet for a condensed reference across all three.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction — Math for ML</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
+    <div class="app-title">
+      <h1 class="sr-only">Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root="../python/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Math for ML</a><span class="sep">/</span>Introduction</div>
+      <h1>Introduction to Math for ML</h1>
+      <p class="lead">Every machine learning model is built on three branches of math: <strong>linear algebra</strong> to represent and transform data, <strong>probability &amp; statistics</strong> to reason about uncertainty and evaluate models, and <strong>calculus</strong> to optimize model parameters. You don't need a math degree — you need working intuition for how these show up in code you already write.</p>
+
+      <h2>Why this matters</h2>
+      <table>
+        <tr><th>Where you see it</th><th>Math underneath</th></tr>
+        <tr><td>A batch of training data, shape <code>(N, features)</code></td><td>Linear algebra — matrices</td></tr>
+        <tr><td>A dense/linear layer: <code>output = W @ x + b</code></td><td>Linear algebra — matrix multiplication</td></tr>
+        <tr><td><code>model.fit()</code> minimizing a loss function</td><td>Calculus — gradients &amp; optimization</td></tr>
+        <tr><td>Backpropagation computing <code>dL/dW</code></td><td>Calculus — chain rule</td></tr>
+        <tr><td>A softmax output, a confidence score</td><td>Probability — distributions</td></tr>
+        <tr><td>Train/test split, cross-validation, p-values</td><td>Statistics — sampling &amp; inference</td></tr>
+        <tr><td>Naive Bayes, Gaussian Mixture Models</td><td>Probability — Bayes' theorem</td></tr>
+      </table>
+
+      <h2>The three pillars</h2>
+      <div class="diagram">
+        <div class="diagram-box hl"><h4>Linear Algebra</h4><ul><li>Vectors &amp; matrices</li><li>Dot products, transforms</li><li>Represents data &amp; weights</li></ul></div>
+        <div class="diagram-box"><h4>Probability &amp; Statistics</h4><ul><li>Distributions</li><li>Bayes' theorem</li><li>Reasons under uncertainty</li></ul></div>
+        <div class="diagram-box"><h4>Calculus</h4><ul><li>Derivatives &amp; gradients</li><li>Chain rule</li><li>Optimizes model parameters</li></ul></div>
+      </div>
+
+      <h2>How a model actually uses all three</h2>
+      <pre class="code" data-lang="python"><code>import numpy as np
+
+# LINEAR ALGEBRA — data and weights are matrices/vectors
+X = np.array([[1.0, 2.0], [3.0, 4.0]])   # 2 samples, 2 features
+w = np.array([0.5, -0.2])                 # weight vector
+b = 0.1
+
+# Forward pass: a linear transform (linear algebra)
+z = X @ w + b                              # matrix-vector product
+
+# PROBABILITY — squash to a probability with sigmoid
+p = 1 / (1 + np.exp(-z))                    # P(y=1 | x)
+
+# CALCULUS — the loss and its gradient drive learning
+y_true = np.array([1, 0])
+loss = -np.mean(y_true * np.log(p) + (1 - y_true) * np.log(1 - p))   # binary cross-entropy
+
+# dL/dw computed via the chain rule (what autograd/backprop does for you)
+grad_w = X.T @ (p - y_true) / len(y_true)
+w -= 0.1 * grad_w                             # gradient descent step</code></pre>
+      <p>Every line in that snippet maps directly onto one of the three pillars — that mapping is what the next three pages build intuition for.</p>
+
+      <div class="callout tip"><strong>How to use this section:</strong> Each page pairs a compact explanation with runnable NumPy code, because the fastest way to build intuition for these ideas is to see them computed, not just stated as formulas.</div>
+
+      <div class="callout"><strong>Next up:</strong> Linear Algebra — vectors, matrices, and the operations (dot products, matrix multiplication, transforms) that represent data and model weights.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

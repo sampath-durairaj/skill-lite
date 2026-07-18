@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cheat Sheet — Math for ML</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
+    <div class="app-title">
+      <h1 class="sr-only">Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root="../python/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root=""></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Math for ML</a><span class="sep">/</span>Cheat Sheet</div>
+      <h1>Math for ML Cheat Sheet</h1>
+      <p class="lead">A condensed NumPy/SciPy reference for the linear algebra, probability &amp; statistics, and calculus concepts used throughout machine learning.</p>
+
+      <h2>Linear Algebra</h2>
+      <pre class="code" data-lang="python"><code>import numpy as np
+
+v + w      v - w      3 * v          # vector add / sub / scale
+np.dot(v, w)   v @ w                    # dot product
+np.linalg.norm(v)                         # vector length (L2 norm)
+
+A + B      A * B    (element-wise)      A @ B   (matrix multiplication)
+A.T                                        # transpose
+np.eye(n)                                    # identity matrix
+np.linalg.inv(A)      np.linalg.det(A)         # inverse / determinant
+np.linalg.matrix_rank(A)                          # rank
+
+eigvals, eigvecs = np.linalg.eig(A)                 # eigen-decomposition
+U, S, Vt = np.linalg.svd(A)                            # SVD
+
+# A dense layer, in one line:
+Y = X @ W + b      # (batch, in) @ (in, out) + (out,) -> (batch, out)</code></pre>
+
+      <h2>Probability &amp; Statistics</h2>
+      <pre class="code" data-lang="python"><code>rng = np.random.default_rng(42)
+rng.normal(0, 1, size=n)      rng.uniform(0, 1, size=n)      rng.binomial(n, p, size=k)
+
+x.mean()      x.var()      x.std()
+z = (x - x.mean()) / x.std()      # standardization
+
+np.cov(x, y)         np.corrcoef(x, y)      # covariance / correlation
+
+# Bayes' theorem:  P(A|B) = P(B|A) * P(A) / P(B)
+
+from scipy import stats
+stats.ttest_ind(sample_a, sample_b)      # is the difference significant?
+stats.norm.pdf(x, loc=0, scale=1)          # normal distribution density</code></pre>
+
+      <table>
+        <tr><th>Distribution</th><th>NumPy / SciPy</th><th>Use case</th></tr>
+        <tr><td>Normal</td><td><code>rng.normal()</code></td><td>Weight init, noise, standardized features</td></tr>
+        <tr><td>Bernoulli / Binomial</td><td><code>rng.binomial()</code></td><td>Binary outcomes, coin-flip trials</td></tr>
+        <tr><td>Uniform</td><td><code>rng.uniform()</code></td><td>Random sampling, exploration</td></tr>
+        <tr><td>Categorical</td><td><code>rng.choice(p=...)</code></td><td>Softmax / multi-class outcomes</td></tr>
+      </table>
+
+      <h2>Calculus</h2>
+      <pre class="code" data-lang="python"><code># Power rule:        d/dx x^n        = n * x^(n-1)
+# Exponential:        d/dx e^x         = e^x
+# Logarithm:           d/dx ln(x)        = 1/x
+# Sigmoid:              d/dx sigmoid(x)    = sigmoid(x) * (1 - sigmoid(x))
+# Chain rule:            d/dx f(g(x))        = f'(g(x)) * g'(x)
+
+def numerical_derivative(f, x, h=1e-6):
+    return (f(x + h) - f(x - h)) / (2 * h)
+
+def gradient(f, w, h=1e-6):                  # numerical gradient, any # of params
+    grad = np.zeros_like(w)
+    for i in range(len(w)):
+        wp, wm = w.copy(), w.copy()
+        wp[i] += h; wm[i] -= h
+        grad[i] = (f(wp) - f(wm)) / (2 * h)
+    return grad
+
+# Gradient descent — the core training loop
+for step in range(n_steps):
+    grad = gradient(loss_fn, w)
+    w = w - learning_rate * grad
+
+from scipy import integrate
+integrate.quad(f, a, b)      # definite integral of f from a to b</code></pre>
+
+      <h2>Where each pillar shows up in a model</h2>
+      <table>
+        <tr><th>Step</th><th>Math</th></tr>
+        <tr><td>Represent a batch of data</td><td>Linear algebra — matrix, shape <code>(N, features)</code></td></tr>
+        <tr><td>Forward pass through a layer</td><td>Linear algebra — <code>X @ W + b</code></td></tr>
+        <tr><td>Convert output to a probability</td><td>Probability — sigmoid / softmax</td></tr>
+        <tr><td>Measure how wrong the prediction is</td><td>Probability — cross-entropy / MSE loss</td></tr>
+        <tr><td>Find how to adjust each weight</td><td>Calculus — gradient via the chain rule</td></tr>
+        <tr><td>Update the weights</td><td>Calculus — gradient descent</td></tr>
+        <tr><td>Decide if model A beats model B</td><td>Statistics — significance testing</td></tr>
+      </table>
+
+      <div class="callout tip"><strong>Import conventions:</strong> <code>import numpy as np</code> covers linear algebra and random sampling; <code>from scipy import stats, integrate</code> covers hypothesis testing and integrals. Deep learning frameworks (PyTorch, TensorFlow) automate the gradient computation shown above via autograd.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>
