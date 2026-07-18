@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction to Python — Python Tutorial</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
+    <div class="app-title">
+      <h1 class="sr-only">Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root=""></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root="../math-for-ml/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Python</a><span class="sep">/</span>Introduction</div>
+      <h1>Introduction to Python</h1>
+      <p class="lead">Python is a high-level, interpreted, general-purpose programming language prized for readable syntax and a massive ecosystem. It's the default language for data science, machine learning, automation, web backends, and scripting — and the foundation for the NumPy, Pandas, and Matplotlib libraries covered later in this tutorial.</p>
+
+      <h2>Why Python?</h2>
+      <table>
+        <tr><th>Trait</th><th>Why it matters</th></tr>
+        <tr><td>Readable syntax</td><td>Indentation-based blocks, no braces or semicolons — code reads close to plain English</td></tr>
+        <tr><td>Dynamically typed</td><td>No type declarations; variables can hold any type and can be reassigned</td></tr>
+        <tr><td>Batteries included</td><td>Rich standard library — files, JSON, HTTP, dates, regex — with no extra install</td></tr>
+        <tr><td>Huge ecosystem</td><td>NumPy, Pandas, Matplotlib, Django, FastAPI, PyTorch, TensorFlow via <code>pip</code></td></tr>
+        <tr><td>Interpreted</td><td>Runs line by line — fast feedback loop, no separate compile step</td></tr>
+        <tr><td>Cross-platform</td><td>Same code runs on Windows, macOS, and Linux</td></tr>
+      </table>
+
+      <h2>Installing Python</h2>
+      <p>Download the latest release from <code>python.org</code>, or use a package manager. Verify the install with:</p>
+      <pre class="code" data-lang="bash"><code>python --version
+# or on some systems:
+python3 --version
+
+pip --version           # pip ships with modern Python installers</code></pre>
+
+      <div class="callout tip"><strong>Windows tip:</strong> During installation, check "Add python.exe to PATH" so the <code>python</code> command works from any terminal.</div>
+
+      <h2>Running Python code</h2>
+      <table>
+        <tr><th>Method</th><th>Command</th><th>Use case</th></tr>
+        <tr><td>REPL (interactive shell)</td><td><code>python</code></td><td>Quick experiments, one-off checks</td></tr>
+        <tr><td>Script file</td><td><code>python app.py</code></td><td>Real programs, saved and re-runnable</td></tr>
+        <tr><td>Module flag</td><td><code>python -m http.server</code></td><td>Run an installed package as a program</td></tr>
+        <tr><td>Notebook</td><td>Jupyter / VS Code notebooks</td><td>Data exploration, mixing code with output &amp; charts</td></tr>
+      </table>
+
+      <h2>Your first program</h2>
+      <pre class="code" data-lang="python"><code># hello.py
+name = "World"
+print(f"Hello, {name}!")
+
+# Run it:
+#   python hello.py
+# Output:
+#   Hello, World!</code></pre>
+
+      <h2>Comments and style (PEP 8)</h2>
+      <pre class="code" data-lang="python"><code># A single-line comment starts with '#'
+
+"""
+A triple-quoted string used as a
+multi-line comment or docstring.
+"""
+
+def greet(name):
+    """Return a friendly greeting for `name`."""   # docstring — describes the function
+    return f"Hello, {name}!"</code></pre>
+      <p>Python's official style guide is <strong>PEP 8</strong>: 4-space indentation, <code>snake_case</code> for variables and functions, <code>PascalCase</code> for classes, and constants in <code>UPPER_CASE</code>. Consistent indentation isn't just style in Python — it defines code blocks, so mixing tabs and spaces will cause errors.</p>
+
+      <h2>Packages and virtual environments</h2>
+      <p>Third-party libraries are installed with <code>pip</code>, Python's package manager. A <strong>virtual environment</strong> isolates a project's dependencies from your system Python and from other projects.</p>
+      <pre class="code" data-lang="bash"><code># Create an isolated environment
+python -m venv .venv
+
+# Activate it
+.venv\Scripts\activate      # Windows
+source .venv/bin/activate   # macOS / Linux
+
+# Install packages into the active environment
+pip install numpy pandas matplotlib
+
+# Freeze exact versions for reproducibility
+pip freeze > requirements.txt
+pip install -r requirements.txt</code></pre>
+
+      <h2>The data-science stack</h2>
+      <div class="diagram">
+        <div class="diagram-box hl"><h4>Python</h4><ul><li>Core language</li><li>Syntax &amp; control flow</li><li>Standard library</li></ul></div>
+        <div class="diagram-box"><h4>NumPy</h4><ul><li>N-dimensional arrays</li><li>Vectorized math</li><li>Foundation library</li></ul></div>
+        <div class="diagram-box"><h4>Pandas</h4><ul><li>DataFrames &amp; Series</li><li>Tabular data</li><li>Built on NumPy</li></ul></div>
+        <div class="diagram-box"><h4>Matplotlib</h4><ul><li>Charts &amp; plots</li><li>Visualize results</li><li>Works with both</li></ul></div>
+      </div>
+      <p>This tutorial follows that exact order: Python fundamentals first, then NumPy for numerical arrays, Pandas for tabular data analysis built on top of NumPy, and finally Matplotlib to visualize the results of both.</p>
+
+      <div class="callout"><strong>Next up:</strong> Python Basics covers variables, data types, control flow, functions, and object-oriented programming — the fundamentals every later page builds on.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

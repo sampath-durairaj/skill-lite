@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NumPy — Python Tutorial</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
+    <div class="app-title">
+      <h1 class="sr-only">Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root=""></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root="../math-for-ml/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Python</a><span class="sep">/</span>NumPy</div>
+      <h1>NumPy</h1>
+      <p class="lead">NumPy (Numerical Python) is the foundation of the scientific Python stack. Its core object, the <code>ndarray</code>, stores homogeneous data in contiguous memory and supports fast, vectorized operations — no explicit loops needed. Pandas, Matplotlib, and most ML libraries are built directly on top of it.</p>
+
+      <h2>Why NumPy over plain lists?</h2>
+      <table>
+        <tr><th></th><th>Python list</th><th>NumPy array</th></tr>
+        <tr><td>Storage</td><td>Pointers to scattered objects</td><td>Contiguous block, fixed type</td></tr>
+        <tr><td>Element-wise math</td><td>Manual loop or list comprehension</td><td><code>a + b</code> directly, vectorized in C</td></tr>
+        <tr><td>Speed</td><td>Slow for large numeric data</td><td>10&ndash;100x faster for numeric workloads</td></tr>
+        <tr><td>Memory</td><td>High overhead per element</td><td>Compact, fixed-size elements</td></tr>
+        <tr><td>Shape</td><td>Nested lists, no built-in shape</td><td>N-dimensional with <code>.shape</code></td></tr>
+      </table>
+
+      <pre class="code" data-lang="bash"><code>pip install numpy</code></pre>
+
+      <h2>Creating arrays</h2>
+      <pre class="code" data-lang="python"><code>import numpy as np
+
+a = np.array([1, 2, 3])                 # 1-D array
+b = np.array([[1, 2, 3], [4, 5, 6]])    # 2-D array (matrix)
+
+np.zeros((2, 3))         # 2x3 array of 0.0
+np.ones((3,))              # [1. 1. 1.]
+np.full((2, 2), 7)          # 2x2 array filled with 7
+np.eye(3)                    # 3x3 identity matrix
+np.arange(0, 10, 2)           # [0 2 4 6 8] — like range()
+np.linspace(0, 1, 5)           # [0. 0.25 0.5 0.75 1.] — 5 evenly-spaced points
+
+np.random.seed(42)              # reproducible randomness
+np.random.rand(2, 3)             # uniform [0,1), shape (2,3)
+np.random.randint(0, 10, size=5)  # 5 random ints in [0, 10)</code></pre>
+
+      <h2>Array attributes</h2>
+      <pre class="code" data-lang="python"><code>a = np.array([[1, 2, 3], [4, 5, 6]])
+
+a.shape       # (2, 3)  — rows, columns
+a.ndim        # 2       — number of dimensions
+a.size        # 6       — total elements
+a.dtype       # dtype('int64')
+a.T           # transpose → shape (3, 2)</code></pre>
+
+      <h2>Indexing and slicing</h2>
+      <pre class="code" data-lang="python"><code>a = np.array([10, 20, 30, 40, 50])
+a[0]            # 10
+a[-1]            # 50
+a[1:4]            # [20 30 40]
+a[::2]             # [10 30 50] — every other element
+
+m = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+m[1, 2]           # 6         — row 1, col 2
+m[:, 0]            # [1 4 7]   — first column
+m[0:2, 1:3]         # rows 0-1, cols 1-2
+
+# Boolean masking
+a[a > 25]            # [30 40 50] — filter by condition
+a[a > 25] = 0         # assign via mask</code></pre>
+
+      <h2>Vectorized operations &amp; broadcasting</h2>
+      <pre class="code" data-lang="python"><code>a = np.array([1, 2, 3])
+b = np.array([10, 20, 30])
+
+a + b        # [11 22 33] — element-wise, no loop
+a * 2         # [2 4 6]    — scalar broadcasts to every element
+a ** 2         # [1 4 9]
+a > 1           # [False True True]
+
+# Broadcasting: shapes are aligned automatically when compatible
+m = np.array([[1, 2, 3], [4, 5, 6]])   # shape (2, 3)
+row = np.array([10, 20, 30])            # shape (3,)
+m + row                                   # row is broadcast to each of the 2 rows</code></pre>
+      <div class="callout tip"><strong>Broadcasting rule:</strong> NumPy compares shapes from the right; dimensions are compatible when equal, or when one of them is 1. This lets you add a (3,) vector to every row of a (2,3) matrix without writing a loop.</div>
+
+      <h2>Reshaping</h2>
+      <pre class="code" data-lang="python"><code>a = np.arange(12)          # [0 1 2 ... 11]
+a.reshape(3, 4)              # 3 rows, 4 columns
+a.reshape(3, -1)              # -1 = "infer this dimension"
+a.reshape(3, 4).flatten()       # back to 1-D
+np.concatenate([a[:3], a[3:]])   # join arrays
+np.vstack([[1, 2], [3, 4]])       # stack rows
+np.hstack([[1, 2], [3, 4]])        # stack columns → [1 2 3 4]</code></pre>
+
+      <h2>Aggregations</h2>
+      <pre class="code" data-lang="python"><code>a = np.array([[1, 2, 3], [4, 5, 6]])
+
+a.sum()         # 21     — total
+a.sum(axis=0)    # [5 7 9] — column sums
+a.sum(axis=1)     # [6 15]  — row sums
+a.mean()           # 3.5
+a.std()             # standard deviation
+a.min(), a.max()     # 1, 6
+a.argmax()            # 5 — index of max in flattened array</code></pre>
+
+      <h2>Linear algebra</h2>
+      <pre class="code" data-lang="python"><code>A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+
+A @ B                    # matrix multiplication (or np.matmul(A, B))
+np.dot(A, B)              # same result
+np.linalg.inv(A)           # matrix inverse
+np.linalg.det(A)            # determinant
+np.linalg.eig(A)             # eigenvalues / eigenvectors
+np.linalg.solve(A, [1, 2])    # solve Ax = b</code></pre>
+
+      <div class="callout"><strong>Next up:</strong> Pandas wraps NumPy arrays in labeled, tabular <code>DataFrame</code> and <code>Series</code> structures — ideal for real-world data with columns, row labels, and missing values.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

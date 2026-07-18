@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cheat Sheet — Python Tutorial</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
+    <div class="app-title">
+      <h1 class="sr-only">Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root=""></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root="../math-for-ml/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Python</a><span class="sep">/</span>Cheat Sheet</div>
+      <h1>Python Cheat Sheet</h1>
+      <p class="lead">A condensed reference for core Python syntax, NumPy, Pandas, and Matplotlib — everything on one page.</p>
+
+      <h2>Python core syntax</h2>
+      <pre class="code" data-lang="python"><code># Types
+x = 1; x = 1.0; x = "s"; x = True; x = [1,2]; x = (1,2); x = {"k":"v"}; x = {1,2}; x = None
+
+# f-strings
+f"{name} is {age}"        f"{pi:.2f}"        f"{n:>5}"
+
+# Control flow
+if a > b: ...
+elif a == b: ...
+else: ...
+for x in iterable: ...
+while cond: ...
+for i, x in enumerate(items): ...
+for a, b in zip(list1, list2): ...
+
+# Functions
+def f(a, b=1, *args, **kwargs): return a + b
+lambda x: x * 2
+
+# Comprehensions
+[x*x for x in range(10)]
+{x: x*x for x in range(5)}
+{x for x in range(10) if x % 2 == 0}
+
+# Exceptions
+try: ...
+except ValueError as e: ...
+finally: ...
+
+# Classes
+class C(Base):
+    def __init__(self, x): self.x = x
+    def method(self): return self.x</code></pre>
+
+      <h2>Common built-ins</h2>
+      <table>
+        <tr><th>Function</th><th>Purpose</th></tr>
+        <tr><td><code>len(x)</code></td><td>Length of a sequence / collection</td></tr>
+        <tr><td><code>range(a, b, step)</code></td><td>Sequence of integers</td></tr>
+        <tr><td><code>enumerate(x)</code></td><td>(index, value) pairs while looping</td></tr>
+        <tr><td><code>zip(a, b)</code></td><td>Pair up two iterables element-wise</td></tr>
+        <tr><td><code>sorted(x, key=...)</code></td><td>New sorted list</td></tr>
+        <tr><td><code>sum(x)</code>, <code>min(x)</code>, <code>max(x)</code></td><td>Aggregate a sequence</td></tr>
+        <tr><td><code>map(f, x)</code>, <code>filter(f, x)</code></td><td>Transform / filter an iterable lazily</td></tr>
+        <tr><td><code>isinstance(x, T)</code></td><td>Type check</td></tr>
+      </table>
+
+      <h2>NumPy</h2>
+      <pre class="code" data-lang="python"><code>import numpy as np
+
+np.array([1,2,3])              np.zeros((2,3))            np.ones((3,))
+np.arange(0,10,2)               np.linspace(0,1,5)          np.eye(3)
+np.random.rand(2,3)              np.random.randint(0,10,5)
+
+a.shape   a.ndim   a.size   a.dtype   a.T
+
+a[1:4]    a[::2]    a[a > 5]    m[1, 2]    m[:, 0]    m[0:2, 1:3]
+
+a + b    a * 2    a @ b   (matmul)   a > 5
+
+a.reshape(3,4)   a.flatten()   np.vstack([a,b])   np.hstack([a,b])
+
+a.sum()   a.sum(axis=0)   a.mean()   a.std()   a.min()   a.max()   a.argmax()
+
+np.linalg.inv(A)   np.linalg.det(A)   np.linalg.solve(A, b)</code></pre>
+
+      <h2>Pandas</h2>
+      <pre class="code" data-lang="python"><code>import pandas as pd
+
+pd.Series([1,2,3])
+pd.DataFrame({"a":[1,2], "b":[3,4]})
+
+pd.read_csv("f.csv")   pd.read_json("f.json")   pd.read_excel("f.xlsx")
+df.to_csv("out.csv", index=False)
+
+df.head()   df.shape   df.columns   df.dtypes   df.info()   df.describe()
+
+df["col"]   df[["a","b"]]   df.loc[0, "a"]   df.iloc[0:2, 1:3]
+df[df["age"] > 30]   df.query("age > 30 and city == 'NY'")
+
+df["new"] = df["a"] + df["b"]
+df.drop(columns=["a"])   df.rename(columns={"a":"b"})   df.sort_values("a")
+
+df.isna().sum()   df.dropna()   df.fillna(0)
+
+df.groupby("city")["age"].mean()
+df.groupby("city").agg({"age": ["mean","max"]})
+
+pd.merge(a, b, on="id", how="left")
+pd.concat([a, b])           pd.concat([a, b], axis=1)
+
+df["a"].apply(lambda x: x*2)   df["a"].map({1:"one"})</code></pre>
+
+      <h2>Matplotlib</h2>
+      <pre class="code" data-lang="python"><code>import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8,4))
+
+ax.plot(x, y, label="y", color="#3776ab", linewidth=2, linestyle="--")
+ax.scatter(x, y)
+ax.bar(labels, values)
+ax.hist(data, bins=20)
+ax.boxplot(data)
+
+ax.set_title("Title")   ax.set_xlabel("x")   ax.set_ylabel("y")
+ax.legend()   ax.grid(True, alpha=0.3)
+ax.set_xlim(0, 10)   ax.set_ylim(-1, 1)
+
+fig, axes = plt.subplots(1, 2, figsize=(10,4))   # multiple subplots
+fig.tight_layout()
+
+df.plot(x="month", y="revenue", kind="bar")       # plot directly from Pandas
+
+fig.savefig("chart.png", dpi=200, bbox_inches="tight")
+plt.show()</code></pre>
+
+      <h2>Environment &amp; packages</h2>
+      <pre class="code" data-lang="bash"><code>python -m venv .venv
+.venv\Scripts\activate          # Windows
+source .venv/bin/activate       # macOS / Linux
+
+pip install numpy pandas matplotlib
+pip freeze > requirements.txt
+pip install -r requirements.txt</code></pre>
+
+      <div class="callout tip"><strong>Import aliases:</strong> <code>import numpy as np</code>, <code>import pandas as pd</code>, and <code>import matplotlib.pyplot as plt</code> are near-universal conventions — use them so your code reads consistently with the rest of the ecosystem.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

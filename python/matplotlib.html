@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matplotlib — Python Tutorial</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
+    <div class="app-title">
+      <h1 class="sr-only">Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root=""></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root="../math-for-ml/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Python</a><span class="sep">/</span>Matplotlib</div>
+      <h1>Matplotlib</h1>
+      <p class="lead">Matplotlib is Python's foundational plotting library — it renders NumPy arrays and Pandas Series/DataFrames as line charts, bar charts, histograms, and scatter plots. Most other Python visualization libraries (Seaborn, Pandas' own <code>.plot()</code>) are built on top of it.</p>
+
+      <pre class="code" data-lang="bash"><code>pip install matplotlib</code></pre>
+
+      <h2>Figure and Axes</h2>
+      <p>Every Matplotlib plot has a <strong>Figure</strong> (the whole canvas) containing one or more <strong>Axes</strong> (an individual plot area with its own x/y axis). The <strong>object-oriented API</strong> (<code>fig, ax = plt.subplots()</code>) is preferred for anything beyond a quick one-off plot — it gives you explicit control and scales cleanly to multiple subplots.</p>
+      <pre class="code" data-lang="python"><code>import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# Object-oriented API (recommended)
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(x, y)
+ax.set_title("Sine wave")
+ax.set_xlabel("x")
+ax.set_ylabel("sin(x)")
+plt.show()
+
+# Quick pyplot API (fine for one-off scripts)
+plt.plot(x, y)
+plt.title("Sine wave")
+plt.show()</code></pre>
+
+      <h2>Common plot types</h2>
+      <table>
+        <tr><th>Function</th><th>Use for</th></tr>
+        <tr><td><code>ax.plot(x, y)</code></td><td>Line chart — trends over a continuous axis (time series)</td></tr>
+        <tr><td><code>ax.scatter(x, y)</code></td><td>Relationship between two numeric variables</td></tr>
+        <tr><td><code>ax.bar(labels, values)</code></td><td>Comparing values across categories</td></tr>
+        <tr><td><code>ax.barh(labels, values)</code></td><td>Same, horizontal — long category labels</td></tr>
+        <tr><td><code>ax.hist(data, bins=20)</code></td><td>Distribution of a single numeric variable</td></tr>
+        <tr><td><code>ax.boxplot(data)</code></td><td>Median, quartiles, and outliers</td></tr>
+        <tr><td><code>ax.pie(values)</code></td><td>Parts of a whole (use sparingly)</td></tr>
+      </table>
+
+      <pre class="code" data-lang="python"><code>fig, ax = plt.subplots()
+categories = ["Python", "NumPy", "Pandas", "Matplotlib"]
+scores = [92, 85, 88, 79]
+ax.bar(categories, scores, color="#3776ab")
+ax.set_ylabel("Score")
+ax.set_title("Library familiarity")
+plt.show()</code></pre>
+
+      <h2>Multiple subplots</h2>
+      <pre class="code" data-lang="python"><code>fig, axes = plt.subplots(1, 2, figsize=(10, 4))   # 1 row, 2 columns
+
+axes[0].plot(x, np.sin(x))
+axes[0].set_title("sin(x)")
+
+axes[1].plot(x, np.cos(x), color="orange")
+axes[1].set_title("cos(x)")
+
+fig.tight_layout()      # prevent overlapping labels
+plt.show()
+
+# Grid of subplots
+fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+axes[0, 0].plot(x, y)          # top-left
+axes[1, 1].hist(np.random.randn(1000))  # bottom-right</code></pre>
+
+      <h2>Customization</h2>
+      <pre class="code" data-lang="python"><code>fig, ax = plt.subplots()
+
+ax.plot(x, np.sin(x), label="sin(x)", color="#3776ab", linewidth=2, linestyle="--")
+ax.plot(x, np.cos(x), label="cos(x)", color="#f59e0b", linewidth=2)
+
+ax.set_title("Trig functions", fontsize=14, fontweight="bold")
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.legend()                  # show labels from each plot() call
+ax.grid(True, alpha=0.3)      # light gridlines
+ax.set_xlim(0, 10)              # x-axis range
+ax.set_ylim(-1.5, 1.5)</code></pre>
+
+      <h2>Plotting directly from Pandas</h2>
+      <pre class="code" data-lang="python"><code>import pandas as pd
+
+df = pd.DataFrame({
+    "month": ["Jan", "Feb", "Mar", "Apr"],
+    "revenue": [1200, 1500, 1100, 1800],
+})
+
+df.plot(x="month", y="revenue", kind="bar", legend=False)   # uses Matplotlib under the hood
+plt.ylabel("Revenue ($)")
+plt.title("Monthly revenue")
+plt.show()</code></pre>
+
+      <h2>Saving figures</h2>
+      <pre class="code" data-lang="python"><code>fig.savefig("chart.png", dpi=200, bbox_inches="tight")
+fig.savefig("chart.svg")     # vector format — scales without pixelation
+fig.savefig("chart.pdf")</code></pre>
+
+      <div class="callout tip"><strong>pyplot vs object-oriented API:</strong> <code>plt.plot(...)</code> implicitly acts on "the current figure," which gets confusing with multiple plots. Once you need more than a single simple chart, switch to <code>fig, ax = plt.subplots()</code> and call methods on <code>ax</code> directly — it's explicit and avoids state-related bugs.</div>
+
+      <div class="callout"><strong>You've completed the core path:</strong> Python fundamentals → NumPy arrays → Pandas DataFrames → Matplotlib charts. Check the Cheat Sheet for a condensed reference across all four.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Basics — Python Tutorial</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script src="../js/theme.js"></script>
+  <link rel="stylesheet" href="../css/common.css" />
+  <link rel="stylesheet" href="../css/tutorial.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-top">
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
+    <div class="app-title">
+      <h1 class="sr-only">Skill-Lite</h1>
+      <p>Practical tutorials &amp; tools for modern developers.</p>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <a href="../index.html" class="nav-link">&#127968; Home</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Kubernetes <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="k8sDropdown" data-root="../kubernetes/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Docker <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="dockerDropdown" data-root="../docker/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">Spring Boot <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="springbootDropdown" data-root="../spring-boot/"></div>
+    </div>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">LangChain <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown" id="langchainDropdown" data-root="../langchain/"></div>
+    </div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">LangGraph <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="langgraphDropdown" data-root="../langgraph/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu active"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root=""></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root="../math-for-ml/"></div></div>
+    <a href="#" class="nav-link">Ebooks</a>
+    <a href="../blog.html" class="nav-link">Blog</a>
+    <div class="nav-menu">
+      <button class="nav-menu-trigger" aria-haspopup="true">DevTools <span class="nav-chevron">&#9662;</span></button>
+      <div class="nav-dropdown">
+        <a href="../devtools/sql-formatter.html"      class="nav-dropdown-item">&#128196; SQL Formatter</a>
+        <a href="../devtools/date-formatter.html"     class="nav-dropdown-item">&#128197; Date Formatter</a>
+        <a href="../devtools/timezone-converter.html" class="nav-dropdown-item">&#127758; Timezone Converter</a>
+        <a href="../devtools/api-tester.html"         class="nav-dropdown-item">&#9889; API Tester</a>
+        <a href="../devtools/cron-generator.html"     class="nav-dropdown-item">&#9201; Cron Generator</a>
+        <a href="../devtools/k8s-yaml-validator.html" class="nav-dropdown-item">&#9784; K8s YAML Validator</a>
+        <a href="../devtools/jwt-decoder.html"    class="nav-dropdown-item">&#128272; JWT Decoder</a>
+        <a href="../devtools/json-formatter.html" class="nav-dropdown-item">&#128220; JSON Formatter</a>
+        <a href="../devtools/kafka-msg-viewer.html" class="nav-dropdown-item">&#128202; Kafka Viewer</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="tutorial-layout">
+  <aside class="side-nav" id="sideNav"></aside>
+
+  <main class="tutorial-content">
+    <article class="article">
+      <div class="crumb"><a href="../index.html">Home</a><span class="sep">/</span><a href="introduction.html">Python</a><span class="sep">/</span>Python Basics</div>
+      <h1>Python Basics</h1>
+      <p class="lead">The core language concepts you'll use in every Python program: variables and data types, control flow, functions, error handling, and object-oriented programming. This page is the foundation for the NumPy, Pandas, and Matplotlib pages that follow.</p>
+
+      <h2>Variables and data types</h2>
+      <p>Python is dynamically typed — you don't declare a type, and a variable can be reassigned to a different type at any time.</p>
+      <pre class="code" data-lang="python"><code>age = 30                 # int
+price = 19.99            # float
+name = "Ada"              # str
+is_active = True          # bool
+tags = ["python", "dev"]  # list — ordered, mutable
+point = (3, 4)             # tuple — ordered, immutable
+user = {"name": "Ada", "age": 30}  # dict — key/value pairs
+unique_ids = {1, 2, 3}     # set — unordered, no duplicates
+nothing = None             # absence of a value
+
+print(type(age), type(name), type(tags))
+# <class 'int'> <class 'str'> <class 'list'></code></pre>
+
+      <table>
+        <tr><th>Type</th><th>Example</th><th>Mutable?</th></tr>
+        <tr><td><code>int</code>, <code>float</code></td><td><code>42</code>, <code>3.14</code></td><td>No</td></tr>
+        <tr><td><code>str</code></td><td><code>"hello"</code></td><td>No</td></tr>
+        <tr><td><code>bool</code></td><td><code>True</code>, <code>False</code></td><td>No</td></tr>
+        <tr><td><code>list</code></td><td><code>[1, 2, 3]</code></td><td>Yes</td></tr>
+        <tr><td><code>tuple</code></td><td><code>(1, 2, 3)</code></td><td>No</td></tr>
+        <tr><td><code>dict</code></td><td><code>{"k": "v"}</code></td><td>Yes</td></tr>
+        <tr><td><code>set</code></td><td><code>{1, 2, 3}</code></td><td>Yes</td></tr>
+      </table>
+
+      <h2>Operators</h2>
+      <pre class="code" data-lang="python"><code># Arithmetic
+7 // 2      # 3   — floor (integer) division
+7 % 2       # 1   — modulo (remainder)
+2 ** 10     # 1024 — exponent
+
+# Comparison → bool
+5 == 5, 5 != 4, 5 > 3, 5 <= 5
+
+# Logical
+True and False, True or False, not True
+
+# Membership / identity
+"py" in "python"      # True
+x is None              # identity check, not equality</code></pre>
+
+      <h2>Control flow</h2>
+      <pre class="code" data-lang="python"><code>score = 82
+
+if score >= 90:
+    grade = "A"
+elif score >= 80:
+    grade = "B"
+else:
+    grade = "C"
+
+for i in range(5):        # 0, 1, 2, 3, 4
+    print(i)
+
+for tag in ["python", "numpy", "pandas"]:
+    print(tag.upper())
+
+n = 5
+while n > 0:
+    n -= 1                 # no ++/-- operators in Python
+
+for i in range(10):
+    if i == 3:
+        continue           # skip this iteration
+    if i == 7:
+        break               # exit the loop
+    print(i)</code></pre>
+
+      <h2>Strings and f-strings</h2>
+      <pre class="code" data-lang="python"><code>name, age = "Ada", 30
+
+greeting = f"{name} is {age} years old"      # f-string — preferred
+greeting2 = "{} is {} years old".format(name, age)
+greeting3 = "%s is %d years old" % (name, age)
+
+f"{3.14159:.2f}"      # '3.14'  — 2 decimal places
+f"{age:>5}"            # '   30' — right-aligned, width 5
+
+"hello world".upper()       # 'HELLO WORLD'
+"  hello  ".strip()          # 'hello'
+"a,b,c".split(",")            # ['a', 'b', 'c']
+",".join(["a", "b", "c"])      # 'a,b,c'
+"hello"[1:4]                    # 'ell' — slicing</code></pre>
+
+      <h2>Functions</h2>
+      <pre class="code" data-lang="python"><code>def greet(name, greeting="Hello"):   # default argument
+    return f"{greeting}, {name}!"
+
+greet("Ada")                    # "Hello, Ada!"
+greet("Ada", greeting="Hi")     # "Hi, Ada!"
+
+def total(*args, **kwargs):     # *args → tuple, **kwargs → dict
+    print(args, kwargs)
+
+total(1, 2, 3, tax=0.08)        # (1, 2, 3) {'tax': 0.08}
+
+square = lambda x: x * x        # anonymous one-line function
+square(5)                        # 25
+
+# List / dict comprehensions
+squares = [x * x for x in range(10)]
+evens = [x for x in range(20) if x % 2 == 0]
+lookup = {x: x * x for x in range(5)}</code></pre>
+
+      <h2>Error handling</h2>
+      <pre class="code" data-lang="python"><code>try:
+    result = 10 / 0
+except ZeroDivisionError as e:
+    print(f"Error: {e}")
+except (TypeError, ValueError) as e:
+    print(f"Bad input: {e}")
+else:
+    print("No error occurred")     # runs only if no exception
+finally:
+    print("Always runs")            # cleanup, runs no matter what
+
+raise ValueError("age must be positive")   # raise your own error</code></pre>
+
+      <h2>Object-oriented programming</h2>
+      <pre class="code" data-lang="python"><code>class Animal:
+    def __init__(self, name, sound):   # constructor
+        self.name = name                # instance attribute
+        self.sound = sound
+
+    def speak(self):
+        return f"{self.name} says {self.sound}"
+
+    def __repr__(self):                 # controls how print() shows the object
+        return f"Animal({self.name!r})"
+
+class Dog(Animal):                      # inheritance
+    def __init__(self, name):
+        super().__init__(name, sound="Woof")
+
+    def speak(self):                    # method override
+        return f"{super().speak()}!"
+
+d = Dog("Rex")
+print(d.speak())    # "Rex says Woof!"
+print(d)             # Animal('Rex')</code></pre>
+
+      <h2>Modules and imports</h2>
+      <pre class="code" data-lang="python"><code>import math
+math.sqrt(16)                    # 4.0
+
+from datetime import date
+date.today()
+
+import numpy as np               # common aliasing convention
+np.array([1, 2, 3])
+
+from collections import Counter, defaultdict</code></pre>
+
+      <div class="callout tip"><strong>Reading tracebacks:</strong> Python errors read bottom-up — the last line names the exception type and message; the lines above trace the call stack that led there. Start reading from the bottom.</div>
+
+      <div class="callout"><strong>Next up:</strong> NumPy builds on these fundamentals to add fast, vectorized arrays — the foundation Pandas and most of the scientific Python stack are built on.</div>
+    </article>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+</div>
+
+<script src="../js/k8s-nav.js"></script>
+<script src="../js/docker-nav.js"></script>
+<script src="../js/springboot-nav.js"></script>
+<script src="../js/langchain-nav.js"></script>
+<script src="../js/langgraph-nav.js"></script>
+<script src="../js/rag-nav.js"></script>
+<script src="../js/ml-nav.js"></script>
+<script src="../js/bestpractices-nav.js"></script>
+<script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
+<script src="../js/protect.js"></script>
+</body>
+</html>
