@@ -47,7 +47,9 @@
 .side-title .rag-logo,
 .side-title .ml-logo,
 .side-title .bestpractices-logo,
-.side-title .kafka-logo {
+.side-title .kafka-logo,
+.side-title .python-logo,
+.side-title .mathml-logo {
   width: 28px; height: 28px;
   border-radius: var(--radius-sm);
   display: flex; align-items: center; justify-content: center;
@@ -63,6 +65,8 @@
 .side-title .ml-logo           { background: rgba(220,38,38,.15);   border: 1px solid rgba(220,38,38,.3);  }
 .side-title .bestpractices-logo { background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.3); }
 .side-title .kafka-logo         { background: rgba(225,29,72,.15);  border: 1px solid rgba(225,29,72,.3);  }
+.side-title .python-logo        { background: rgba(55,118,171,.15); border: 1px solid rgba(55,118,171,.3); }
+.side-title .mathml-logo        { background: rgba(79,70,229,.15);  border: 1px solid rgba(79,70,229,.3);  }
 
 .side-section-label {
   font-size: 12px;

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cheat Sheet — Spring Boot Tutorial</title>
+  <link rel="icon" type="image/png" href="../img/logo.png" />
   <script src="../js/theme.js"></script>
   <link rel="stylesheet" href="../css/common.css" />
   <link rel="stylesheet" href="../css/tutorial.css" />
@@ -12,9 +13,9 @@
 
 <header class="app-header">
   <div class="app-header-top">
-    <div class="logo">&#9881;</div>
+    <a href="../index.html" class="brand-logo-link"><img src="../img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
     <div class="app-title">
-      <h1>Skill-Lite</h1>
+      <h1 class="sr-only">Skill-Lite</h1>
       <p>Practical tutorials &amp; tools for modern developers.</p>
     </div>
   </div>
@@ -40,7 +41,7 @@
     <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="../rag/"></div></div>
     <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="../ml/"></div></div>
     <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="../best-practices/"></div></div>
-    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="../kafka/"></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root="../python/"></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root="../math-for-ml/"></div></div>
     <a href="#" class="nav-link">Ebooks</a>
     <a href="../blog.html" class="nav-link">Blog</a>
     <div class="nav-menu">
@@ -214,6 +215,8 @@ java -jar target/app.jar --server.port=9090</code></pre>
 <script src="../js/ml-nav.js"></script>
 <script src="../js/bestpractices-nav.js"></script>
 <script src="../js/kafka-nav.js"></script>
+<script src="../js/languages-nav.js"></script>
+<script src="../js/mathml-nav.js"></script>
 <script src="../js/protect.js"></script>
 </body>
 </html>

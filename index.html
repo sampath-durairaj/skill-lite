@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Skill-Lite — Developer Utilities</title>
+  <title>Skill-Lite — Free Tutorials & Tools for Developers</title>
+  <link rel="icon" type="image/png" href="img/logo.png" />
   <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/common.css" />
   <style>
@@ -38,16 +39,56 @@
       font-size: 17px; color: var(--text-muted);
       max-width: 500px; margin: 0 auto; line-height: 1.65;
     }
-    .hero-chips {
-      display: flex; gap: 8px; justify-content: center;
-      margin-top: 24px; flex-wrap: wrap;
+    .hero-search {
+      display: flex;
+      gap: 10px;
+      max-width: 480px;
+      margin: 28px auto 0;
+      position: relative;
     }
-    .chip {
-      background: rgba(0,164,239,.08);
-      border: 1px solid rgba(0,164,239,.2);
-      border-radius: 20px; color: #0284c7;
-      font-size: 14px; font-weight: 500;
-      padding: 5px 13px;
+    .hero-search-input {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15.5px;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .hero-search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,164,239,.18);
+    }
+    .hero-search-input::placeholder { color: var(--text-muted); opacity: 0.55; }
+    .hero-search-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 15.5px;
+      font-weight: 700;
+      padding: 12px 22px;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(0,164,239,.3);
+    }
+    .hero-search-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,164,239,.4);
+    }
+    .hero-search-btn:active { transform: translateY(0); }
+    .hero-search-empty {
+      max-width: 480px;
+      margin: 16px auto 0;
+      color: var(--text-muted);
+      font-size: 14px;
+      display: none;
     }
 
     /* ── Tools Section ── */
@@ -270,16 +311,82 @@
     footer {
       background: var(--surface);
       border-top: 1px solid var(--border);
-      padding: 18px 48px;
-      text-align: center;
-      font-size: 14px;
-      color: var(--text-muted);
       flex-shrink: 0;
     }
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    footer a { text-decoration: none; }
+
+    .footer-main {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr 1fr;
+      gap: 32px;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 48px 48px 32px;
+      text-align: left;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .footer-logo img { height: 40px; width: auto; display: block; }
+    .footer-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 18px;
+      max-width: 320px;
+    }
+    .footer-contact {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+    .footer-contact a {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+    .footer-contact a:hover { color: var(--accent); }
+    .footer-social-label {
+      font-size: 13px; font-weight: 700;
+      color: var(--text); margin-bottom: 10px;
+    }
+    .footer-social { display: flex; gap: 8px; }
+    .footer-social a {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .footer-social a:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .footer-col h4 {
+      font-size: 14px; font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      letter-spacing: 0.2px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .footer-col a { color: var(--text-muted); font-size: 13.5px; transition: color 0.12s; }
+    .footer-col a:hover { color: var(--accent); }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding: 18px 48px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .footer-bottom a { color: var(--accent); }
+    .footer-bottom a:hover { text-decoration: underline; }
 
     /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .footer-main { grid-template-columns: 1fr 1fr; }
+    }
     @media (max-width: 720px) {
       .hero { padding: 36px 24px 32px; }
       .hero h2 { font-size: 30px; }
@@ -288,7 +395,8 @@
       .subscribe-section { padding: 40px 24px; }
       .subscribe-form { flex-direction: column; }
       .subscribe-btn { width: 100%; }
-      footer { padding: 16px 20px; }
+      .footer-main { grid-template-columns: 1fr; padding: 36px 20px 24px; gap: 28px; }
+      .footer-bottom { padding: 16px 20px; }
     }
   </style>
 </head>
@@ -297,9 +405,9 @@
 <!-- ── Header + Nav ── -->
 <header class="app-header">
   <div class="app-header-top">
-    <div class="logo">&#9881;</div>
+    <a href="index.html" class="brand-logo-link"><img src="img/logo.png" alt="Skill-Lite" class="brand-logo" /></a>
     <div class="app-title">
-      <h1>Skill-Lite</h1>
+      <h1 class="sr-only">Skill-Lite</h1>
       <p>Practical tutorials &amp; tools for modern developers.</p>
     </div>
   </div>
@@ -328,7 +436,7 @@
     <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">RAG <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="ragDropdown" data-root="rag/"></div></div>
     <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mlDropdown" data-root="ml/"></div></div>
     <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Best Practices <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="bestpracticesDropdown" data-root="best-practices/"></div></div>
-    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="kafka/"></div></div>
+    <div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Kafka <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="kafkaDropdown" data-root="kafka/"></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Languages <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="languagesDropdown" data-root="python/"></div></div><div class="nav-menu"><button class="nav-menu-trigger" aria-haspopup="true">Math for ML <span class="nav-chevron">&#9662;</span></button><div class="nav-dropdown" id="mathmlDropdown" data-root="math-for-ml/"></div></div>
     <a href="#" class="nav-link">Ebooks</a>
     <a href="blog.html" class="nav-link">Blog</a>
         <div class="nav-menu active">
@@ -350,306 +458,25 @@
 
 <!-- ── Hero ── -->
 <section class="hero">
-  <div class="hero-eyebrow">Developer Utilities</div>
-  <h2>Tools that work,<br>right in your browser</h2>
-  <p>A curated set of everyday dev utilities — format SQL, convert dates, switch timezones, and test APIs. No sign-up. No servers. Nothing stored.</p>
-  <div class="hero-chips">
-    <span class="chip">&#10003; No sign-up required</span>
-    <span class="chip">&#10003; No data stored</span>
-    <span class="chip">&#10003; Works offline</span>
-    <span class="chip">&#10003; Open &amp; free</span>
+  <h1>Welcome to Skill-Lite</h1>
+  <h3>Free Tutorials &amp; tools, right in your browser</h3>
+  <p>Search for a tutorial or dev tool to jump straight in — no sign-up, nothing stored.</p>
+  <div class="hero-search">
+    <input
+      type="text"
+      id="heroSearch"
+      class="hero-search-input"
+      placeholder="Search tutorials, tools... (e.g. Python, Kubernetes, JSON)"
+      autocomplete="off"
+      oninput="filterContent(this.value)"
+      onkeydown="if(event.key==='Enter') filterContent(this.value)"
+    />
+    <button class="hero-search-btn" onclick="filterContent(document.getElementById('heroSearch').value)">Search</button>
   </div>
+  <p class="hero-search-empty" id="heroSearchEmpty">No matches — try a different search term.</p>
 </section>
 
-<!-- ── Tools ── -->
-<div class="tools-section">
-  <div class="section-header">
-    <span class="label">All Tools</span>
-    <div class="line"></div>
-    <span class="label">4 utilities</span>
-  </div>
-
-  <div class="tools-grid">
-
-    <!-- SQL Formatter -->
-    <a class="tool-card" href="devtools/sql-formatter.html"
-       style="--c:#00a4ef; --ci:rgba(0,164,239,.12)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#128196;</div>
-          <span class="card-name">SQL Formatter</span>
-        </div>
-        <p class="card-desc">Paste raw SQL and get beautifully formatted, readable queries in one click.</p>
-        <ul class="card-features">
-          <li>14 SQL dialects — MySQL, PostgreSQL, SQLite, T-SQL, BigQuery &amp; more</li>
-          <li>Keyword casing: UPPERCASE / lowercase / preserve</li>
-          <li>Configurable indent (2 spaces, 4 spaces, tab)</li>
-          <li>Paste input, copy output with one click</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Open SQL Formatter &#8594;</span>
-      </div>
-    </a>
-
-    <!-- Date Formatter -->
-    <a class="tool-card" href="devtools/date-formatter.html"
-       style="--c:#3ecf8e; --ci:rgba(62,207,142,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#128197;</div>
-          <span class="card-name">Date Formatter</span>
-        </div>
-        <p class="card-desc">Parse any date string and convert it into any of 40+ formats instantly.</p>
-        <ul class="card-features">
-          <li>Auto-detects input from 19 common formats</li>
-          <li>Shows the date in all 40+ formats at once</li>
-          <li>Supports Unix timestamps and relative time</li>
-          <li>Today / Now quick-fill buttons</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Open Date Formatter &#8594;</span>
-      </div>
-    </a>
-
-    <!-- Timezone Converter -->
-    <a class="tool-card" href="devtools/timezone-converter.html"
-       style="--c:#3b9eff; --ci:rgba(59,158,255,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#127758;</div>
-          <span class="card-name">Timezone Converter</span>
-        </div>
-        <p class="card-desc">Convert any datetime between timezones and see a live world clock instantly.</p>
-        <ul class="card-features">
-          <li>40+ major timezones across all world regions</li>
-          <li>World clock table — same moment in every zone</li>
-          <li>+1d / −1d badges for date boundary crossings</li>
-          <li>One-click swap between source and target</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Open Timezone Converter &#8594;</span>
-      </div>
-    </a>
-
-    <!-- API Tester -->
-    <a class="tool-card" href="devtools/api-tester.html"
-       style="--c:#f5a623; --ci:rgba(245,166,35,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#9889;</div>
-          <span class="card-name">API Tester</span>
-        </div>
-        <p class="card-desc">Test REST API endpoints with params, auth, custom headers, and a request body.</p>
-        <ul class="card-features">
-          <li>All HTTP methods: GET, POST, PUT, PATCH, DELETE, HEAD</li>
-          <li>Auth: Bearer Token, Basic Auth, API Key</li>
-          <li>JSON syntax highlighting on response body</li>
-          <li>Response time, size, headers &amp; download</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Open API Tester &#8594;</span>
-      </div>
-    </a>
-
-  </div>
-
-  <div class="section-header" style="margin-top:40px">
-    <span class="label">Learn</span>
-    <div class="line"></div>
-    <span class="label">8 tutorials · best practices</span>
-  </div>
-
-  <div class="tools-grid">
-
-    <!-- Kubernetes Tutorial -->
-    <a class="tool-card" href="kubernetes/introduction.html"
-       style="--c:#326ce5; --ci:rgba(50,108,229,.12)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#9096;</div>
-          <span class="card-name">Kubernetes Tutorial</span>
-        </div>
-        <p class="card-desc">A complete, hands-on Kubernetes course — from architecture to production operations, with runnable YAML on every page.</p>
-        <ul class="card-features">
-          <li>11 concept pages: Pods, Deployments, Services, Ingress &amp; more</li>
-          <li>Side menu navigation with guided prev/next path</li>
-          <li>Copy-ready YAML manifests and kubectl commands</li>
-          <li>Includes a kubectl cheat sheet and debugging guide</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Start Learning &#8594;</span>
-      </div>
-    </a>
-
-    <!-- Docker Tutorial -->
-    <a class="tool-card" href="docker/introduction.html"
-       style="--c:#0db7ed; --ci:rgba(13,183,237,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#128051;</div>
-          <span class="card-name">Docker Tutorial</span>
-        </div>
-        <p class="card-desc">A practical Docker course covering images, containers, networking, volumes, Compose, and registries — from first run to production.</p>
-        <ul class="card-features">
-          <li>8 pages: Images, Containers, Volumes, Networking &amp; more</li>
-          <li>Side menu navigation with guided prev/next path</li>
-          <li>Copy-ready Dockerfiles and docker CLI commands</li>
-          <li>Includes a full Docker CLI cheat sheet</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Start Learning &#8594;</span>
-      </div>
-    </a>
-
-    <!-- Spring Boot Tutorial -->
-    <a class="tool-card" href="spring-boot/introduction.html"
-       style="--c:#6db33f; --ci:rgba(109,179,63,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#127807;</div>
-          <span class="card-name">Spring Boot Tutorial</span>
-        </div>
-        <p class="card-desc">A comprehensive Spring Boot course covering REST APIs, DI, JPA, Security, Testing, and Actuator — from first endpoint to production-ready app.</p>
-        <ul class="card-features">
-          <li>9 pages: REST API, JPA, Security, Testing &amp; more</li>
-          <li>Side menu navigation with guided prev/next path</li>
-          <li>Copy-ready Java code with real-world patterns</li>
-          <li>Includes a full annotations &amp; config cheat sheet</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Start Learning &#8594;</span>
-      </div>
-    </a>
-
-    <!-- LangChain Tutorial -->
-    <a class="tool-card" href="langchain/introduction.html"
-       style="--c:#7c3aed; --ci:rgba(124,58,237,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#128040;</div>
-          <span class="card-name">LangChain Tutorial</span>
-        </div>
-        <p class="card-desc">Build LLM-powered applications with LangChain — covering models, prompts, chains, memory, agents, and RAG pipelines from first call to production.</p>
-        <ul class="card-features">
-          <li>8 pages: Models, Prompts, Chains, Memory, Agents, RAG &amp; more</li>
-          <li>LCEL pipe-operator chains with streaming &amp; async</li>
-          <li>Copy-ready Python code for OpenAI, Anthropic, Ollama</li>
-          <li>Full API &amp; pattern cheat sheet</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Start Learning &#8594;</span>
-      </div>
-    </a>
-
-    <!-- LangGraph Tutorial -->
-    <a class="tool-card" href="langgraph/introduction.html"
-       style="--c:#ea580c; --ci:rgba(234,88,12,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#128311;</div>
-          <span class="card-name">LangGraph Tutorial</span>
-        </div>
-        <p class="card-desc">Build stateful, multi-agent AI workflows with LangGraph — covering state management, cycles, checkpointing, human-in-the-loop, and streaming.</p>
-        <ul class="card-features">
-          <li>8 pages: State, Nodes/Edges, Checkpointing, Multi-Agent, HITL &amp; more</li>
-          <li>Supervisor pattern, subgraphs, agent handoffs with Command</li>
-          <li>MemorySaver &amp; SqliteSaver for persistent, resumable sessions</li>
-          <li>Full API &amp; pattern cheat sheet</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Start Learning &#8594;</span>
-      </div>
-    </a>
-
-    <!-- RAG Tutorial -->
-    <a class="tool-card" href="rag/introduction.html"
-       style="--c:#0d9488; --ci:rgba(13,148,136,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#128218;</div>
-          <span class="card-name">RAG Tutorial</span>
-        </div>
-        <p class="card-desc">Master Retrieval-Augmented Generation — from document loaders and embeddings to advanced retrieval strategies and production-ready pipelines.</p>
-        <ul class="card-features">
-          <li>8 pages: Loaders, Splitters, Embeddings, Vector Stores, Retrievers &amp; more</li>
-          <li>Chroma, FAISS, Pinecone, pgvector vector store integrations</li>
-          <li>Advanced: HyDE, re-ranking, CRAG with LangGraph</li>
-          <li>Full API &amp; pattern cheat sheet</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Start Learning &#8594;</span>
-      </div>
-    </a>
-
-    <!-- Machine Learning Tutorial -->
-    <a class="tool-card" href="ml/introduction.html"
-       style="--c:#dc2626; --ci:rgba(220,38,38,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#129504;</div>
-          <span class="card-name">Machine Learning Tutorial</span>
-        </div>
-        <p class="card-desc">Master Machine Learning from first principles — regression, classification, neural networks, PyTorch, feature engineering, and model evaluation.</p>
-        <ul class="card-features">
-          <li>8 pages: Linear Regression, Classification, Neural Networks, PyTorch &amp; more</li>
-          <li>XGBoost, Random Forests, SVM — algorithm selection guide</li>
-          <li>scikit-learn Pipelines, cross-validation, hyperparameter search</li>
-          <li>Full API &amp; pattern cheat sheet</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Start Learning &#8594;</span>
-      </div>
-    </a>
-
-    <!-- Kafka Tutorial -->
-    <a class="tool-card" href="kafka/introduction.html"
-       style="--c:#e11d48; --ci:rgba(225,29,72,.1)">
-      <div class="card-stripe"></div>
-      <div class="card-body">
-        <div class="card-head">
-          <div class="card-icon">&#128228;</div>
-          <span class="card-name">Apache Kafka Tutorial</span>
-        </div>
-        <p class="card-desc">Master event streaming with Apache Kafka — from core architecture to Kafka Streams, Kafka Connect, and Schema Registry with real production patterns.</p>
-        <ul class="card-features">
-          <li>8 pages: Architecture, Producers, Consumers, Streams &amp; more</li>
-          <li>KRaft mode, idempotent producers, exactly-once delivery</li>
-          <li>Kafka Streams windowing, joins, and interactive queries</li>
-          <li>Full CLI command reference and config cheat sheet</li>
-        </ul>
-      </div>
-      <div class="card-footer">
-        <span class="open-btn">Start Learning &#8594;</span>
-      </div>
-    </a>
-
-  </div>
-</div>
-
-<!-- ── Subscribe ── -->
-<section class="subscribe-section">
+<!-- <section class="subscribe-section">
   <div class="subscribe-inner">
     <div class="subscribe-eyebrow">Newsletter</div>
     <h3>Stay in the loop</h3>
@@ -668,11 +495,77 @@
     <div id="subscribeFeedback" class="subscribe-feedback" role="status" aria-live="polite"></div>
     <p class="subscribe-note">No spam, ever. Unsubscribe at any time.</p>
   </div>
-</section>
+</section>  -->
 
 <!-- ── Footer ── -->
 <footer>
-  <p>Skill-Lite &mdash; Pure HTML, CSS &amp; JavaScript &mdash; Everything runs locally in your browser. No data is collected or stored.</p>
+  <div class="footer-main">
+
+    <div class="footer-col footer-brand">
+      <div class="footer-logo"><img src="img/logo.png" alt="Skill-Lite" /></div>
+      <p class="footer-desc">We deliver practical, no-signup tutorials and browser-based developer tools covering Kubernetes, Docker, Spring Boot, Python, LLM frameworks like LangChain &amp; LangGraph, and the math behind ML &mdash; everything runs locally, nothing is stored.</p>
+
+      <div class="footer-contact">
+        <a href="mailto:d.sampath.v3@gmail.com">&#9993;&#65039; d.sampath.v3@gmail.com</a>
+      </div>
+
+      <div class="footer-social-label">Follow us</div>
+      <div class="footer-social">
+        <a href="#" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.744.084-.729.084-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.762-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+        <a href="#" aria-label="X (Twitter)"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+        <a href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a2.994 2.994 0 0 0-2.107-2.117C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.391.524A2.994 2.994 0 0 0 .502 6.186 31.26 31.26 0 0 0 0 12a31.26 31.26 0 0 0 .502 5.814 2.994 2.994 0 0 0 2.107 2.117c1.886.524 9.391.524 9.391.524s7.505 0 9.391-.524a2.994 2.994 0 0 0 2.107-2.117A31.26 31.26 0 0 0 24 12a31.26 31.26 0 0 0-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Tutorials</h4>
+      <ul>
+        <li><a href="kubernetes/introduction.html">Kubernetes</a></li>
+        <li><a href="docker/introduction.html">Docker</a></li>
+        <li><a href="spring-boot/introduction.html">Spring Boot</a></li>
+        <li><a href="langchain/introduction.html">LangChain</a></li>
+        <li><a href="langgraph/introduction.html">LangGraph</a></li>
+        <li><a href="rag/introduction.html">RAG</a></li>
+        <li><a href="ml/introduction.html">Machine Learning</a></li>
+        <li><a href="kafka/introduction.html">Apache Kafka</a></li>
+        <li><a href="python/introduction.html">Python</a></li>
+        <li><a href="math-for-ml/introduction.html">Math for ML</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>DevTools</h4>
+      <ul>
+        <li><a href="devtools/sql-formatter.html">SQL Formatter</a></li>
+        <li><a href="devtools/date-formatter.html">Date Formatter</a></li>
+        <li><a href="devtools/timezone-converter.html">Timezone Converter</a></li>
+        <li><a href="devtools/api-tester.html">API Tester</a></li>
+        <li><a href="devtools/cron-generator.html">Cron Generator</a></li>
+        <li><a href="devtools/k8s-yaml-validator.html">K8s YAML Validator</a></li>
+        <li><a href="devtools/jwt-decoder.html">JWT Decoder</a></li>
+        <li><a href="devtools/json-formatter.html">JSON Formatter</a></li>
+        <li><a href="devtools/kafka-msg-viewer.html">Kafka Viewer</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+        <li><a href="terms-and-conditions.html">Terms &amp; Conditions</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>Skill-Lite &mdash; Pure HTML, CSS &amp; JavaScript &mdash; Everything runs locally in your browser. No data is collected or stored.</p>
+  </div>
 </footer>
 
 <script>
@@ -717,6 +610,34 @@
       }
     }, 6000);
   }
+
+  function filterContent(query) {
+    query = (query || '').trim().toLowerCase();
+    var grids = document.querySelectorAll('.tools-section > .tools-grid');
+    var anyVisible = false;
+
+    grids.forEach(function (grid) {
+      var header = grid.previousElementSibling;
+      var cards = grid.querySelectorAll('.tool-card');
+      var visibleInGrid = 0;
+
+      cards.forEach(function (card) {
+        var text = card.textContent.toLowerCase();
+        var match = query === '' || text.indexOf(query) !== -1;
+        card.style.display = match ? '' : 'none';
+        if (match) { visibleInGrid++; anyVisible = true; }
+      });
+
+      var show = query === '' || visibleInGrid > 0;
+      grid.style.display = show ? '' : 'none';
+      if (header && header.classList.contains('section-header')) {
+        header.style.display = show ? '' : 'none';
+      }
+    });
+
+    var empty = document.getElementById('heroSearchEmpty');
+    if (empty) empty.style.display = (query !== '' && !anyVisible) ? 'block' : 'none';
+  }
 </script>
 
 <script src="js/k8s-nav.js"></script>
@@ -728,6 +649,8 @@
 <script src="js/ml-nav.js"></script>
 <script src="js/bestpractices-nav.js"></script>
 <script src="js/kafka-nav.js"></script>
+<script src="js/languages-nav.js"></script>
+<script src="js/mathml-nav.js"></script>
 <script src="js/protect.js"></script>
 </body>
 </html>
